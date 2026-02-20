@@ -13,13 +13,17 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 6. Under the Apps page, you can now sort apps by Un-added and Added apps. For filter, you can also filter by un-added and added apps.
 7. Under the Apps page, you can now select all and de-select all apps quickly. If you are someone like me who has over 200 apps and you want them to be managed in Hail (either using it as an app launcher, or for freezing/disabling them), then it makes no sense to manually tap each app 200+ times just to add them. It's better to add them all and deselect the few apps you don't want to be included (which btw, can just be excluded in the hide apps Settings).
 
+Download link here:
+https://transfer.it/t/sNoIO0tTRBaK
 
-[![Android CI status](https://github.com/aistra0528/Hail/workflows/Android%20CI/badge.svg)](https://github.com/aistra0528/Hail/actions)
+
+
+[![Android CI status]()](https://github.com/aistra0528/Hail/actions)
 [![翻译状态]()](https://hosted.weblate.org/engage/hail/)
 [![Downloads]()](https://github.com/aistra0528/Hail/releases)
 [![License](https://img.shields.io/github/license/aistra0528/Hail)](LICENSE)
 
-雹是一款用于冻结 Android 应用的自由软件。[GitHub Releases](https://github.com/aistra0528/Hail/releases)
+雹是一款用于冻结 Android 应用的自由软件
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.aistra.hail/)
 
