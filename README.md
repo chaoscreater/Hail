@@ -9,6 +9,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 4. You can hide certain apps (do this in Settings) so that they never show up on the Apps page
 5. Export/Import is now an option under Settings. You can export/import your list of apps and their tags and whitelist setting.
 6. Under the Apps page, you can now sort apps by Un-added and Added apps. For filter, you can also filter by un-added and added apps.
+7. Under the Apps page, you can now select all and de-select all apps quickly. If you are someone like me who has over 200 apps and you want them to be managed in Hail (either using it as an app launcher, or for freezing/disabling them), then it makes no sense to manually tap each app 200+ times just to add them. It's better to add them all and deselect the few apps you don't want to be included (which btw, can just be excluded in the hide apps Settings).
 
 
 
