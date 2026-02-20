@@ -888,7 +888,7 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 state = listState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
+                    .heightIn(min = 200.dp, max = 560.dp)
             ) {
                 itemsIndexed(tags) { index, tag ->
                     val isDragging = draggedIndex == index

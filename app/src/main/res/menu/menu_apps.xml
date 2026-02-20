@@ -9,19 +9,9 @@
             app:showAsAction="always|collapseActionView"
             tools:ignore="AlwaysShowAction"/>
     <item
-            android:id="@+id/action_select_all"
-            android:icon="@drawable/ic_outline_select_all"
-            android:title="@string/action_select_all"
-            app:showAsAction="always"/>
-    <item
-            android:id="@+id/action_deselect_all"
-            android:icon="@drawable/ic_outline_deselect_all"
-            android:title="@string/action_deselect_all"
-            app:showAsAction="always"/>
-    <item
             android:icon="@drawable/ic_outline_filter"
             android:title="@string/filter_by"
-            app:showAsAction="ifRoom">
+            app:showAsAction="always">
         <menu>
             <group
                     android:id="@+id/group_filter_apps"
@@ -58,7 +48,7 @@
     <item
             android:icon="@drawable/ic_outline_sort"
             android:title="@string/sort_by"
-            app:showAsAction="ifRoom">
+            app:showAsAction="always">
         <menu>
             <group android:checkableBehavior="single">
                 <item
@@ -79,4 +69,14 @@
             </group>
         </menu>
     </item>
+    <item
+            android:id="@+id/action_select_all"
+            android:icon="@drawable/ic_outline_select_all"
+            android:title="@string/action_select_all"
+            app:showAsAction="never"/>
+    <item
+            android:id="@+id/action_deselect_all"
+            android:icon="@drawable/ic_outline_deselect_all"
+            android:title="@string/action_deselect_all"
+            app:showAsAction="never"/>
 </menu>
