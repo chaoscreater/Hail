@@ -68,6 +68,9 @@
     <string name="filter_unfrozen_apps">Unfrozen</string>
     <string name="filter_added_apps">Added apps</string>
     <string name="filter_unadded_apps">Un-added apps</string>
+    <string name="filter_hidden_apps">Hidden apps</string>
+    <string name="filter_unhidden_apps">Un-hidden apps</string>
+    <string name="filter_exclude_added_to_home">Exclude Apps already added to Home</string>
     <string name="sort_by">Sort by</string>
     <string name="sort_name">Name</string>
     <string name="sort_install">First install</string>

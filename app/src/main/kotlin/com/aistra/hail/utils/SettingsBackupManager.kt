@@ -15,11 +15,12 @@ object SettingsBackupManager {
     private const val KEY_VERSION = "version"
     private const val KEY_APPS = "apps"
     private const val KEY_TAGS = "tags"
+    private const val KEY_HIDDEN_APPS = "hidden_apps"
     private const val KEY_PREFERENCES = "preferences"
-    private const val BACKUP_VERSION = 1
+    private const val BACKUP_VERSION = 2
 
     /**
-     * Exports all settings (checked apps, tags, and shared preferences) to a JSON file at [uri].
+     * Exports all settings (checked apps, tags, hidden apps, and shared preferences) to a JSON file at [uri].
      */
     fun exportToUri(context: Context, uri: Uri): Boolean = runCatching {
         val root = JSONObject()
@@ -37,7 +38,7 @@ object SettingsBackupManager {
         }
         root.put(KEY_APPS, appsArray)
 
-        // --- Tags ---
+        // --- Tags (order preserved — list maintains insertion order) ---
         val tagsArray = JSONArray()
         HailData.tags.forEach { (name, id) ->
             val obj = JSONObject()
@@ -46,6 +47,11 @@ object SettingsBackupManager {
             tagsArray.put(obj)
         }
         root.put(KEY_TAGS, tagsArray)
+
+        // --- Hidden apps ---
+        val hiddenArray = JSONArray()
+        HailData.hiddenApps.forEach { pkg -> hiddenArray.put(pkg) }
+        root.put(KEY_HIDDEN_APPS, hiddenArray)
 
         // --- Shared preferences (all known keys) ---
         val sp = PreferenceManager.getDefaultSharedPreferences(context)
@@ -73,6 +79,12 @@ object SettingsBackupManager {
             HailData.FILTER_SYSTEM_APPS,
             HailData.FILTER_FROZEN_APPS,
             HailData.FILTER_UNFROZEN_APPS,
+            HailData.FILTER_ADDED_APPS,
+            HailData.FILTER_UNADDED_APPS,
+            HailData.FILTER_ADDED_USER_APPS,
+            HailData.FILTER_UNADDED_USER_APPS,
+            HailData.FILTER_ADDED_SYSTEM_APPS,
+            HailData.FILTER_UNADDED_SYSTEM_APPS,
             "sort_by",
         ).forEach { key ->
             allPrefs[key]?.let { value ->
@@ -106,7 +118,7 @@ object SettingsBackupManager {
 
         val root = JSONObject(text)
 
-        // --- Restore tags ---
+        // --- Restore tags (order is preserved from the JSON array) ---
         val tagsArray = root.optJSONArray(KEY_TAGS)
         if (tagsArray != null) {
             HailData.tags.clear()
@@ -144,6 +156,16 @@ object SettingsBackupManager {
                 )
             }
             HailData.saveApps()
+        }
+
+        // --- Restore hidden apps ---
+        val hiddenArray = root.optJSONArray(KEY_HIDDEN_APPS)
+        if (hiddenArray != null) {
+            HailData.hiddenApps.clear()
+            for (i in 0 until hiddenArray.length()) {
+                HailData.hiddenApps.add(hiddenArray.getString(i))
+            }
+            HailData.saveHiddenApps()
         }
 
         // --- Restore shared preferences ---

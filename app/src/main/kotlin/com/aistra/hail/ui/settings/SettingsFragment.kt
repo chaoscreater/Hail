@@ -604,7 +604,7 @@ class SettingsFragment : MainFragment(), MenuProvider {
         val allApps = com.aistra.hail.utils.HPackages.getInstalledApplications()
             .sortedWith(com.aistra.hail.utils.NameComparator)
         val hiddenSet = HailData.hiddenApps.toMutableSet()
-        // Working hidden state array
+        // Working hidden state array (indexed into allApps) — this is what the checkboxes in the list toggle
         val isHidden = allApps.map { it.packageName in hiddenSet }.toBooleanArray()
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_tag_manage, null)
@@ -612,22 +612,67 @@ class SettingsFragment : MainFragment(), MenuProvider {
         val tagNameEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
         val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
         val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.app_list)
+        val filterRow = dialogView.findViewById<android.widget.LinearLayout>(R.id.filter_row)
+        val radioGroup = dialogView.findViewById<android.widget.RadioGroup>(R.id.radio_group_type)
+        val radioUser = dialogView.findViewById<android.widget.RadioButton>(R.id.radio_user)
+        val radioSystem = dialogView.findViewById<android.widget.RadioButton>(R.id.radio_system)
+        val checkHidden = dialogView.findViewById<android.widget.CheckBox>(R.id.check_hidden)
+        val checkUnhidden = dialogView.findViewById<android.widget.CheckBox>(R.id.check_unhidden)
+        val checkExcludeAdded = dialogView.findViewById<android.widget.CheckBox>(R.id.check_exclude_added)
 
-        // Hide the tag-name field — we only need the search + list
+        // Hide the tag-name field — we only need the filter row + search + list
         tagNameInput.visibility = android.view.View.GONE
         tagNameEdit.visibility = android.view.View.GONE
+        filterRow.visibility = android.view.View.VISIBLE
+        radioUser.isChecked = true
 
-        val adapter = HideAppAdapter(allApps, isHidden, pm)
+        val adapter = HideAppAdapter(allApps, isHidden, pm, recyclerView)
         recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+
+        fun applyFilter() {
+            val showSystem = radioSystem.isChecked
+            val showHiddenOnly = checkHidden.isChecked
+            val showUnhiddenOnly = checkUnhidden.isChecked
+            val excludeAddedToHome = checkExcludeAdded.isChecked
+            val query = searchEdit.text?.toString() ?: ""
+            adapter.filter(
+                query,
+                showSystem = showSystem,
+                showHiddenOnly = showHiddenOnly,
+                showUnhiddenOnly = showUnhiddenOnly,
+                excludeAddedToHome = excludeAddedToHome
+            )
+        }
+
+        // Hidden and Un-hidden are mutually exclusive: ticking one unticks the other
+        checkHidden.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && checkUnhidden.isChecked) checkUnhidden.isChecked = false
+            // Exclude sub-option only relevant under Un-hidden
+            if (isChecked) {
+                checkExcludeAdded.isChecked = false
+                checkExcludeAdded.isEnabled = false
+            }
+            applyFilter()
+        }
+        checkUnhidden.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && checkHidden.isChecked) checkHidden.isChecked = false
+            checkExcludeAdded.isEnabled = isChecked
+            if (!isChecked) checkExcludeAdded.isChecked = false
+            applyFilter()
+        }
+        checkExcludeAdded.setOnCheckedChangeListener { _, _ -> applyFilter() }
+
+        radioGroup.setOnCheckedChangeListener { _, _ -> applyFilter() }
 
         searchEdit.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                adapter.filter(s?.toString() ?: "")
-            }
+            override fun afterTextChanged(s: android.text.Editable?) { applyFilter() }
         })
+
+        // Apply initial filter: User apps, no hidden/unhidden filter
+        applyFilter()
 
         MaterialAlertDialogBuilder(requireActivity())
             .setTitle(R.string.action_hide_apps)
@@ -642,13 +687,38 @@ class SettingsFragment : MainFragment(), MenuProvider {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+            .also { dialog ->
+                // Once the dialog is laid out, compute the maximum height the RecyclerView
+                // can occupy so the button bar is never obscured, then enforce it on every
+                // subsequent filter update via the adapter callback.
+                recyclerView.viewTreeObserver.addOnGlobalLayoutListener(object :
+                    android.view.ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        recyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        val windowHeight = dialog.window?.decorView?.height?.takeIf { it > 0 } ?: return
+                        // Reserve 75% of the window for the entire dialog content area
+                        val maxContent = (windowHeight * 0.75).toInt()
+                        val chrome = dialogView.height - recyclerView.height // title + filters + search
+                        val maxList = (maxContent - chrome).coerceAtLeast(120)
+                        adapter.maxHeight = maxList
+                        if (recyclerView.height > maxList) {
+                            recyclerView.layoutParams.height = maxList
+                            recyclerView.requestLayout()
+                        }
+                    }
+                })
+            }
     }
 
     private inner class HideAppAdapter(
         private val source: List<android.content.pm.ApplicationInfo>,
         private val hidden: BooleanArray,
-        private val pm: android.content.pm.PackageManager
+        private val pm: android.content.pm.PackageManager,
+        private val recyclerView: androidx.recyclerview.widget.RecyclerView
     ) : androidx.recyclerview.widget.RecyclerView.Adapter<HideAppAdapter.VH>() {
+
+        /** Set by the dialog after first layout; enforced after every filter call. */
+        var maxHeight: Int = Int.MAX_VALUE
 
         private var displayed: List<Pair<Int, android.content.pm.ApplicationInfo>> =
             source.mapIndexed { i, a -> i to a }
@@ -684,20 +754,52 @@ class SettingsFragment : MainFragment(), MenuProvider {
             holder.check.setOnCheckedChangeListener { _, checked -> hidden[srcIdx] = checked }
         }
 
-        fun filter(query: String) {
-            displayed = if (query.isBlank()) {
-                source.mapIndexed { i, a -> i to a }
-            } else {
-                source.mapIndexed { i, a -> i to a }.filter { (_, info) ->
-                    com.aistra.hail.utils.FuzzySearch.search(info.packageName, query) ||
-                    com.aistra.hail.utils.FuzzySearch.search(info.loadLabel(pm).toString(), query) ||
-                    (HailData.nineKeySearch && com.aistra.hail.utils.NineKeySearch.search(
-                        query, info.packageName, info.loadLabel(pm).toString()
-                    )) ||
-                    com.aistra.hail.utils.PinyinSearch.searchPinyinAll(info.loadLabel(pm).toString(), query)
+        fun filter(
+            query: String,
+            showSystem: Boolean = false,
+            showHiddenOnly: Boolean = false,
+            showUnhiddenOnly: Boolean = false,
+            excludeAddedToHome: Boolean = false
+        ) {
+            displayed = source.mapIndexed { i, a -> i to a }.filter { (srcIdx, info) ->
+                // User/System filter
+                val isSystem = (info.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
+                if (showSystem != isSystem) return@filter false
+
+                // Hidden / Un-hidden filter — based on the isHidden[] working array in this dialog session:
+                // showHiddenOnly=true  → only apps the user has ticked as hidden in this dialog
+                // showUnhiddenOnly=true → only apps NOT ticked as hidden
+                // neither ticked       → show all
+                val isHiddenNow = hidden[srcIdx]
+                when {
+                    showHiddenOnly && !isHiddenNow -> return@filter false
+                    showUnhiddenOnly && isHiddenNow -> return@filter false
                 }
+
+                // "Exclude Apps already added to Home" sub-option (only applies under Un-hidden)
+                if (showUnhiddenOnly && excludeAddedToHome && HailData.isChecked(info.packageName)) {
+                    return@filter false
+                }
+
+                // Search filter
+                if (query.isBlank()) return@filter true
+                com.aistra.hail.utils.FuzzySearch.search(info.packageName, query) ||
+                com.aistra.hail.utils.FuzzySearch.search(info.loadLabel(pm).toString(), query) ||
+                (HailData.nineKeySearch && com.aistra.hail.utils.NineKeySearch.search(
+                    query, info.packageName, info.loadLabel(pm).toString()
+                )) ||
+                com.aistra.hail.utils.PinyinSearch.searchPinyinAll(info.loadLabel(pm).toString(), query)
             }
             notifyDataSetChanged()
+            // Re-enforce the height cap: shrink when list is short, clamp when it's tall
+            recyclerView.post {
+                val target = minOf(recyclerView.computeVerticalScrollRange(), maxHeight)
+                    .coerceAtLeast(0)
+                if (recyclerView.layoutParams.height != target) {
+                    recyclerView.layoutParams.height = target
+                    recyclerView.requestLayout()
+                }
+            }
         }
     }
 
