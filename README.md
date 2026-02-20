@@ -18,10 +18,7 @@ https://transfer.it/t/sNoIO0tTRBaK
 
 
 
-[![Android CI status]()](https://github.com/aistra0528/Hail/actions)
-[![翻译状态]()](https://hosted.weblate.org/engage/hail/)
-[![Downloads]()](https://github.com/aistra0528/Hail/releases)
-[![License](https://img.shields.io/github/license/aistra0528/Hail)](LICENSE)
+<br>
 
 雹是一款用于冻结 Android 应用的自由软件
 
