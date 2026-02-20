@@ -683,6 +683,9 @@ class SettingsFragment : MainFragment(), MenuProvider {
                     if (isHidden[i]) HailData.hiddenApps.add(info.packageName)
                 }
                 HailData.saveHiddenApps()
+                // Remove any newly-hidden apps from the Home list (checkedList)
+                val removed = HailData.checkedList.removeAll { it.packageName in HailData.hiddenApps }
+                if (removed) HailData.saveApps()
                 HUI.showToast(R.string.msg_hidden_apps_saved)
             }
             .setNegativeButton(android.R.string.cancel, null)

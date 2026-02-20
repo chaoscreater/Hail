@@ -268,8 +268,13 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             checkedItems.forEachIndexed { index, checked ->
                 if (checked) info.tagIdList.add(HailData.tags[index].second)
             }
+            val defaultTagId = 0
             if (info.tagIdList.isEmpty()) {
-                removeCheckedApp(info.packageName, false)
+                // Nothing selected — restore Default tag instead of removing the app
+                info.tagIdList.add(defaultTagId)
+            } else if (info.tagIdList.size > 1 || info.tagIdList.first() != defaultTagId) {
+                // Assigned to at least one real tag — remove Default tag if present
+                info.tagIdList.remove(defaultTagId)
             }
             HailData.saveApps()
             updateCurrentList()
@@ -357,19 +362,25 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent { AppTheme { TriStateTagList(initialStates, states) } }
         }).setPositiveButton(android.R.string.ok) { _, _ ->
-            selectedList.forEach {
+            val defaultTagId = 0
+            selectedList.forEach { info ->
                 states.forEachIndexed { index, state ->
                     val tagId = HailData.tags[index].second
                     when (state) {
                         ToggleableState.On -> {
-                            if (tagId !in it.tagIdList) it.tagIdList.add(tagId)
+                            if (tagId !in info.tagIdList) info.tagIdList.add(tagId)
                         }
-
-                        ToggleableState.Off -> it.tagIdList.remove(tagId)
+                        ToggleableState.Off -> info.tagIdList.remove(tagId)
                         ToggleableState.Indeterminate -> {}
                     }
                 }
-                if (it.tagIdList.isEmpty()) removeCheckedApp(it.packageName, false)
+                if (info.tagIdList.isEmpty()) {
+                    // No tags left — restore Default instead of removing the app
+                    info.tagIdList.add(defaultTagId)
+                } else if (info.tagIdList.any { it != defaultTagId }) {
+                    // Has real tags — strip Default if present
+                    info.tagIdList.remove(defaultTagId)
+                }
             }
             HailData.saveApps()
             deselect()
@@ -484,8 +495,11 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         tagNameInput.hint = getString(R.string.tag)
         tagNameEdit.setText(currentTag.first)
 
-        // Build full app list: all checked apps sorted by name, with checked state for this tag
-        val allApps = HailData.checkedList.sortedWith(NameComparator).toMutableList()
+        // Build full app list: all checked apps sorted by name, excluding hidden apps, with checked state for this tag
+        val allApps = HailData.checkedList
+            .filter { it.packageName !in HailData.hiddenApps }
+            .sortedWith(NameComparator)
+            .toMutableList()
         // Track which ones are assigned to this tag (working copy)
         val tagAssigned = allApps.map { currentTagId in it.tagIdList }.toBooleanArray()
 
@@ -532,9 +546,11 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         // Only show "Remove tag" for non-default tabs
         if (position != 0) {
             builder.setNeutralButton(R.string.action_tag_remove) { _, _ ->
-                pagerAdapter.currentList.forEach {
-                    if (it.tagIdList.remove(currentTagId) && it.tagIdList.isEmpty()) {
-                        removeCheckedApp(it.packageName, false)
+                val defaultTagId = 0
+                pagerAdapter.currentList.forEach { info ->
+                    if (info.tagIdList.remove(currentTagId) && info.tagIdList.isEmpty()) {
+                        // App lost its only tag — restore Default instead of removing it
+                        info.tagIdList.add(defaultTagId)
                     }
                 }
                 HailData.tags.removeAt(position)
@@ -610,13 +626,21 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
 
         /** Write the checked state back to each AppInfo's tagIdList. */
         fun applyAssignments(tagId: Int) {
+            val defaultTagId = 0
+            val isNonDefaultTag = tagId != defaultTagId
             source.forEachIndexed { i, info ->
                 if (assigned[i]) {
+                    // Assigning to this tag
                     if (tagId !in info.tagIdList) info.tagIdList.add(tagId)
+                    // If assigned to a real (non-default) tag, remove the Default tag
+                    if (isNonDefaultTag) info.tagIdList.remove(defaultTagId)
                 } else {
+                    // Unassigning from this tag
                     info.tagIdList.remove(tagId)
-                    // If an app has no tags left, remove it from the checked list entirely
-                    if (info.tagIdList.isEmpty()) removeCheckedApp(info.packageName, false)
+                    if (info.tagIdList.isEmpty()) {
+                        // No tags left — restore Default tag instead of removing the app
+                        info.tagIdList.add(defaultTagId)
+                    }
                 }
             }
         }

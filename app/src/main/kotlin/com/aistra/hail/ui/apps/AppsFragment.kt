@@ -211,19 +211,42 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_apps, menu)
-        val searchView = menu.findItem(R.id.action_search).actionView as SearchView
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
         if (HailData.nineKeySearch) {
             val editText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
             editText.inputType = InputType.TYPE_CLASS_PHONE
         }
+
+        // If there's an active query, expand the SearchView and restore the text immediately
+        val currentQuery = model.query.value.orEmpty()
+        if (currentQuery.isNotEmpty()) {
+            searchItem.expandActionView()
+            searchView.setQuery(currentQuery, false)
+            searchView.clearFocus()   // keep keyboard closed; just show the text
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
+                // Ignore the empty-string event that fires when the SearchView collapses
+                // (isIconified becomes true a moment later; check the item's state instead)
+                if (newText.isEmpty() && !searchItem.isActionViewExpanded) return true
                 model.postQuery(newText, if (newText.isEmpty()) 0L else 300L)
                 return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 model.postQuery(query, 0L)
+                searchView.clearFocus()   // dismiss keyboard on submit without collapsing
+                return true
+            }
+        })
+
+        // When the user explicitly collapses the search (X button), clear the query
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem) = true
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                model.postQuery("", 0L)
                 return true
             }
         })
