@@ -82,6 +82,7 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
     private val ApplicationInfo.isSystemApp: Boolean
         get() = flags and ApplicationInfo.FLAG_SYSTEM == ApplicationInfo.FLAG_SYSTEM
     private val ApplicationInfo.isAppFrozen get() = AppManager.isAppFrozen(packageName)
+    private val ApplicationInfo.isAdded get() = HailData.isChecked(packageName)
 
     private suspend fun filterList(
         appList: List<ApplicationInfo>,
@@ -89,29 +90,55 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
     ): List<ApplicationInfo> {
         val pm = getApplication<HailApp>().packageManager
         return withContext(Dispatchers.Default) {
-            return@withContext appList.filter {
-                ((HailData.filterUserApps && !it.isSystemApp)
-                        || (HailData.filterSystemApps && it.isSystemApp))
+            return@withContext appList.filter { info ->
+                // Exclude hidden apps
+                info.packageName !in HailData.hiddenApps
 
-                        && ((HailData.filterFrozenApps && it.isAppFrozen)
-                        || (HailData.filterUnfrozenApps && !it.isAppFrozen))
-                        // Search apps
+                        // User/System + Added/Unadded combined filter logic
+                        && run {
+                    val isUser = !info.isSystemApp
+                    val isSys = info.isSystemApp
+                    val isAdded = info.isAdded
+                    val hasSpecificFilter = HailData.filterAddedUserApps
+                            || HailData.filterUnaddedUserApps
+                            || HailData.filterAddedSystemApps
+                            || HailData.filterUnaddedSystemApps
+                    if (hasSpecificFilter) {
+                        (HailData.filterAddedUserApps && isUser && isAdded)
+                                || (HailData.filterUnaddedUserApps && isUser && !isAdded)
+                                || (HailData.filterAddedSystemApps && isSys && isAdded)
+                                || (HailData.filterUnaddedSystemApps && isSys && !isAdded)
+                    } else {
+                        ((HailData.filterUserApps && isUser) || (HailData.filterSystemApps && isSys))
+                                && ((HailData.filterAddedApps && isAdded)
+                                || (HailData.filterUnaddedApps && !isAdded))
+                    }
+                }
+
+                        // Frozen/Unfrozen filter
+                        && ((HailData.filterFrozenApps && info.isAppFrozen)
+                        || (HailData.filterUnfrozenApps && !info.isAppFrozen))
+
+                        // Search
                         && ((HailData.nineKeySearch
-                        && (NineKeySearch.search(query, it.packageName, it.loadLabel(pm).toString())))
-                        || FuzzySearch.search(it.packageName, query)
-                        || FuzzySearch.search(it.loadLabel(pm).toString(), query)
-                        || PinyinSearch.searchPinyinAll(it.loadLabel(pm).toString(), query))
+                        && (NineKeySearch.search(query, info.packageName, info.loadLabel(pm).toString())))
+                        || FuzzySearch.search(info.packageName, query)
+                        || FuzzySearch.search(info.loadLabel(pm).toString(), query)
+                        || PinyinSearch.searchPinyinAll(info.loadLabel(pm).toString(), query))
             }.run {
                 when (HailData.sortBy) {
                     HailData.SORT_INSTALL -> sortedBy {
-                        HPackages.getUnhiddenPackageInfoOrNull(it.packageName)
-                            ?.firstInstallTime ?: 0
+                        HPackages.getUnhiddenPackageInfoOrNull(it.packageName)?.firstInstallTime ?: 0
                     }
-
                     HailData.SORT_UPDATE -> sortedByDescending {
                         HPackages.getUnhiddenPackageInfoOrNull(it.packageName)?.lastUpdateTime ?: 0
                     }
-
+                    HailData.SORT_UNADDED -> sortedWith(
+                        compareBy<ApplicationInfo> { it.isAdded }.then(NameComparator)
+                    )
+                    HailData.SORT_ADDED -> sortedWith(
+                        compareByDescending<ApplicationInfo> { it.isAdded }.then(NameComparator)
+                    )
                     else -> sortedWith(NameComparator)
                 }
             }

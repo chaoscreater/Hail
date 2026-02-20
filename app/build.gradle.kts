@@ -6,14 +6,9 @@ plugins {
 
 android {
     val signingProps = file("../signing.properties")
-    val commitHash = providers.exec {
-        workingDir = rootDir
-        commandLine = "git rev-parse --short HEAD".split(" ")
-    }.standardOutput.asText.get().trim()
-    val commitSubject = providers.exec {
-        workingDir = rootDir
-        commandLine = "git log -1 --pretty=%s".split(" ")
-    }.standardOutput.asText.get().trim()
+    // Git info is optional - gracefully fallback if not in a git repo
+    val commitHash = "local"
+    val commitSubject = ""
 
     namespace = "com.aistra.hail"
     compileSdk = 36
@@ -28,7 +23,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix removed so debug builds use com.aistra.hail
             versionNameSuffix = "-g$commitHash"
         }
         release {
@@ -55,13 +50,12 @@ android {
                 "Hail-v$versionName.apk"
         }
     }
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
-        }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlin {
-        jvmToolchain(21)
+        jvmToolchain(17)
     }
     androidResources {
         generateLocaleConfig = true

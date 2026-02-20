@@ -9,24 +9,30 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ArrayRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ManageSearch
 import androidx.compose.material.icons.automirrored.outlined.Shortcut
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -58,6 +64,20 @@ import rikka.shizuku.Shizuku
 
 class SettingsFragment : MainFragment(), MenuProvider {
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
+    private val exportSettingsLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri ?: return@registerForActivityResult
+        val ok = com.aistra.hail.utils.SettingsBackupManager.exportToUri(requireContext(), uri)
+        if (ok) HUI.showToast(R.string.msg_settings_exported)
+        else HUI.showToast(R.string.msg_settings_import_failed)
+    }
+
+    private val importSettingsLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri ?: return@registerForActivityResult
+        val ok = com.aistra.hail.utils.SettingsBackupManager.importFromUri(requireContext(), uri)
+        if (ok) HUI.showToast(R.string.msg_settings_imported)
+        else HUI.showToast(R.string.msg_settings_import_failed)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val menuHost = requireActivity() as MenuHost
@@ -230,6 +250,36 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 titleId = R.string.skip_notifying_app,
                 enabled = autoFreezeAfterLock.value,
                 icon = Icons.Outlined.NotificationsActive
+            )
+            horizontalDivider()
+            preferenceCategory(key = "backup_restore", title = { Text(text = stringResource(R.string.title_backup_restore)) })
+            preference(
+                key = "reorganize_tags",
+                title = { Text(text = stringResource(R.string.action_reorganize_tags)) },
+                icon = { Icon(imageVector = Icons.Outlined.Reorder, contentDescription = null) },
+                onClick = { showReorganizeTagsDialog() }
+            )
+            preference(
+                key = "hide_apps",
+                title = { Text(text = stringResource(R.string.action_hide_apps)) },
+                icon = { Icon(imageVector = Icons.Outlined.VisibilityOff, contentDescription = null) },
+                onClick = { showHideAppsDialog() }
+            )
+            preference(
+                key = "export_settings",
+                title = { Text(text = stringResource(R.string.action_export_settings)) },
+                icon = { Icon(imageVector = Icons.Outlined.Upload, contentDescription = null) },
+                onClick = {
+                    exportSettingsLauncher.launch("hail_settings_backup.json")
+                }
+            )
+            preference(
+                key = "import_settings",
+                title = { Text(text = stringResource(R.string.action_import_settings)) },
+                icon = { Icon(imageVector = Icons.Outlined.Download, contentDescription = null) },
+                onClick = {
+                    importSettingsLauncher.launch(arrayOf("application/json", "*/*"))
+                }
             )
             horizontalDivider()
             preferenceCategory(key = "shortcuts", title = { Text(text = stringResource(R.string.title_shortcuts)) })
@@ -548,6 +598,109 @@ class SettingsFragment : MainFragment(), MenuProvider {
             ?.setTextIsSelectable(true)
     }
 
+    private fun showHideAppsDialog() {
+        // Load all installed apps sorted by name
+        val pm = requireContext().packageManager
+        val allApps = com.aistra.hail.utils.HPackages.getInstalledApplications()
+            .sortedWith(com.aistra.hail.utils.NameComparator)
+        val hiddenSet = HailData.hiddenApps.toMutableSet()
+        // Working hidden state array
+        val isHidden = allApps.map { it.packageName in hiddenSet }.toBooleanArray()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_tag_manage, null)
+        val tagNameInput = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.input_layout)
+        val tagNameEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
+        val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
+        val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.app_list)
+
+        // Hide the tag-name field — we only need the search + list
+        tagNameInput.visibility = android.view.View.GONE
+        tagNameEdit.visibility = android.view.View.GONE
+
+        val adapter = HideAppAdapter(allApps, isHidden, pm)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+        recyclerView.adapter = adapter
+
+        searchEdit.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                adapter.filter(s?.toString() ?: "")
+            }
+        })
+
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.action_hide_apps)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                HailData.hiddenApps.clear()
+                allApps.forEachIndexed { i, info ->
+                    if (isHidden[i]) HailData.hiddenApps.add(info.packageName)
+                }
+                HailData.saveHiddenApps()
+                HUI.showToast(R.string.msg_hidden_apps_saved)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private inner class HideAppAdapter(
+        private val source: List<android.content.pm.ApplicationInfo>,
+        private val hidden: BooleanArray,
+        private val pm: android.content.pm.PackageManager
+    ) : androidx.recyclerview.widget.RecyclerView.Adapter<HideAppAdapter.VH>() {
+
+        private var displayed: List<Pair<Int, android.content.pm.ApplicationInfo>> =
+            source.mapIndexed { i, a -> i to a }
+
+        inner class VH(val view: android.view.View) :
+            androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {
+            val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
+            val name = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_name)
+            val pkg = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_desc)
+            val check = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.app_star)
+        }
+
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH =
+            VH(layoutInflater.inflate(R.layout.item_apps, parent, false))
+
+        override fun getItemCount() = displayed.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val (srcIdx, info) = displayed[position]
+            holder.name.text = info.loadLabel(pm)
+            holder.pkg.text = info.packageName
+            info.let {
+                com.aistra.hail.utils.AppIconCache.loadIconBitmapAsync(
+                    requireContext(), it, com.aistra.hail.utils.HPackages.myUserId, holder.icon
+                )
+            }
+            holder.check.setOnCheckedChangeListener(null)
+            holder.check.isChecked = hidden[srcIdx]
+            holder.view.setOnClickListener {
+                hidden[srcIdx] = !hidden[srcIdx]
+                holder.check.isChecked = hidden[srcIdx]
+            }
+            holder.check.setOnCheckedChangeListener { _, checked -> hidden[srcIdx] = checked }
+        }
+
+        fun filter(query: String) {
+            displayed = if (query.isBlank()) {
+                source.mapIndexed { i, a -> i to a }
+            } else {
+                source.mapIndexed { i, a -> i to a }.filter { (_, info) ->
+                    com.aistra.hail.utils.FuzzySearch.search(info.packageName, query) ||
+                    com.aistra.hail.utils.FuzzySearch.search(info.loadLabel(pm).toString(), query) ||
+                    (HailData.nineKeySearch && com.aistra.hail.utils.NineKeySearch.search(
+                        query, info.packageName, info.loadLabel(pm).toString()
+                    )) ||
+                    com.aistra.hail.utils.PinyinSearch.searchPinyinAll(info.loadLabel(pm).toString(), query)
+                }
+            }
+            notifyDataSetChanged()
+        }
+    }
+
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_terminal -> showTerminalDialog()
@@ -584,5 +737,112 @@ class SettingsFragment : MainFragment(), MenuProvider {
                     onTerminalResult(result.first, result.second)
                 }
             }.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    private fun showReorganizeTagsDialog() {
+        if (HailData.tags.size <= 1) {
+            HUI.showToast(R.string.msg_no_tags_to_reorder)
+            return
+        }
+        val workingTags = mutableStateListOf(*HailData.tags.toTypedArray())
+
+        val composeView = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setContent {
+                AppTheme {
+                    ReorderTagsList(workingTags)
+                }
+            }
+        }
+
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.action_reorganize_tags)
+            .setView(composeView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                HailData.tags.clear()
+                HailData.tags.addAll(workingTags)
+                HailData.saveTags()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    @Composable
+    private fun ReorderTagsList(tags: SnapshotStateList<Pair<String, Int>>) {
+        val listState = rememberLazyListState()
+        var draggedIndex by remember { mutableIntStateOf(-1) }
+        var dragOffsetY by remember { mutableFloatStateOf(0f) }
+        var itemHeightPx by remember { mutableFloatStateOf(0f) }
+        val density = LocalDensity.current
+
+        Column {
+            Text(
+                text = stringResource(R.string.msg_reorganize_tags_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+            ) {
+                itemsIndexed(tags) { index, tag ->
+                    val isDragging = draggedIndex == index
+                    Surface(
+                        tonalElevation = if (isDragging) 8.dp else 0.dp,
+                        shadowElevation = if (isDragging) 8.dp else 0.dp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(y = if (isDragging) with(density) { dragOffsetY.toDp() } else 0.dp)
+                            .onGloballyPositioned { coords ->
+                                if (itemHeightPx == 0f) itemHeightPx = coords.size.height.toFloat()
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pointerInput(index) {
+                                    detectDragGesturesAfterLongPress(
+                                        onDragStart = {
+                                            draggedIndex = index
+                                            dragOffsetY = 0f
+                                        },
+                                        onDrag = { _, dragAmount ->
+                                            dragOffsetY += dragAmount.y
+                                            if (itemHeightPx > 0f) {
+                                                val steps = (dragOffsetY / itemHeightPx).toInt()
+                                                val target = (draggedIndex + steps).coerceIn(0, tags.size - 1)
+                                                if (target != draggedIndex) {
+                                                    tags.add(target, tags.removeAt(draggedIndex))
+                                                    draggedIndex = target
+                                                    dragOffsetY -= steps * itemHeightPx
+                                                }
+                                            }
+                                        },
+                                        onDragEnd = { draggedIndex = -1; dragOffsetY = 0f },
+                                        onDragCancel = { draggedIndex = -1; dragOffsetY = 0f }
+                                    )
+                                }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.DragHandle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(end = 16.dp)
+                            )
+                            Text(
+                                text = tag.first,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

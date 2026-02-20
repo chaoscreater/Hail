@@ -47,6 +47,7 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
     private val isAppsChanged get() = model.apps.value.hashCode() != lastAppsHash
     private val isQueryChanged get() = model.query.value != lastQuery
     private var contextMenuInfo: ContextMenu.ContextMenuInfo? = null
+    private var scrollToTopOnNextUpdate = false
 
 
     private var exportApkPkg: String? = null
@@ -117,7 +118,12 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
             }
         }
         model.displayApps.observe(viewLifecycleOwner) {
-            appsAdapter.submitList(it)
+            appsAdapter.submitList(it) {
+                if (scrollToTopOnNextUpdate) {
+                    binding.recyclerView.scrollToPosition(0)
+                    scrollToTopOnNextUpdate = false
+                }
+            }
         }
 
         return binding.root
@@ -229,12 +235,23 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
             when (HailData.sortBy) {
                 HailData.SORT_INSTALL -> R.id.sort_by_install
                 HailData.SORT_UPDATE -> R.id.sort_by_update
+                HailData.SORT_UNADDED -> R.id.sort_by_unadded
+                HailData.SORT_ADDED -> R.id.sort_by_added
                 else -> R.id.sort_by_name
             }
         ).isChecked = true
-        menu.findItem(
-            if (HailData.filterSystemApps) R.id.filter_system_apps else R.id.filter_user_apps
-        ).isChecked = true
+
+        // User/System radio — only check if no specific combined filters active
+        val hasSpecific = HailData.filterAddedUserApps || HailData.filterUnaddedUserApps
+                || HailData.filterAddedSystemApps || HailData.filterUnaddedSystemApps
+        if (!hasSpecific) {
+            menu.findItem(
+                if (HailData.filterSystemApps) R.id.filter_system_apps else R.id.filter_user_apps
+            ).isChecked = true
+        }
+
+        menu.findItem(R.id.filter_added_apps).isChecked = HailData.filterAddedApps
+        menu.findItem(R.id.filter_unadded_apps).isChecked = HailData.filterUnaddedApps
         menu.findItem(R.id.filter_frozen_apps).isChecked = HailData.filterFrozenApps
         menu.findItem(R.id.filter_unfrozen_apps).isChecked = HailData.filterUnfrozenApps
     }
@@ -244,12 +261,35 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
             R.id.sort_by_name -> changeAppsSort(HailData.SORT_NAME, item)
             R.id.sort_by_install -> changeAppsSort(HailData.SORT_INSTALL, item)
             R.id.sort_by_update -> changeAppsSort(HailData.SORT_UPDATE, item)
+            R.id.sort_by_unadded -> changeAppsSort(HailData.SORT_UNADDED, item)
+            R.id.sort_by_added -> changeAppsSort(HailData.SORT_ADDED, item)
+            R.id.action_select_all -> {
+                appsAdapter.currentList.forEach { info ->
+                    if (!HailData.isChecked(info.packageName))
+                        HailData.addCheckedApp(info.packageName, saveApps = false)
+                }
+                HailData.saveApps()
+                refreshVisibleItems()
+                updateDisplayAppList()
+                return true
+            }
+            R.id.action_deselect_all -> {
+                appsAdapter.currentList.forEach { info ->
+                    if (HailData.isChecked(info.packageName))
+                        HailData.removeCheckedApp(info.packageName, saveApps = false)
+                }
+                HailData.saveApps()
+                refreshVisibleItems()
+                updateDisplayAppList()
+                return true
+            }
             R.id.filter_user_apps -> changeAppsFilter(HailData.FILTER_USER_APPS, item)
             R.id.filter_system_apps -> MaterialAlertDialogBuilder(activity).setMessage(R.string.freeze_system_app)
                 .setPositiveButton(R.string.action_continue) { _, _ ->
                     changeAppsFilter(HailData.FILTER_SYSTEM_APPS, item)
                 }.setNegativeButton(android.R.string.cancel, null).show()
-
+            R.id.filter_added_apps -> changeAppsFilter(HailData.FILTER_ADDED_APPS, item)
+            R.id.filter_unadded_apps -> changeAppsFilter(HailData.FILTER_UNADDED_APPS, item)
             R.id.filter_frozen_apps -> changeAppsFilter(HailData.FILTER_FROZEN_APPS, item)
             R.id.filter_unfrozen_apps -> changeAppsFilter(HailData.FILTER_UNFROZEN_APPS, item)
         }
@@ -259,6 +299,7 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
     private fun changeAppsSort(sort: String, item: MenuItem) {
         item.isChecked = true
         HailData.changeAppsSort(sort)
+        scrollToTopOnNextUpdate = true
         updateDisplayAppList()
     }
 
@@ -266,22 +307,39 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
         when (item.itemId) {
             R.id.filter_user_apps -> {
                 item.isChecked = true
-                HailData.changeAppsFilter(filter, item.isChecked)
+                HailData.changeAppsFilter(HailData.FILTER_USER_APPS, true)
                 HailData.changeAppsFilter(HailData.FILTER_SYSTEM_APPS, false)
+                // Reset combined filters when switching to simple user/system
+                HailData.changeAppsFilter(HailData.FILTER_ADDED_USER_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_UNADDED_USER_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_ADDED_SYSTEM_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_UNADDED_SYSTEM_APPS, false)
             }
-
             R.id.filter_system_apps -> {
                 item.isChecked = true
-                HailData.changeAppsFilter(filter, item.isChecked)
+                HailData.changeAppsFilter(HailData.FILTER_SYSTEM_APPS, true)
                 HailData.changeAppsFilter(HailData.FILTER_USER_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_ADDED_USER_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_UNADDED_USER_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_ADDED_SYSTEM_APPS, false)
+                HailData.changeAppsFilter(HailData.FILTER_UNADDED_SYSTEM_APPS, false)
             }
-
             else -> {
                 item.isChecked = !item.isChecked
                 HailData.changeAppsFilter(filter, item.isChecked)
             }
         }
+        scrollToTopOnNextUpdate = true
         updateDisplayAppList()
+    }
+
+    private fun refreshVisibleItems() {
+        val layoutManager = binding.recyclerView.layoutManager as? GridLayoutManager ?: return
+        val first = layoutManager.findFirstVisibleItemPosition()
+        val last = layoutManager.findLastVisibleItemPosition()
+        if (first >= 0 && last >= first) {
+            appsAdapter.notifyItemRangeChanged(first, last - first + 1)
+        }
     }
 
     private fun updateAppList() = model.updateAppList()

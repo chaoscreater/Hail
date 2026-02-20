@@ -9,6 +9,16 @@
             app:showAsAction="always|collapseActionView"
             tools:ignore="AlwaysShowAction"/>
     <item
+            android:id="@+id/action_select_all"
+            android:icon="@drawable/ic_outline_select_all"
+            android:title="@string/action_select_all"
+            app:showAsAction="always"/>
+    <item
+            android:id="@+id/action_deselect_all"
+            android:icon="@drawable/ic_outline_deselect_all"
+            android:title="@string/action_deselect_all"
+            app:showAsAction="always"/>
+    <item
             android:icon="@drawable/ic_outline_filter"
             android:title="@string/filter_by"
             app:showAsAction="ifRoom">
@@ -22,6 +32,16 @@
                 <item
                         android:id="@+id/filter_system_apps"
                         android:title="@string/filter_system_apps"/>
+            </group>
+            <group
+                    android:id="@+id/group_filter_added"
+                    android:checkableBehavior="all">
+                <item
+                        android:id="@+id/filter_added_apps"
+                        android:title="@string/filter_added_apps"/>
+                <item
+                        android:id="@+id/filter_unadded_apps"
+                        android:title="@string/filter_unadded_apps"/>
             </group>
             <group
                     android:id="@+id/group_filter_frozen"
@@ -50,6 +70,12 @@
                 <item
                         android:id="@+id/sort_by_update"
                         android:title="@string/sort_update"/>
+                <item
+                        android:id="@+id/sort_by_added"
+                        android:title="@string/sort_added"/>
+                <item
+                        android:id="@+id/sort_by_unadded"
+                        android:title="@string/sort_unadded"/>
             </group>
         </menu>
     </item>

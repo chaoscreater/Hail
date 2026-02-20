@@ -2,10 +2,13 @@ package com.aistra.hail.ui.home
 
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -444,51 +447,179 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
     }
 
     private fun showTagDialog(list: List<AppInfo>? = null) {
-        val binding = DialogInputBinding.inflate(layoutInflater)
-        binding.inputLayout.setHint(R.string.tag)
-        list ?: binding.editText.setText(tag.first)
-        MaterialAlertDialogBuilder(activity).setTitle(if (list != null) R.string.action_tag_add else R.string.action_tag_set)
-            .setView(binding.root).setPositiveButton(android.R.string.ok) { _, _ ->
-                val tagName = binding.editText.text.toString()
-                val tagId = tagName.hashCode()
-                if (HailData.tags.any { it.first == tagName || it.second == tagId }) return@setPositiveButton
-                if (list != null) { // Add tag
+        if (list != null) {
+            // "Add tag" path — keep original simple dialog
+            val binding = DialogInputBinding.inflate(layoutInflater)
+            binding.inputLayout.setHint(R.string.tag)
+            MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.action_tag_add)
+                .setView(binding.root)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val tagName = binding.editText.text.toString()
+                    val tagId = tagName.hashCode()
+                    if (HailData.tags.any { it.first == tagName || it.second == tagId }) return@setPositiveButton
                     HailData.tags.add(tagName to tagId)
                     adapter.notifyItemInserted(adapter.itemCount - 1)
                     if (query.isEmpty() && tabs.tabCount == 2) tabs.isVisible = true
                     if (list == selectedList) triStateTagDialog() else tagDialog(list.first())
-                } else { // Rename tag
-                    val position = tabs.selectedTabPosition
-                    val defaultTab = position == 0
-                    val oldTagId = HailData.tags[position].second
-                    HailData.tags[position] = tagName to if (defaultTab) 0 else tagId
-                    if (!defaultTab) {
-                        pagerAdapter.currentList.forEach {
-                            val index = it.tagIdList.indexOf(oldTagId)
-                            if (index != -1) it.tagIdList[index] = tagId
-                        }
-                        HailData.saveApps()
-                    }
-                    adapter.notifyItemChanged(position)
-                }
-                HailData.saveTags()
-            }.apply {
-                val position = tabs.selectedTabPosition
-                if (list != null || position == 0) return@apply
-                setNeutralButton(R.string.action_tag_remove) { _, _ ->
-                    val tagIdToRemove = HailData.tags[position].second
-                    pagerAdapter.currentList.forEach {
-                        if (it.tagIdList.remove(tagIdToRemove) && it.tagIdList.isEmpty()) {
-                            removeCheckedApp(it.packageName, false)
-                        }
-                    }
-                    HailData.tags.removeAt(position)
-                    adapter.notifyItemRemoved(position)
-                    if (tabs.tabCount == 1) tabs.isVisible = false
-                    HailData.saveApps()
                     HailData.saveTags()
                 }
-            }.setNegativeButton(android.R.string.cancel, null).show()
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+            return
+        }
+
+        // "Rename tag + manage apps" path — long-press on a tab
+        val position = tabs.selectedTabPosition
+        val currentTag = HailData.tags[position]
+        val currentTagId = currentTag.second
+
+        // Build the view with ViewBinding equivalent via inflate
+        val dialogView = layoutInflater.inflate(R.layout.dialog_tag_manage, null)
+        val tagNameInput = dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.input_layout)
+        val tagNameEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
+        val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
+        val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.app_list)
+
+        tagNameInput.hint = getString(R.string.tag)
+        tagNameEdit.setText(currentTag.first)
+
+        // Build full app list: all checked apps sorted by name, with checked state for this tag
+        val allApps = HailData.checkedList.sortedWith(NameComparator).toMutableList()
+        // Track which ones are assigned to this tag (working copy)
+        val tagAssigned = allApps.map { currentTagId in it.tagIdList }.toBooleanArray()
+
+        // Simple adapter for the list
+        val tagAppAdapter = TagAppAssignAdapter(allApps, tagAssigned)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.adapter = tagAppAdapter
+
+        // Wire up search filtering
+        searchEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                tagAppAdapter.filter(s?.toString() ?: "")
+            }
+        })
+
+        val builder = MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.action_tag_set)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                // Apply rename
+                val newName = tagNameEdit.text.toString().trim()
+                if (newName.isNotEmpty() && newName != currentTag.first) {
+                    val newTagId = if (position == 0) 0 else newName.hashCode()
+                    if (!HailData.tags.any { it.first == newName || (it.second == newTagId && it.second != currentTagId) }) {
+                        HailData.tags[position] = newName to newTagId
+                        if (position != 0 && newTagId != currentTagId) {
+                            HailData.checkedList.forEach {
+                                val idx = it.tagIdList.indexOf(currentTagId)
+                                if (idx != -1) it.tagIdList[idx] = newTagId
+                            }
+                        }
+                        adapter.notifyItemChanged(position)
+                        HailData.saveTags()
+                    }
+                }
+                // Apply app-tag assignments from the adapter's working state
+                tagAppAdapter.applyAssignments(currentTagId)
+                HailData.saveApps()
+                updateCurrentList()
+            }
+
+        // Only show "Remove tag" for non-default tabs
+        if (position != 0) {
+            builder.setNeutralButton(R.string.action_tag_remove) { _, _ ->
+                pagerAdapter.currentList.forEach {
+                    if (it.tagIdList.remove(currentTagId) && it.tagIdList.isEmpty()) {
+                        removeCheckedApp(it.packageName, false)
+                    }
+                }
+                HailData.tags.removeAt(position)
+                adapter.notifyItemRemoved(position)
+                if (tabs.tabCount == 1) tabs.isVisible = false
+                HailData.saveApps()
+                HailData.saveTags()
+            }
+        }
+
+        builder.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    /** Adapter for the app-assign list inside the tag management dialog. */
+    private inner class TagAppAssignAdapter(
+        private val source: List<AppInfo>,
+        private val assigned: BooleanArray   // indexed by position in `source`
+    ) : RecyclerView.Adapter<TagAppAssignAdapter.VH>() {
+
+        // Displayed (filtered) subset — pairs of (sourceIndex, AppInfo)
+        private var displayed: List<Pair<Int, AppInfo>> = source.mapIndexed { i, a -> i to a }
+
+        inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
+            val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
+            val name = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_name)
+            val pkg  = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_desc)
+            val check = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.app_star)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val v = layoutInflater.inflate(R.layout.item_apps, parent, false)
+            return VH(v)
+        }
+
+        override fun getItemCount() = displayed.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val (srcIdx, info) = displayed[position]
+            holder.name.text = info.name
+            holder.pkg.text = info.packageName
+            holder.check.setOnCheckedChangeListener(null)
+            holder.check.isChecked = assigned[srcIdx]
+            // Load icon using the correct AppIconCache signature
+            info.applicationInfo?.let {
+                AppIconCache.loadIconBitmapAsync(
+                    requireContext(), it, HPackages.myUserId, holder.icon
+                )
+            } ?: holder.icon.setImageDrawable(
+                requireContext().packageManager.defaultActivityIcon
+            )
+            holder.view.setOnClickListener {
+                assigned[srcIdx] = !assigned[srcIdx]
+                holder.check.isChecked = assigned[srcIdx]
+            }
+            holder.check.setOnCheckedChangeListener { _, checked ->
+                assigned[srcIdx] = checked
+            }
+        }
+
+        fun filter(query: String) {
+            displayed = if (query.isBlank()) {
+                source.mapIndexed { i, a -> i to a }
+            } else {
+                source.mapIndexed { i, a -> i to a }.filter { (_, info) ->
+                    FuzzySearch.search(info.packageName, query) ||
+                    FuzzySearch.search(info.name.toString(), query) ||
+                    (HailData.nineKeySearch && NineKeySearch.search(query, info.packageName, info.name.toString())) ||
+                    PinyinSearch.searchPinyinAll(info.name.toString(), query)
+                }
+            }
+            notifyDataSetChanged()
+        }
+
+        /** Write the checked state back to each AppInfo's tagIdList. */
+        fun applyAssignments(tagId: Int) {
+            source.forEachIndexed { i, info ->
+                if (assigned[i]) {
+                    if (tagId !in info.tagIdList) info.tagIdList.add(tagId)
+                } else {
+                    info.tagIdList.remove(tagId)
+                    // If an app has no tags left, remove it from the checked list entirely
+                    if (info.tagIdList.isEmpty()) removeCheckedApp(info.packageName, false)
+                }
+            }
+        }
     }
 
     private fun exportToClipboard(list: List<AppInfo>) {

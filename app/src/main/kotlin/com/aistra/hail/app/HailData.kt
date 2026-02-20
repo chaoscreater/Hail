@@ -35,10 +35,18 @@ object HailData {
     const val SORT_NAME = "name"
     const val SORT_INSTALL = "install"
     const val SORT_UPDATE = "update"
+    const val SORT_UNADDED = "unadded"
+    const val SORT_ADDED = "added"
     const val FILTER_USER_APPS = "filter_user_apps"
     const val FILTER_SYSTEM_APPS = "filter_system_apps"
     const val FILTER_FROZEN_APPS = "filter_frozen_apps"
     const val FILTER_UNFROZEN_APPS = "filter_unfrozen_apps"
+    const val FILTER_ADDED_APPS = "filter_added_apps"
+    const val FILTER_UNADDED_APPS = "filter_unadded_apps"
+    const val FILTER_ADDED_USER_APPS = "filter_added_user_apps"
+    const val FILTER_UNADDED_USER_APPS = "filter_unadded_user_apps"
+    const val FILTER_ADDED_SYSTEM_APPS = "filter_added_system_apps"
+    const val FILTER_UNADDED_SYSTEM_APPS = "filter_unadded_system_apps"
     const val OWNER = "owner_"
     const val DHIZUKU = "dhizuku_"
     const val SU = "su_"
@@ -136,6 +144,12 @@ object HailData {
     val filterSystemApps get() = sp.getBoolean(FILTER_SYSTEM_APPS, false)
     val filterFrozenApps get() = sp.getBoolean(FILTER_FROZEN_APPS, true)
     val filterUnfrozenApps get() = sp.getBoolean(FILTER_UNFROZEN_APPS, true)
+    val filterAddedApps get() = sp.getBoolean(FILTER_ADDED_APPS, true)
+    val filterUnaddedApps get() = sp.getBoolean(FILTER_UNADDED_APPS, true)
+    val filterAddedUserApps get() = sp.getBoolean(FILTER_ADDED_USER_APPS, false)
+    val filterUnaddedUserApps get() = sp.getBoolean(FILTER_UNADDED_USER_APPS, false)
+    val filterAddedSystemApps get() = sp.getBoolean(FILTER_ADDED_SYSTEM_APPS, false)
+    val filterUnaddedSystemApps get() = sp.getBoolean(FILTER_UNADDED_SYSTEM_APPS, false)
     val workingMode get() = sp.getString(WORKING_MODE, MODE_DEFAULT)!!
     val biometricLogin get() = sp.getBoolean(BIOMETRIC_LOGIN, false)
     val appTheme get() = sp.getString(APP_THEME, FOLLOW_SYSTEM)!!
@@ -159,6 +173,22 @@ object HailData {
     private val dir = "${app.filesDir.path}/v1"
     private val appsPath = "$dir/apps.json"
     private val tagsPath = "$dir/tags.json"
+    private val hiddenAppsPath = "$dir/hidden_apps.json"
+
+    /** Packages hidden from the Apps page. */
+    val hiddenApps: MutableSet<String> by lazy {
+        mutableSetOf<String>().apply {
+            runCatching {
+                val json = JSONArray(HFiles.read(hiddenAppsPath))
+                for (i in 0 until json.length()) add(json.getString(i))
+            }
+        }
+    }
+
+    fun saveHiddenApps() {
+        if (!HFiles.exists(dir)) HFiles.createDirectories(dir)
+        HFiles.write(hiddenAppsPath, JSONArray().apply { hiddenApps.forEach { put(it) } }.toString())
+    }
 
     val checkedList: MutableList<AppInfo> by lazy {
         mutableListOf<AppInfo>().apply {
