@@ -1,15 +1,27 @@
 简体中文 | [English](README_EN.md) | [日本語](README_JP.md)
 
+## What's new in my version?
+My version has a couple of new features that the current Hail (v1.10.0) doesn't have.
+
+1. Tags can now be manually reorganized, i.e their position can be changed. Go to Settings page to do this.
+2. Tags now have a longer character limit
+3. You can long press a Tag and assign/unassign that tag to apps easily. There's also a search box that you can use to filter apps quickly. This is much quicker than long pressing an app and tag it one by one.
+4. You can hide certain apps (do this in Settings) so that they never show up on the Apps page
+5. Export/Import is now an option under Settings. You can export/import your list of apps and their tags and whitelist setting.
+6. Under the Apps page, you can now sort apps by Un-added and Added apps. For filter, you can also filter by un-added and added apps.
+
+
+
 # 雹 Hail
 
-[![Android CI status](https://github.com/aistra0528/Hail/workflows/Android%20CI/badge.svg)](https://github.com/aistra0528/Hail/actions)
-[![翻译状态](https://hosted.weblate.org/widgets/hail/-/svg-badge.svg)](https://hosted.weblate.org/engage/hail/)
-[![Downloads](https://img.shields.io/github/downloads/aistra0528/Hail/total.svg)](https://github.com/aistra0528/Hail/releases)
+[![Android CI status]()](https://github.com/aistra0528/Hail/actions)
+[![翻译状态]()](https://hosted.weblate.org/engage/hail/)
+[![Downloads]()](https://github.com/aistra0528/Hail/releases)
 [![License](https://img.shields.io/github/license/aistra0528/Hail)](LICENSE)
 
 雹是一款用于冻结 Android 应用的自由软件。[GitHub Releases](https://github.com/aistra0528/Hail/releases)
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.aistra.hail/)
+[<img src="" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.aistra.hail/)
 
 <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/1.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/2.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/3.png" width="32%" />
 
