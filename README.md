@@ -3,7 +3,7 @@
 # 雹 Hail
 
 # What's new in my version?
-My version has a couple of new features that the current Hail (v1.10.0) doesn't have.
+My version has a couple of new features that the current Hail (v1.10.0) doesn't have. All these changes are made by Claude and I just reviewed the code (mostly) and approved them.
 
 1. Tags can now be manually reorganized, i.e their position can be changed. Go to Settings page to do this.
 2. Tags now have a longer character limit
