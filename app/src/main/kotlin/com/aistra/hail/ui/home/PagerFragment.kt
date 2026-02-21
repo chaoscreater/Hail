@@ -734,24 +734,47 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_home, menu)
-        val searchView = menu.findItem(R.id.action_search).actionView as SearchView
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
         if (HailData.nineKeySearch) {
             val editText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
             editText.inputType = InputType.TYPE_CLASS_PHONE
         }
+
+        // Restore active query if one exists (e.g. after keyboard dismiss rebuilds the menu)
+        if (query.isNotEmpty()) {
+            searchItem.expandActionView()
+            searchView.setQuery(query, false)
+            searchView.clearFocus()  // show text without re-opening keyboard
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            private var inited = false
             override fun onQueryTextChange(newText: String): Boolean {
-                if (inited) {
-                    query = newText
-                    tabs.isVisible = query.isEmpty() && tabs.tabCount > 1
-                    updateCurrentList()
-                } else inited = true
+                // Ignore the empty event fired when the SearchView collapses
+                if (newText.isEmpty() && !searchItem.isActionViewExpanded) return true
+                query = newText
+                tabs.isVisible = query.isEmpty() && tabs.tabCount > 1
+                updateCurrentList()
                 return true
             }
 
-            override fun onQueryTextSubmit(query: String): Boolean = true
+            override fun onQueryTextSubmit(query: String): Boolean {
+                searchView.clearFocus()  // dismiss keyboard without collapsing
+                return true
+            }
         })
+
+        // Only clear the query when the user explicitly closes the search (X button)
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem) = true
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                query = ""
+                tabs.isVisible = tabs.tabCount > 1
+                updateCurrentList()
+                return true
+            }
+        })
+
         menu.findItem(R.id.action_multiselect).updateIcon()
     }
 
