@@ -15,7 +15,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 8. Fixed the search issue in both Home and Apps page, where the result (based on your keyword) may sometimes be behind the popped up keyboard view. If you try to dismiss the keyboard, it removes the searched keyword, so you can never get to the result.
 
 Download link here:
-https://transfer.it/t/WmM1zp0nwBaA
+https://transfer.it/t/dEP2Kl0zHJ5a
 
 
 
