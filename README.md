@@ -15,15 +15,13 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 8. Fixed the search issue in both Home and Apps page, where the result (based on your keyword) may sometimes be behind the popped up keyboard view. If you try to dismiss the keyboard, it removes the searched keyword, so you can never get to the result.
 
 Download link here:
-https://transfer.it/t/dEP2Kl0zHJ5a
+https://transfer.it/t/H8gPHwkFjZqS
 
 
 
 <br>
 
 雹是一款用于冻结 Android 应用的自由软件
-
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.aistra.hail/)
 
 <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/1.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/2.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/3.png" width="32%" />
 
