@@ -15,6 +15,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 8. Fixed the search issue in both Home and Apps page, where the result (based on your keyword) may sometimes be behind the popped up keyboard view. If you try to dismiss the keyboard, it removes the searched keyword, so you can never get to the result.
 9. Quickly see all your whitelisted apps (regardless of the tag category) and lets you batch select the ones you want to freeze. This gives you more granularity than just freezing all whitelisted apps.
 10. Instead of showing "permission denied" for apps that it can't freeze, it now shows the actual app package name so you can troubleshoot better. This is implemented for freezing apps directly in the app, or via API intent call.
+11. Sometimes, it's good to keep the uninstalled app entries because you might later install them and they'll already be added to Hail with the correct tag(s). This is especially useful if you manage multiple devices and share the same Hail config, as one device might have 100 apps installed while the other has only 20, which would mean the other 80 are uninstalled but still show up in Hail due to the same config being used. Seeing uninstalled app entries can be annoying sometimes, so now there's a toggle option to hide them.
 
 Download link here:
 https://transfer.it/t/BY3w2xknXBLC
