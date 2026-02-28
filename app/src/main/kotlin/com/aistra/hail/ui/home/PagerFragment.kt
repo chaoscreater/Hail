@@ -1,5 +1,6 @@
 package com.aistra.hail.ui.home
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -57,7 +58,18 @@ import org.json.JSONArray
 
 class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAdapter.OnItemLongClickListener,
     MenuProvider {
+
+    companion object {
+        private const val APP_TYPE_ALL = 0
+        private const val APP_TYPE_USER = 1
+        private const val APP_TYPE_SYSTEM = 2
+        /** Shared across all tab instances so toggling affects every page. */
+        private var showUninstalled: Boolean = true
+    }
+
     private var query: String = String()
+    /** 0 = all apps, 1 = user apps only, 2 = system apps only */
+    private var appTypeFilter: Int = APP_TYPE_ALL
     private var _binding: FragmentPagerBinding? = null
     private val binding get() = _binding!!
     private lateinit var pagerAdapter: PagerAdapter
@@ -92,10 +104,18 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
                     super.onScrollStateChanged(recyclerView, newState)
                     when (newState) {
                         RecyclerView.SCROLL_STATE_IDLE -> activity.fab.run {
-                            postDelayed({ if (tag == true) show() }, 1000)
+                            postDelayed({
+                                if (tag == true) {
+                                    show()
+                                    activity.fabWhitelist.show()
+                                }
+                            }, 1000)
                         }
 
-                        RecyclerView.SCROLL_STATE_DRAGGING -> activity.fab.hide()
+                        RecyclerView.SCROLL_STATE_DRAGGING -> {
+                            activity.fab.hide()
+                            activity.fabWhitelist.hide()
+                        }
                     }
                 }
             })
@@ -129,6 +149,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             setListFrozen(true)
             true
         }
+        activity.fabWhitelist.setOnClickListener { showWhitelistDialog() }
     }
 
     private fun updateCurrentList() = HailData.checkedList.filter {
@@ -138,6 +159,14 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         )) || FuzzySearch.search(it.packageName, query) || FuzzySearch.search(
             it.name.toString(), query
         ) || PinyinSearch.searchPinyinAll(it.name.toString(), query))
+    }.filter {
+        when (appTypeFilter) {
+            APP_TYPE_USER -> it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM) == 0
+            APP_TYPE_SYSTEM -> it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM) != 0
+            else -> true
+        }
+    }.filter {
+        showUninstalled || it.applicationInfo != null
     }.sortedWith(NameComparator).let {
         binding.empty.isVisible = it.isEmpty()
         pagerAdapter.submitList(it)
@@ -447,7 +476,10 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         }
         val filtered = list.filter { AppManager.isAppFrozen(it.packageName) != frozen }
         when (val result = AppManager.setListFrozen(frozen, *filtered.toTypedArray())) {
-            null -> HUI.showToast(R.string.permission_denied)
+            null -> HUI.showToast(
+                R.string.permission_denied_pkg,
+                AppManager.lastDeniedPackage ?: getString(R.string.permission_denied)
+            )
             else -> {
                 if (updateList) updateCurrentList()
                 HUI.showToast(
@@ -508,6 +540,12 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = tagAppAdapter
 
+        // Wire up "Show all apps" toggle
+        val showAllCheck = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.check_show_all_apps)
+        showAllCheck.setOnCheckedChangeListener { _, checked ->
+            tagAppAdapter.setShowAll(checked)
+        }
+
         // Wire up search filtering
         searchEdit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -564,14 +602,119 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         builder.setNegativeButton(android.R.string.cancel, null).show()
     }
 
+    /** Shows a dialog listing all whitelisted apps across all tags for selective freezing. */
+    private fun showWhitelistDialog() {
+        val whitelistedApps = HailData.checkedList
+            .filter { it.whitelisted && it.applicationInfo != null }
+            .sortedWith(NameComparator)
+
+        if (whitelistedApps.isEmpty()) {
+            HUI.showToast(R.string.msg_no_whitelisted_apps)
+            return
+        }
+
+        val selected = BooleanArray(whitelistedApps.size) { i ->
+            !AppManager.isAppFrozen(whitelistedApps[i].packageName)
+        }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_whitelist, null)
+        val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.whitelist_app_list)
+        val btnSelectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_select_all)
+        val btnDeselectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_deselect_all)
+
+        val whitelistAdapter = WhitelistFreezeAdapter(whitelistedApps, selected)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.adapter = whitelistAdapter
+
+        btnSelectAll.setOnClickListener { whitelistAdapter.selectAll() }
+        btnDeselectAll.setOnClickListener { whitelistAdapter.deselectAll() }
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.whitelisted_apps)
+            .setView(dialogView)
+            .setPositiveButton(R.string.action_freeze) { _, _ ->
+                val toFreeze = whitelistedApps.filterIndexed { i, _ -> selected[i] }
+                if (toFreeze.isNotEmpty()) setListFrozen(true, toFreeze)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Adapter for the whitelisted-apps freeze dialog. */
+    private inner class WhitelistFreezeAdapter(
+        private val apps: List<AppInfo>,
+        private val selected: BooleanArray
+    ) : RecyclerView.Adapter<WhitelistFreezeAdapter.VH>() {
+
+        inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
+            val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
+            val name = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_name)
+            val pkg = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_desc)
+            val check = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.app_star)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
+            VH(layoutInflater.inflate(R.layout.item_apps, parent, false))
+
+        override fun getItemCount() = apps.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val info = apps[position]
+            holder.name.text = info.name
+            holder.pkg.text = info.packageName
+            holder.check.setOnCheckedChangeListener(null)
+            holder.check.isChecked = selected[position]
+            info.applicationInfo?.let {
+                AppIconCache.loadIconBitmapAsync(
+                    requireContext(), it, HPackages.myUserId, holder.icon,
+                    HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN
+                )
+            } ?: holder.icon.setImageDrawable(requireContext().packageManager.defaultActivityIcon)
+            holder.view.setOnClickListener {
+                selected[position] = !selected[position]
+                holder.check.isChecked = selected[position]
+            }
+            holder.check.setOnCheckedChangeListener { _, checked ->
+                selected[position] = checked
+            }
+        }
+
+        fun selectAll() { selected.fill(true); notifyDataSetChanged() }
+        fun deselectAll() { selected.fill(false); notifyDataSetChanged() }
+    }
+
     /** Adapter for the app-assign list inside the tag management dialog. */
     private inner class TagAppAssignAdapter(
         private val source: List<AppInfo>,
         private val assigned: BooleanArray   // indexed by position in `source`
     ) : RecyclerView.Adapter<TagAppAssignAdapter.VH>() {
 
+        // When false (default), only apps currently on the Default page are shown.
+        // When true, all apps are shown (original behaviour).
+        private var showAll: Boolean = false
+        private var currentQuery: String = ""
+
         // Displayed (filtered) subset — pairs of (sourceIndex, AppInfo)
-        private var displayed: List<Pair<Int, AppInfo>> = source.mapIndexed { i, a -> i to a }
+        private var displayed: List<Pair<Int, AppInfo>> = computeDisplayed()
+
+        private fun computeDisplayed(): List<Pair<Int, AppInfo>> {
+            val base = if (showAll) {
+                source.mapIndexed { i, a -> i to a }
+            } else {
+                source.mapIndexed { i, a -> i to a }.filter { (_, info) -> 0 in info.tagIdList }
+            }
+            return if (currentQuery.isBlank()) base else base.filter { (_, info) ->
+                FuzzySearch.search(info.packageName, currentQuery) ||
+                FuzzySearch.search(info.name.toString(), currentQuery) ||
+                (HailData.nineKeySearch && NineKeySearch.search(currentQuery, info.packageName, info.name.toString())) ||
+                PinyinSearch.searchPinyinAll(info.name.toString(), currentQuery)
+            }
+        }
+
+        fun setShowAll(value: Boolean) {
+            showAll = value
+            displayed = computeDisplayed()
+            notifyDataSetChanged()
+        }
 
         inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
             val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
@@ -611,16 +754,8 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         }
 
         fun filter(query: String) {
-            displayed = if (query.isBlank()) {
-                source.mapIndexed { i, a -> i to a }
-            } else {
-                source.mapIndexed { i, a -> i to a }.filter { (_, info) ->
-                    FuzzySearch.search(info.packageName, query) ||
-                    FuzzySearch.search(info.name.toString(), query) ||
-                    (HailData.nineKeySearch && NineKeySearch.search(query, info.packageName, info.name.toString())) ||
-                    PinyinSearch.searchPinyinAll(info.name.toString(), query)
-                }
-            }
+            currentQuery = query
+            displayed = computeDisplayed()
             notifyDataSetChanged()
         }
 
@@ -716,6 +851,26 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             R.id.action_unfreeze_all -> setListFrozen(false)
             R.id.action_freeze_non_whitelisted -> setListFrozen(true, HailData.checkedList.filterNot { it.whitelisted })
 
+            R.id.action_filter_user_apps -> {
+                appTypeFilter = if (appTypeFilter == APP_TYPE_USER) APP_TYPE_ALL else APP_TYPE_USER
+                activity.invalidateOptionsMenu()
+                updateCurrentList()
+            }
+
+            R.id.action_filter_system_apps -> {
+                appTypeFilter = if (appTypeFilter == APP_TYPE_SYSTEM) APP_TYPE_ALL else APP_TYPE_SYSTEM
+                activity.invalidateOptionsMenu()
+                updateCurrentList()
+            }
+
+            R.id.action_show_uninstalled -> {
+                showUninstalled = !showUninstalled
+                activity.invalidateOptionsMenu()
+                (parentFragment as HomeFragment).childFragmentManager.fragments
+                    .filterIsInstance<PagerFragment>()
+                    .forEach { it.updateCurrentList() }
+            }
+
             R.id.action_import_clipboard -> importFromClipboard()
             R.id.action_import_frozen -> lifecycleScope.launch {
                 val size = importFrozenApp()
@@ -730,6 +885,13 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             R.id.action_export_all -> exportToClipboard(HailData.checkedList)
         }
         return false
+    }
+
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+        menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
+        menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
+        menu.findItem(R.id.action_show_uninstalled)?.isChecked = showUninstalled
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

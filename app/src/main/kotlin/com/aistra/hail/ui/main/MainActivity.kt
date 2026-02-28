@@ -26,9 +26,11 @@ import com.aistra.hail.utils.HUI
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
     lateinit var fab: ExtendedFloatingActionButton
+    lateinit var fabWhitelist: FloatingActionButton
     lateinit var appbar: AppBarLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +66,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         setContentView(root)
         setSupportActionBar(appBarMain.toolbar)
         fab = appBarMain.fab
+        fabWhitelist = appBarMain.fabWhitelist!!
         appbar = appBarMain.appBarLayout
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -83,7 +86,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
         bottomNav?.applyDefaultInsetter { paddingRelative(isRtl, start = true, end = true, bottom = true) }
         navRail?.applyDefaultInsetter { paddingRelative(isRtl, start = true, top = true, bottom = true) }
-        fab.applyDefaultInsetter { marginRelative(isRtl, end = true, bottom = isLandscape) }
+        appBarMain.fabContainer!!.applyDefaultInsetter { marginRelative(isRtl, end = true, bottom = isLandscape) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -108,6 +111,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         controller: NavController, destination: NavDestination, arguments: Bundle?
     ) {
         fab.tag = destination.id == R.id.nav_home
-        if (fab.tag == true) fab.show() else fab.hide()
+        if (fab.tag == true) {
+            fab.show()
+            fabWhitelist.show()
+        } else {
+            fab.hide()
+            fabWhitelist.hide()
+        }
     }
 }

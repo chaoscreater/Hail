@@ -20,6 +20,7 @@
     <string name="action_freeze_current">Freeze visible</string>
     <string name="action_unfreeze_current">Unfreeze visible</string>
     <string name="action_freeze_non_whitelisted">Freeze non-whitelisted</string>
+    <string name="action_show_uninstalled">Show uninstalled apps</string>
     <string name="action_lock">Lock</string>
     <string name="action_lock_freeze">Lock &amp; Freeze</string>
     <string name="action_launch">Launch</string>
@@ -29,6 +30,7 @@
     <string name="action_tag_add">Add tag</string>
     <string name="action_tag_remove">Remove tag</string>
     <string name="action_tag_set">Set tag</string>
+    <string name="tag_show_all_apps">Show all apps</string>
     <string name="action_add_pin_shortcut">Add to Home screen</string>
     <string name="action_export_clipboard">Export to Clipboard</string>
     <string name="action_import_clipboard">Import from Clipboard</string>
@@ -90,6 +92,9 @@
     <string name="donate_liberapay">Liberapay</string>
     <string name="donate_paypal">PayPal</string>
     <string name="permission_denied">Permission denied</string>
+    <string name="permission_denied_pkg">Permission denied: %s</string>
+    <string name="whitelisted_apps">Whitelisted apps</string>
+    <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
     <string name="app_not_installed">App not installed</string>
     <string name="activity_not_found">Launch activity not found</string>
     <string name="shizuku_missing">Shizuku missing :(</string>

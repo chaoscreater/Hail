@@ -7,6 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object AppManager {
+    /** Package name of the first app that returned a permission denial in the last setListFrozen call. */
+    var lastDeniedPackage: String? = null
+        private set
     val lockScreen: Boolean
         get() = when {
             HailData.workingMode.startsWith(HailData.OWNER) -> HPolicy.lockScreen
@@ -27,6 +30,7 @@ object AppManager {
     }
 
     fun setListFrozen(frozen: Boolean, vararg appInfo: AppInfo): String? {
+        lastDeniedPackage = null
         val excludeMe = appInfo.filter { it.packageName != BuildConfig.APPLICATION_ID }
         var i = 0
         var denied = false
@@ -42,7 +46,10 @@ object AppManager {
                             name = it.name.toString()
                         }
 
-                        it.applicationInfo != null -> denied = true
+                        it.applicationInfo != null -> {
+                            denied = true
+                            if (lastDeniedPackage == null) lastDeniedPackage = it.packageName
+                        }
                     }
                 }
             }

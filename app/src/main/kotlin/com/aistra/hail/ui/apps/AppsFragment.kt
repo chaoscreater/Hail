@@ -166,6 +166,15 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
                 else HUI.showToast(R.string.operation_failed, name)
             }
 
+            R.id.action_hide_app -> {
+                HailData.hiddenApps.add(pkg)
+                HailData.saveHiddenApps()
+                val removed = HailData.checkedList.removeAll { it.packageName == pkg }
+                if (removed) HailData.saveApps()
+                updateAppList()
+                HUI.showToast(R.string.msg_hidden_apps_saved)
+            }
+
             else -> return super.onContextItemSelected(item)
         }
         return true
