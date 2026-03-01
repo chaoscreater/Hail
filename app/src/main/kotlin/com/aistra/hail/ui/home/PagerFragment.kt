@@ -644,7 +644,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
     private fun showWhitelistDialog() {
         val whitelistedApps = HailData.checkedList
             .filter { it.whitelisted && it.applicationInfo != null }
-            .sortedWith(NameComparator)
+            .sortedWith(compareBy<AppInfo> { AppManager.isAppFrozen(it.packageName) }.then(NameComparator))
 
         if (whitelistedApps.isEmpty()) {
             HUI.showToast(R.string.msg_no_whitelisted_apps)
@@ -654,53 +654,84 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         val selected = BooleanArray(whitelistedApps.size) { i ->
             !AppManager.isAppFrozen(whitelistedApps[i].packageName)
         }
+        val removeWhitelist = BooleanArray(whitelistedApps.size)
         val dialogView = layoutInflater.inflate(R.layout.dialog_whitelist, null)
+        val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
         val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.whitelist_app_list)
         val btnSelectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_select_all)
         val btnDeselectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_deselect_all)
 
-        val whitelistAdapter = WhitelistFreezeAdapter(whitelistedApps, selected)
+        val whitelistAdapter = WhitelistFreezeAdapter(whitelistedApps, selected, removeWhitelist)
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = whitelistAdapter
 
+        searchEdit.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                whitelistAdapter.filter(s?.toString() ?: "")
+            }
+        })
         btnSelectAll.setOnClickListener { whitelistAdapter.selectAll() }
         btnDeselectAll.setOnClickListener { whitelistAdapter.deselectAll() }
 
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.whitelisted_apps)
             .setView(dialogView)
-            .setPositiveButton(R.string.action_freeze) { _, _ ->
+            .setPositiveButton(R.string.action_process) { _, _ ->
                 val toFreeze = whitelistedApps.filterIndexed { i, _ -> selected[i] }
                 if (toFreeze.isNotEmpty()) setListFrozen(true, toFreeze)
+                val anyRemoved = removeWhitelist.any { it }
+                if (anyRemoved) {
+                    whitelistedApps.forEachIndexed { i, info ->
+                        if (removeWhitelist[i]) info.whitelisted = false
+                    }
+                    HailData.saveApps()
+                    updateCurrentList()
+                }
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show()
+            .show().also { dialog ->
+                dialog.window?.setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    (resources.displayMetrics.heightPixels * 0.95).toInt()
+                )
+            }
     }
 
     /** Adapter for the whitelisted-apps freeze dialog. */
     private inner class WhitelistFreezeAdapter(
         private val apps: List<AppInfo>,
-        private val selected: BooleanArray
+        private val selected: BooleanArray,
+        private val removeWhitelist: BooleanArray
     ) : RecyclerView.Adapter<WhitelistFreezeAdapter.VH>() {
+
+        private var displayed: List<IndexedValue<AppInfo>> = apps.withIndex().toList()
 
         inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
             val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
             val name = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_name)
             val pkg = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_desc)
+            val checkRemove = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.check_remove_whitelist)
             val check = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.app_star)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
-            VH(layoutInflater.inflate(R.layout.item_apps, parent, false))
+            VH(layoutInflater.inflate(R.layout.item_whitelist, parent, false))
 
-        override fun getItemCount() = apps.size
+        override fun getItemCount() = displayed.size
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val info = apps[position]
+            val (srcIdx, info) = displayed[position]
             holder.name.text = info.name
             holder.pkg.text = info.packageName
+            holder.checkRemove.setOnCheckedChangeListener(null)
+            holder.checkRemove.isChecked = removeWhitelist[srcIdx]
+            holder.checkRemove.setOnCheckedChangeListener { _, checked ->
+                removeWhitelist[srcIdx] = checked
+            }
             holder.check.setOnCheckedChangeListener(null)
-            holder.check.isChecked = selected[position]
+            holder.check.isChecked = selected[srcIdx]
             info.applicationInfo?.let {
                 AppIconCache.loadIconBitmapAsync(
                     requireContext(), it, HPackages.myUserId, holder.icon,
@@ -708,12 +739,20 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
                 )
             } ?: holder.icon.setImageDrawable(requireContext().packageManager.defaultActivityIcon)
             holder.view.setOnClickListener {
-                selected[position] = !selected[position]
-                holder.check.isChecked = selected[position]
+                selected[srcIdx] = !selected[srcIdx]
+                holder.check.isChecked = selected[srcIdx]
             }
             holder.check.setOnCheckedChangeListener { _, checked ->
-                selected[position] = checked
+                selected[srcIdx] = checked
             }
+        }
+
+        fun filter(query: String) {
+            displayed = if (query.isBlank()) apps.withIndex().toList()
+            else apps.withIndex().filter { (_, app) ->
+                app.name.contains(query, ignoreCase = true) || app.packageName.contains(query, ignoreCase = true)
+            }.toList()
+            notifyDataSetChanged()
         }
 
         fun selectAll() { selected.fill(true); notifyDataSetChanged() }
