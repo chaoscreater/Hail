@@ -174,13 +174,21 @@ object SettingsBackupManager {
         if (prefsObj != null) {
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
             val editor = sp.edit()
+            // These are stored as Float in SharedPreferences. JSON may serialize whole-number
+            // floats (e.g. 14.0) as integers, causing a ClassCastException on getFloat() if
+            // we naively write them with putInt().
+            val floatKeys = setOf(HailData.HOME_FONT_SIZE, HailData.AUTO_FREEZE_DELAY)
             val keys = prefsObj.keys()
             while (keys.hasNext()) {
                 val key = keys.next()
+                // working_mode is device-specific — skip it to avoid crashing
+                // on devices that don't support the exported mode
+                if (key == HailData.WORKING_MODE) continue
                 when (val value = prefsObj.get(key)) {
                     is Boolean -> editor.putBoolean(key, value)
                     is Double -> editor.putFloat(key, value.toFloat())
-                    is Int -> editor.putInt(key, value)
+                    is Int -> if (key in floatKeys) editor.putFloat(key, value.toFloat())
+                              else editor.putInt(key, value)
                     is Long -> editor.putLong(key, value)
                     is String -> editor.putString(key, value)
                     else -> {}
