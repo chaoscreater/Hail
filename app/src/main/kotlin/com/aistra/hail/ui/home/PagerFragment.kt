@@ -63,8 +63,6 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         private const val APP_TYPE_ALL = 0
         private const val APP_TYPE_USER = 1
         private const val APP_TYPE_SYSTEM = 2
-        /** Shared across all tab instances so toggling affects every page. */
-        private var showUninstalled: Boolean = true
     }
 
     private var query: String = String()
@@ -166,7 +164,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             else -> true
         }
     }.filter {
-        showUninstalled || it.applicationInfo != null
+        HailData.showUninstalled || it.applicationInfo != null
     }.sortedWith(NameComparator).let {
         binding.empty.isVisible = it.isEmpty()
         pagerAdapter.submitList(it)
@@ -285,31 +283,71 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
     }
 
     private fun tagDialog(info: AppInfo) {
-        val checkedItems = BooleanArray(HailData.tags.size) { index ->
-            HailData.tags[index].second in info.tagIdList
+        val allTags = HailData.tags
+        val checkedItems = BooleanArray(allTags.size) { index ->
+            allTags[index].second in info.tagIdList
         }
-        MaterialAlertDialogBuilder(activity).setTitle(R.string.action_tag_set).setMultiChoiceItems(
-            HailData.tags.map { it.first }.toTypedArray(), checkedItems
-        ) { _, index, isChecked ->
-            checkedItems[index] = isChecked
-        }.setPositiveButton(android.R.string.ok) { _, _ ->
-            info.tagIdList.clear()
-            checkedItems.forEachIndexed { index, checked ->
-                if (checked) info.tagIdList.add(HailData.tags[index].second)
-            }
-            val defaultTagId = 0
-            if (info.tagIdList.isEmpty()) {
-                // Nothing selected — restore Default tag instead of removing the app
-                info.tagIdList.add(defaultTagId)
-            } else if (info.tagIdList.size > 1 || info.tagIdList.first() != defaultTagId) {
-                // Assigned to at least one real tag — remove Default tag if present
-                info.tagIdList.remove(defaultTagId)
-            }
-            HailData.saveApps()
-            updateCurrentList()
-        }.setNeutralButton(R.string.action_tag_add) { _, _ ->
-            showTagDialog(listOf(info))
-        }.setNegativeButton(android.R.string.cancel, null).show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_tag_select, null)
+        val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
+        val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.tag_list)
+        val tagCheckAdapter = TagCheckAdapter(allTags, checkedItems)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.adapter = tagCheckAdapter
+        searchEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) { tagCheckAdapter.filter(s?.toString() ?: "") }
+        })
+        MaterialAlertDialogBuilder(activity).setTitle(R.string.action_tag_set).setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                info.tagIdList.clear()
+                checkedItems.forEachIndexed { index, checked ->
+                    if (checked) info.tagIdList.add(allTags[index].second)
+                }
+                val defaultTagId = 0
+                if (info.tagIdList.isEmpty()) {
+                    // Nothing selected — restore Default tag instead of removing the app
+                    info.tagIdList.add(defaultTagId)
+                } else if (info.tagIdList.size > 1 || info.tagIdList.first() != defaultTagId) {
+                    // Assigned to at least one real tag — remove Default tag if present
+                    info.tagIdList.remove(defaultTagId)
+                }
+                HailData.saveApps()
+                updateCurrentList()
+            }.setNeutralButton(R.string.action_tag_add) { _, _ ->
+                showTagDialog(listOf(info))
+            }.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    private inner class TagCheckAdapter(
+        private val tags: List<Pair<String, Int>>,
+        private val checked: BooleanArray
+    ) : RecyclerView.Adapter<TagCheckAdapter.VH>() {
+
+        private var displayed: List<IndexedValue<Pair<String, Int>>> = tags.withIndex().toList()
+
+        inner class VH(val checkBox: com.google.android.material.checkbox.MaterialCheckBox) :
+            RecyclerView.ViewHolder(checkBox)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
+            VH(layoutInflater.inflate(R.layout.item_tag_check, parent, false)
+                as com.google.android.material.checkbox.MaterialCheckBox)
+
+        override fun getItemCount() = displayed.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val (srcIdx, tag) = displayed[position]
+            holder.checkBox.setOnCheckedChangeListener(null)
+            holder.checkBox.text = tag.first
+            holder.checkBox.isChecked = checked[srcIdx]
+            holder.checkBox.setOnCheckedChangeListener { _, isChecked -> checked[srcIdx] = isChecked }
+        }
+
+        fun filter(query: String) {
+            displayed = if (query.isBlank()) tags.withIndex().toList()
+            else tags.withIndex().filter { (_, tag) -> tag.first.contains(query, ignoreCase = true) }.toList()
+            notifyDataSetChanged()
+        }
     }
 
     private fun deselect(update: Boolean = true) {
@@ -864,7 +902,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             }
 
             R.id.action_show_uninstalled -> {
-                showUninstalled = !showUninstalled
+                HailData.showUninstalled = !HailData.showUninstalled
                 activity.invalidateOptionsMenu()
                 (parentFragment as HomeFragment).childFragmentManager.fragments
                     .filterIsInstance<PagerFragment>()
@@ -891,7 +929,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         super.onPrepareMenu(menu)
         menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
         menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
-        menu.findItem(R.id.action_show_uninstalled)?.isChecked = showUninstalled
+        menu.findItem(R.id.action_show_uninstalled)?.isChecked = HailData.showUninstalled
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

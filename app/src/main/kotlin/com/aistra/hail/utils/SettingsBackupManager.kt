@@ -74,6 +74,7 @@ object SettingsBackupManager {
             HailData.SKIP_WHILE_CHARGING,
             HailData.SKIP_FOREGROUND_APP,
             HailData.SKIP_NOTIFYING_APP,
+            HailData.SHOW_UNINSTALLED,
             HailData.DYNAMIC_SHORTCUT_ACTION,
             HailData.FILTER_USER_APPS,
             HailData.FILTER_SYSTEM_APPS,

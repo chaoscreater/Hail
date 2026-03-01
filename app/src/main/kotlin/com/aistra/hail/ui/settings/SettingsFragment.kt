@@ -75,8 +75,10 @@ class SettingsFragment : MainFragment(), MenuProvider {
     private val importSettingsLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@registerForActivityResult
         val ok = com.aistra.hail.utils.SettingsBackupManager.importFromUri(requireContext(), uri)
-        if (ok) HUI.showToast(R.string.msg_settings_imported)
-        else HUI.showToast(R.string.msg_settings_import_failed)
+        if (ok) {
+            HUI.showToast(R.string.msg_settings_imported)
+            activity.recreate()
+        } else HUI.showToast(R.string.msg_settings_import_failed)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -678,9 +680,12 @@ class SettingsFragment : MainFragment(), MenuProvider {
             .setTitle(R.string.action_hide_apps)
             .setView(dialogView)
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                HailData.hiddenApps.clear()
+                // Preserve hidden entries for packages not on this device (e.g. imported from another phone)
+                val installedPackages = allApps.map { it.packageName }.toSet()
+                HailData.hiddenApps.removeAll(installedPackages)
                 allApps.forEachIndexed { i, info ->
                     if (isHidden[i]) HailData.hiddenApps.add(info.packageName)
+                    else HailData.hiddenApps.remove(info.packageName)
                 }
                 HailData.saveHiddenApps()
                 // Remove any newly-hidden apps from the Home list (checkedList)
