@@ -25,7 +25,7 @@
         android:id="@+id/content_main"
         layout="@layout/content_main" />
 
-    <!-- FAB row: whitelist mini FAB to the left, freeze FAB to the right -->
+    <!-- FAB row: home mini FAB, whitelist mini FAB, freeze FAB -->
     <LinearLayout
         android:id="@+id/fab_container"
         android:layout_width="wrap_content"
@@ -36,6 +36,15 @@
         android:clipToPadding="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/title_home"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_outline_home" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_whitelist"

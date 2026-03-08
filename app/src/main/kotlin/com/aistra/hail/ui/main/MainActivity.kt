@@ -31,6 +31,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
     lateinit var fab: ExtendedFloatingActionButton
     lateinit var fabWhitelist: FloatingActionButton
+    lateinit var fabHome: FloatingActionButton
     lateinit var appbar: AppBarLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +68,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         setSupportActionBar(appBarMain.toolbar)
         fab = appBarMain.fab
         fabWhitelist = appBarMain.fabWhitelist!!
+        fabHome = appBarMain.fabHome!!
         appbar = appBarMain.appBarLayout
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -114,9 +116,11 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         if (fab.tag == true) {
             fab.show()
             fabWhitelist.show()
+            fabHome.show()
         } else {
             fab.hide()
             fabWhitelist.hide()
+            fabHome.hide()
         }
     }
 }

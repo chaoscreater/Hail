@@ -150,7 +150,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         activity.fabWhitelist.setOnClickListener { showWhitelistDialog() }
     }
 
-    private fun updateCurrentList() = HailData.checkedList.filter {
+    internal fun updateCurrentList() = HailData.checkedList.filter {
         if (query.isEmpty()) tag.second in it.tagIdList
         else ((HailData.nineKeySearch && NineKeySearch.search(
             query, it.packageName, it.name.toString()

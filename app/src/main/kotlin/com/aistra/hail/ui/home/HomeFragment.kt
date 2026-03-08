@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.viewpager2.widget.ViewPager2
 import com.aistra.hail.app.AppInfo
 import com.aistra.hail.app.HailData.tags
 import com.aistra.hail.databinding.FragmentHomeBinding
@@ -31,6 +32,21 @@ class HomeFragment : MainFragment() {
             tab.text = tags[position].first
         }.attach()
         binding.tabs.applyDefaultInsetter { paddingRelative(isRtl, start = !activity.isLandscape, end = true) }
+
+        // When a page fully settles, refresh that page's fragment with the now-correct
+        // tab position. This fixes the race where onResume() fires during animation
+        // before TabLayoutMediator has updated selectedTabPosition.
+        binding.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    val pos = binding.pager.currentItem
+                    (childFragmentManager.findFragmentByTag("f$pos") as? PagerFragment)
+                        ?.updateCurrentList()
+                }
+            }
+        })
+
+        activity.fabHome.setOnClickListener { binding.pager.setCurrentItem(0, true) }
         return binding.root
     }
 
