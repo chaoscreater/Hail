@@ -37,6 +37,14 @@ object AppIconCache : CoroutineScope {
 
     private val dispatcher: CoroutineDispatcher
 
+    // Separate single low-priority thread for background preloading so it never
+    // competes with real icon loads (which use the regular dispatcher above).
+    private val preloadDispatcher: CoroutineDispatcher by lazy {
+        Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "icon-preload").apply { priority = Thread.NORM_PRIORITY - 1 }
+        }.asCoroutineDispatcher()
+    }
+
     private var appIconLoaders = mutableMapOf<Int, AppIconLoader>()
 
     private var shrinkNonAdaptiveIcons: Boolean
@@ -88,6 +96,22 @@ object AppIconCache : CoroutineScope {
         val bitmap = IconPack.loadIcon(info.packageName) ?: loader.loadIcon(info, false)
         put(info.packageName, userId, size, bitmap)
         return bitmap
+    }
+
+    fun preloadIconsAsync(context: Context, apps: List<ApplicationInfo>, userId: Int) {
+        val size = context.resources.getDimensionPixelSize(R.dimen.app_icon_size)
+        launch(preloadDispatcher) {
+            for (info in apps) {
+                if (get(info.packageName, userId, size) != null) continue
+                try {
+                    getOrLoadBitmap(context, info, userId, size)
+                } catch (e: CancellationException) {
+                    return@launch
+                } catch (e: Throwable) {
+                    // ignore errors during preload
+                }
+            }
+        }
     }
 
     @JvmStatic
