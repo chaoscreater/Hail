@@ -28,7 +28,9 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -118,7 +120,10 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
                 }
             })
             applyDefaultInsetter { paddingRelative(isRtl, bottom = isLandscape) }
-
+            activity.fabContainer.doOnLayout { container ->
+                val lp = container.layoutParams as ViewGroup.MarginLayoutParams
+                updatePadding(bottom = paddingBottom + container.height + lp.bottomMargin)
+            }
         }
 
         binding.refresh.apply {
@@ -651,9 +656,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             return
         }
 
-        val selected = BooleanArray(whitelistedApps.size) { i ->
-            !AppManager.isAppFrozen(whitelistedApps[i].packageName)
-        }
+        val selected = BooleanArray(whitelistedApps.size)
         val removeWhitelist = BooleanArray(whitelistedApps.size)
         val dialogView = layoutInflater.inflate(R.layout.dialog_whitelist, null)
         val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)

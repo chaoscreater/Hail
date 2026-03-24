@@ -2,6 +2,7 @@ package com.aistra.hail.ui.main
 
 import android.os.Bundle
 import android.view.Menu
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     lateinit var fab: ExtendedFloatingActionButton
     lateinit var fabWhitelist: FloatingActionButton
     lateinit var fabHome: FloatingActionButton
+    lateinit var fabContainer: LinearLayout
     lateinit var appbar: AppBarLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +71,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         fab = appBarMain.fab
         fabWhitelist = appBarMain.fabWhitelist!!
         fabHome = appBarMain.fabHome!!
+        fabContainer = appBarMain.fabContainer!!
         appbar = appBarMain.appBarLayout
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment

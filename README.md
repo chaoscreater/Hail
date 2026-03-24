@@ -1,6 +1,6 @@
-简体中文 | [English](README_EN.md) | [日本語](README_JP.md)
+???? | [English](README_EN.md) | [???](README_JP.md)
 
-# 雹 Hail
+# ? Hail
 
 # What's new in my version?
 My version has a couple of new features that the current Hail (v1.10.0) doesn't have. All these changes are made by Claude and I just reviewed the code (mostly) and approved them.
@@ -16,94 +16,97 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 9. Quickly see all your whitelisted apps (regardless of the tag category) and lets you batch select the ones you want to freeze. This gives you more granularity than just freezing all whitelisted apps.
 10. Instead of showing "permission denied" for apps that it can't freeze, it now shows the actual app package name so you can troubleshoot better. This is implemented for freezing apps directly in the app, or via API intent call.
 11. Sometimes, it's good to keep the uninstalled app entries because you might later install them and they'll already be added to Hail with the correct tag(s). This is especially useful if you manage multiple devices and share the same Hail config, as one device might have 100 apps installed while the other has only 20, which would mean the other 80 are uninstalled but still show up in Hail due to the same config being used. Seeing uninstalled app entries can be annoying sometimes, so now there's a toggle option to hide them.
+12. Performance improvements when switching between tag categories, especially on tablets. Can instantly jump to the tag category all the way to the left or right without the loading animation delay.
+13. Added a Home button to jump to the Default page.
 
-Download link here:
-https://transfer.it/t/BY3w2xknXBLC
-
-
+# Download link here:
+https://github.com/chaoscreater/Hail/blob/master/Hail-v1.10.0-glocal.apk
 
 <br>
+<br>
 
-雹是一款用于冻结 Android 应用的自由软件
+
+
+???????? Android ???????
 
 <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/1.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/2.png" width="32%" /> <img src="fastlane/metadata/android/zh-CN/images/phoneScreenshots/3.png" width="32%" />
 
-## 冻结
+## ??
 
-冻结`freeze`是一个营销用语，用于描述使**应用在用户不需要时不可运行**
-的行为，以此控制设备使用、减少内存占用和节省电量。用户可在需要时解冻`unfreeze`应用。
+??`freeze`???????,?????**?????????????**
+???,??????????????????????????????`unfreeze`???
 
-在一般情况下，“冻结”是指停用，此外雹也可以通过隐藏和暂停来“冻结”应用。
+??????,�??�????,??????????????�??�???
 
-### 停用
+### ??
 
-被停用`disable`的应用不会出现在启动器中。在已安装应用列表中会显示已停用`disabled`状态。启用`enable`应用即可恢复。
+???`disable`????????????????????????????`disabled`?????`enable`???????
 
-### 隐藏
+### ??
 
-被隐藏`hide`的应用不会出现在启动器和已安装应用列表中。取消隐藏`unhide`应用即可恢复。
+???`hide`?????????????????????????`unhide`???????
 
-> 在这种状态下，软件包几乎处于卸载状态，无法使用，但并没有删除数据或实际的软件包文件。
+> ??????,???????????,????,??????????????????
 
-### 暂停 (Android 7.0+)
+### ?? (Android 7.0+)
 
-被暂停`suspend`的应用在启动器中会显示为灰度图标。取消暂停`unsuspend`应用即可恢复。
+???`suspend`?????????????????????`unsuspend`???????
 
-> 在这种状态下，应用程序的通知将被隐藏，任何启动活动将被停止，不能弹出提示、对话框或播放音频。
-> 当用户试图启动一个暂停的应用程序时，系统将向用户显示一个对话框，告知他们在暂停状态下不能使用这个应用程序。
+> ??????,???????????,??????????,????????????????
+> ?????????????????,?????????????,?????????????????????
 
-暂停只会阻止用户与应用交互，而**不会**阻止应用在后台运行。
+?????????????,?**??**??????????
 
-## 工作模式
+## ????
 
-**冻结的应用需要通过相同工作模式解冻。**
+**??????????????????**
 
-1. 如果您的设备支持无线调试 (Android 11+) 或已 root，推荐选择`Shizuku`。
+1. ???????????? (Android 11+) ?? root,????`Shizuku`?
 
-2. 如果您的设备已 root，可选择`Root`。**此模式速度相对较慢。**
+2. ??????? root,???`Root`?**??????????**
 
-| 授权方式                                                                                           | 强行停止 | 停用 | 隐藏 | 暂停 | 卸载/重新安装（系统应用） |
+| ????                                                                                           | ???? | ?? | ?? | ?? | ??/????(????) |
 |------------------------------------------------------------------------------------------------|------|----|----|----|---------------|
-| Root                                                                                           | ✓    | ✓  | ✓  | ✓  | ✓             |
-| 设备所有者                                                                                          | ✗    | ✗  | ✓  | ✓  | ✗             |
-| 特权系统应用                                                                                         | ✓    | ✓  | ✗  | ✗  | ✗             |
-| [Shizuku](https://github.com/RikkaApps/Shizuku) (root)/[Sui](https://github.com/RikkaApps/Sui) | ✓    | ✓  | ✓  | ✓  | ✓             |
-| [Shizuku](https://github.com/RikkaApps/Shizuku) (adb)                                          | ✓    | ✓  | ✗  | ✓  | ✓             |
-| [Dhizuku](https://github.com/iamr0s/Dhizuku)                                                   | ✗    | ✗  | ✓  | ✓  | ✗             |
-| [炼妖壶](https://github.com/oasisfeng/island)/[Insular](https://gitlab.com/secure-system/Insular) | ✗    | ✗  | ✓  | ✓  | ✗             |
+| Root                                                                                           | ?    | ?  | ?  | ?  | ?             |
+| ?????                                                                                          | ?    | ?  | ?  | ?  | ?             |
+| ??????                                                                                         | ?    | ?  | ?  | ?  | ?             |
+| [Shizuku](https://github.com/RikkaApps/Shizuku) (root)/[Sui](https://github.com/RikkaApps/Sui) | ?    | ?  | ?  | ?  | ?             |
+| [Shizuku](https://github.com/RikkaApps/Shizuku) (adb)                                          | ?    | ?  | ?  | ?  | ?             |
+| [Dhizuku](https://github.com/iamr0s/Dhizuku)                                                   | ?    | ?  | ?  | ?  | ?             |
+| [???](https://github.com/oasisfeng/island)/[Insular](https://gitlab.com/secure-system/Insular) | ?    | ?  | ?  | ?  | ?             |
 
-### 设备所有者
+### ?????
 
-**设置为设备所有者的应用需要移除设备所有者后方可卸载。**
+**??????????????????????????**
 
-#### 通过 adb 将雹设置为设备所有者
+#### ?? adb ??????????
 
-[Android 调试桥 (adb) 指南](https://developer.android.google.cn/studio/command-line/adb)
+[Android ??? (adb) ??](https://developer.android.google.cn/studio/command-line/adb)
 
-[下载 Android SDK 平台工具](https://developer.android.google.cn/studio/releases/platform-tools)
+[?? Android SDK ????](https://developer.android.google.cn/studio/releases/platform-tools)
 
-通过 adb 发出命令：
+?? adb ????:
 
 ```shell
 adb shell dpm set-device-owner com.aistra.hail/.receiver.DeviceAdminReceiver
 ```
 
-设置成功后会输出以下信息：
+????????????:
 
 ```
 Success: Device owner set to package com.aistra.hail
 Active admin set to component {com.aistra.hail/com.aistra.hail.receiver.DeviceAdminReceiver}
 ```
 
-如输出其他信息，请使用搜索引擎自行查阅与解决。
+???????,???????????????
 
-#### 移除雹的设备所有者
+#### ?????????
 
-设置 > 移除设备所有者
+?? > ???????
 
-### 特权系统应用
+### ??????
 
-需要设置特许权限许可名单：
+????????????:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -117,9 +120,9 @@ Active admin set to component {com.aistra.hail/com.aistra.hail.receiver.DeviceAd
 </permissions>
 ```
 
-并将雹安装为特权系统应用。
+?????????????
 
-推荐方法是在构建 ROM 时导入雹，`Android.bp`配置示例：
+???????? ROM ????,`Android.bp`????:
 
 ```bp
 android_app_import {
@@ -143,34 +146,34 @@ prebuilt_etc {
 }
 ```
 
-## 恢复
+## ??
 
-### 通过 adb
+### ?? adb
 
-替换 com.package.name 为目标应用的包名。
+?? com.package.name ?????????
 
 ```shell
-# 启用应用
+# ????
 adb shell pm enable com.package.name
-# 取消隐藏应用 (需要 root)
+# ?????? (?? root)
 adb shell su -c pm unhide com.package.name
-# 取消暂停应用
+# ??????
 adb shell pm unsuspend com.package.name
 ```
 
-### 修改文件
+### ????
 
-访问`/data/system/users/0/package-restrictions.xml`，此文件存储了应用限制相关信息。您可修改、重命名或直接删除此文件。
+??`/data/system/users/0/package-restrictions.xml`,????????????????????????????????
 
-- 启用应用：修改`enabled`属性为 2 (DISABLED) 或 3 (DISABLED_USER) 的值为 1 (ENABLED)
+- ????:??`enabled`??? 2 (DISABLED) ? 3 (DISABLED_USER) ??? 1 (ENABLED)
 
-- 取消隐藏应用：修改`hidden`属性为 true 的值为 false
+- ??????:??`hidden`??? true ??? false
 
-- 取消暂停应用：修改`suspended`属性为 true 的值为 false
+- ??????:??`suspended`??? true ??? false
 
-### 通过恢复模式清除数据 (wipe data)
+### ?????????? (wipe data)
 
-**希望您能谨慎地选择冻结应用，以免陷入此窘境。**
+**?????????????,????????**
 
 ## API
 
@@ -178,31 +181,31 @@ adb shell pm unsuspend com.package.name
 adb shell am start -a action -e key value
 ```
 
-`action`可为：
+`action`??:
 
-- `com.aistra.hail.action.LAUNCH`：解冻并启动目标应用。应用未冻结时会直接启动。`key="package"` `value="com.package.name"`
+- `com.aistra.hail.action.LAUNCH`:??????????????????????`key="package"` `value="com.package.name"`
 
-- `com.aistra.hail.action.FREEZE`：冻结目标应用。应用需处于首页。`key="package"` `value="com.package.name"`
+- `com.aistra.hail.action.FREEZE`:???????????????`key="package"` `value="com.package.name"`
 
-- `com.aistra.hail.action.UNFREEZE`：解冻目标应用。`key="package"` `value="com.package.name"`
+- `com.aistra.hail.action.UNFREEZE`:???????`key="package"` `value="com.package.name"`
 
-- `com.aistra.hail.action.FREEZE_TAG`：冻结目标标签中的全部非白名单应用。`key="tag"` `value="标签名"`
+- `com.aistra.hail.action.FREEZE_TAG`:?????????????????`key="tag"` `value="???"`
 
-- `com.aistra.hail.action.UNFREEZE_TAG`：解冻目标标签中的全部应用。`key="tag"` `value="标签名"`
+- `com.aistra.hail.action.UNFREEZE_TAG`:?????????????`key="tag"` `value="???"`
 
-- `com.aistra.hail.action.FREEZE_ALL`：冻结首页全部应用。无需`extra`。
+- `com.aistra.hail.action.FREEZE_ALL`:???????????`extra`?
 
-- `com.aistra.hail.action.UNFREEZE_ALL`：解冻首页全部应用。无需`extra`。
+- `com.aistra.hail.action.UNFREEZE_ALL`:???????????`extra`?
 
-- `com.aistra.hail.action.FREEZE_NON_WHITELISTED`：冻结首页全部非白名单应用。无需`extra`。
+- `com.aistra.hail.action.FREEZE_NON_WHITELISTED`:???????????????`extra`?
 
-- `com.aistra.hail.action.FREEZE_AUTO`：自动冻结首页应用。无需`extra`。
+- `com.aistra.hail.action.FREEZE_AUTO`:???????????`extra`?
 
-- `com.aistra.hail.action.LOCK`：锁定屏幕。无需`extra`。
+- `com.aistra.hail.action.LOCK`:???????`extra`?
 
-- `com.aistra.hail.action.LOCK_FREEZE`：冻结首页全部应用并锁定屏幕。无需`extra`。
+- `com.aistra.hail.action.LOCK_FREEZE`:????????????????`extra`?
 
-或使用以下`schema`:
+?????`schema`:
 
 - `hail://launch?package=xxx`
 
@@ -226,13 +229,13 @@ adb shell am start -a action -e key value
 
 - `hail://lock_freeze`
 
-## 协助翻译
+## ????
 
-要将雹翻译成您的语言，或完善现有的翻译，请使用 [Weblate](https://hosted.weblate.org/engage/hail/)。
+??????????,????????,??? [Weblate](https://hosted.weblate.org/engage/hail/)?
 
-[![翻译状态](https://hosted.weblate.org/widgets/hail/-/multi-auto.svg)](https://hosted.weblate.org/engage/hail/)
+[![????](https://hosted.weblate.org/widgets/hail/-/multi-auto.svg)](https://hosted.weblate.org/engage/hail/)
 
-## 许可证
+## ???
 
     Hail - Freeze Android apps
     Copyright (C) 2021-2026 Aistra
