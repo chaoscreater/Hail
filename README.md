@@ -16,13 +16,15 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 9. Quickly see all your whitelisted apps (regardless of the tag category) and lets you batch select the ones you want to freeze. This gives you more granularity than just freezing all whitelisted apps.
 10. Instead of showing "permission denied" for apps that it can't freeze, it now shows the actual app package name so you can troubleshoot better. This is implemented for freezing apps directly in the app, or via API intent call.
 11. Sometimes, it's good to keep the uninstalled app entries because you might later install them and they'll already be added to Hail with the correct tag(s). This is especially useful if you manage multiple devices and share the same Hail config, as one device might have 100 apps installed while the other has only 20, which would mean the other 80 are uninstalled but still show up in Hail due to the same config being used. Seeing uninstalled app entries can be annoying sometimes, so now there's a toggle option to hide them.
+12. Performance improvements when switching between tag categories, especially on tablets. Can instantly jump to the tag category all the way to the left or right without the loading animation delay.
+13. Added a Home button to jump to the Default page.
 
-Download link here:
-https://transfer.it/t/BY3w2xknXBLC
-
-
+# Download link here:
+https://github.com/chaoscreater/Hail/blob/master/Hail-v1.10.0-glocal.apk
 
 <br>
+<br>
+
 
 雹是一款用于冻结 Android 应用的自由软件
 
