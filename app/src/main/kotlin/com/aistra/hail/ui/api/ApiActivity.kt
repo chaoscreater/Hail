@@ -70,6 +70,8 @@ class ApiActivity : ComponentActivity() {
             HailApi.ACTION_FREEZE_AUTO -> setAutoFreeze(false)
             HailApi.ACTION_LOCK -> lockScreen(false)
             HailApi.ACTION_LOCK_FREEZE -> lockScreen(true)
+            HailApi.ACTION_ADD_WHITELIST -> addToWhitelist(requirePackage)
+            HailApi.ACTION_REMOVE_WHITELIST -> removeFromWhitelist(packageArg)
             else -> throw IllegalArgumentException("Unknown action:\n$action")
         }
         return true
@@ -89,6 +91,8 @@ class ApiActivity : ComponentActivity() {
      * hail://freeze_auto
      * hail://lock
      * hail://lock_freeze
+     * hail://add_whitelist?package=xxx[&tag=xxx]
+     * hail://remove_whitelist?package=xxx
      */
     private fun handleSchema(uri: Uri?): Boolean {
         if (uri?.scheme != "hail") throw IllegalArgumentException("Unknown scheme:\n${uri?.scheme}")
@@ -105,6 +109,8 @@ class ApiActivity : ComponentActivity() {
                 "freeze_auto" -> HailApi.ACTION_FREEZE_AUTO
                 "lock" -> HailApi.ACTION_LOCK
                 "lock_freeze" -> HailApi.ACTION_LOCK_FREEZE
+                "add_whitelist" -> HailApi.ACTION_ADD_WHITELIST
+                "remove_whitelist" -> HailApi.ACTION_REMOVE_WHITELIST
                 else -> throw IllegalArgumentException("Unknown host:\n${uri.host}")
             }
         )
@@ -168,7 +174,8 @@ class ApiActivity : ComponentActivity() {
             }
         })
 
-    private val requirePackage: String
+    /** Raw package name from the intent — no installation check. */
+    private val packageArg: String
         get() = intent.run {
             if (action == Intent.ACTION_VIEW) data?.getQueryParameter(HailData.KEY_PACKAGE)
             else getStringExtra(
@@ -176,9 +183,13 @@ class ApiActivity : ComponentActivity() {
                 else if (HTarget.N) Intent.EXTRA_PACKAGE_NAME
                 else "android.intent.extra.PACKAGE_NAME"
             )
-        }?.also {
-            HPackages.getApplicationInfoOrNull(it) ?: throw NameNotFoundException(getString(R.string.app_not_installed))
         } ?: throw IllegalArgumentException("Package must not be null")
+
+    /** Package name, guaranteed to be currently installed. */
+    private val requirePackage: String
+        get() = packageArg.also {
+            HPackages.getApplicationInfoOrNull(it) ?: throw NameNotFoundException(getString(R.string.app_not_installed))
+        }
 
     private val requireTagId: Int
         get() = intent.run {
@@ -231,6 +242,34 @@ class ApiActivity : ComponentActivity() {
                 app.setAutoFreezeService()
             }
         }
+    }
+
+    private fun addToWhitelist(pkg: String) {
+        val info = HailData.checkedList.find { it.packageName == pkg }
+            ?: throw IllegalStateException(getString(R.string.app_not_in_home, pkg))
+        if (info.whitelisted) throw IllegalStateException(
+            getString(R.string.app_already_in_whitelist, pkg)
+        )
+        info.whitelisted = true
+        HailData.saveApps()
+        HUI.showToast(
+            R.string.msg_whitelist_add,
+            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
+        )
+    }
+
+    private fun removeFromWhitelist(pkg: String) {
+        val info = HailData.checkedList.find { it.packageName == pkg }
+            ?: throw IllegalStateException(getString(R.string.app_not_in_home, pkg))
+        if (!info.whitelisted) throw IllegalStateException(
+            getString(R.string.app_not_in_whitelist, pkg)
+        )
+        info.whitelisted = false
+        HailData.saveApps()
+        HUI.showToast(
+            R.string.msg_whitelist_remove,
+            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
+        )
     }
 
     private fun lockScreen(freezeAll: Boolean) {

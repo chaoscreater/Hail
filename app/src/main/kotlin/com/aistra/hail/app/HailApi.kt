@@ -38,6 +38,12 @@ object HailApi {
     /** @since 0.6.0 */
     const val ACTION_LOCK_FREEZE = "${BuildConfig.APPLICATION_ID}.action.LOCK_FREEZE"
 
+    /** @since 1.6.0 */
+    const val ACTION_ADD_WHITELIST = "${BuildConfig.APPLICATION_ID}.action.ADD_WHITELIST"
+
+    /** @since 1.6.0 */
+    const val ACTION_REMOVE_WHITELIST = "${BuildConfig.APPLICATION_ID}.action.REMOVE_WHITELIST"
+
     fun getIntentForPackage(action: String, packageName: String) =
         Intent(action).putExtra(HailData.KEY_PACKAGE, packageName)
 

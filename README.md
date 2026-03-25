@@ -19,6 +19,14 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 12. Performance improvements when switching between tag categories, especially on tablets. Can instantly jump to the tag category all the way to the left or right without the loading animation delay.
 13. Added a Home button to jump to the Default page.
 14. Added support to add multiple apps to your launcher's home screen. These apps can be predefined and will be included in your export/import settings. For example, let's say you have 100 apps and you want to add 50 of them to your launcher's home screen. You can select them and the next time you migrate to a new phone, you can just import your Hail settings and they'll all be ticked. Then, just add to home screen in one go.
+15. You can now systematically add/remove an app to/from whitelist.
+
+  - Whitelist an app (must already be on Home)
+    adb shell am start -a com.aistra.hail.action.ADD_WHITELIST -e package com.example.app
+
+  - Remove whitelist status (app stays on Home)
+    adb shell am start -a com.aistra.hail.action.REMOVE_WHITELIST -e package com.example.app
+
 
 # Download link here:
 https://github.com/chaoscreater/Hail/blob/master/Hail-v1.10.0-glocal.apk

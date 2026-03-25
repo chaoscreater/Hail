@@ -73,6 +73,8 @@
                 <action android:name="${applicationId}.action.FREEZE_AUTO"/>
                 <action android:name="${applicationId}.action.LOCK"/>
                 <action android:name="${applicationId}.action.LOCK_FREEZE"/>
+                <action android:name="${applicationId}.action.ADD_WHITELIST"/>
+                <action android:name="${applicationId}.action.REMOVE_WHITELIST"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>

@@ -107,6 +107,11 @@
     <string name="msg_extract_apk">Extracted to: %s</string>
     <string name="msg_freeze">Froze: %s</string>
     <string name="msg_unfreeze">Unfroze: %s</string>
+    <string name="msg_whitelist_add">Added to Whitelist: %s</string>
+    <string name="msg_whitelist_remove">Removed from Whitelist: %s</string>
+    <string name="app_not_in_home">App not added to Home: %s</string>
+    <string name="app_already_in_whitelist">Already in Whitelist: %s</string>
+    <string name="app_not_in_whitelist">Not in Whitelist: %s</string>
     <plurals name="deferred_task_entry">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
