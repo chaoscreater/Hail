@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     lateinit var fab: ExtendedFloatingActionButton
     lateinit var fabWhitelist: FloatingActionButton
     lateinit var fabHome: FloatingActionButton
+    lateinit var fabPinShortcuts: FloatingActionButton
     lateinit var fabContainer: LinearLayout
     lateinit var appbar: AppBarLayout
 
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         fab = appBarMain.fab
         fabWhitelist = appBarMain.fabWhitelist!!
         fabHome = appBarMain.fabHome!!
+        fabPinShortcuts = appBarMain.fabPinShortcuts!!
         fabContainer = appBarMain.fabContainer!!
         appbar = appBarMain.appBarLayout
 
@@ -120,10 +122,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             fab.show()
             fabWhitelist.show()
             fabHome.show()
+            fabPinShortcuts.show()
         } else {
             fab.hide()
             fabWhitelist.hide()
             fabHome.hide()
+            fabPinShortcuts.hide()
         }
     }
 }

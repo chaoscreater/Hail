@@ -108,6 +108,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
                                 if (tag == true) {
                                     show()
                                     activity.fabWhitelist.show()
+                                    activity.fabPinShortcuts.show()
                                 }
                             }, 1000)
                         }
@@ -115,6 +116,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
                         RecyclerView.SCROLL_STATE_DRAGGING -> {
                             activity.fab.hide()
                             activity.fabWhitelist.hide()
+                            activity.fabPinShortcuts.hide()
                         }
                     }
                 }

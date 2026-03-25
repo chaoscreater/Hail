@@ -34,6 +34,7 @@ object SettingsBackupManager {
             obj.put("pinned", appInfo.pinned)
             obj.put("whitelisted", appInfo.whitelisted)
             obj.put("tags", JSONArray(appInfo.tagIdList))
+            obj.put("add_to_home_screen", appInfo.addToHomeScreen)
             appsArray.put(obj)
         }
         root.put(KEY_APPS, appsArray)
@@ -147,12 +148,14 @@ object SettingsBackupManager {
                 } else {
                     mutableListOf(0)
                 }
+                val addToHomeScreen = obj.optBoolean("add_to_home_screen", false)
                 HailData.checkedList.add(
                     com.aistra.hail.app.AppInfo(
                         packageName = packageName,
                         pinned = pinned,
                         whitelisted = whitelisted,
-                        tagIdList = tagIdList
+                        tagIdList = tagIdList,
+                        addToHomeScreen = addToHomeScreen
                     )
                 )
             }

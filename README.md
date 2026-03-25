@@ -18,6 +18,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 11. Sometimes, it's good to keep the uninstalled app entries because you might later install them and they'll already be added to Hail with the correct tag(s). This is especially useful if you manage multiple devices and share the same Hail config, as one device might have 100 apps installed while the other has only 20, which would mean the other 80 are uninstalled but still show up in Hail due to the same config being used. Seeing uninstalled app entries can be annoying sometimes, so now there's a toggle option to hide them.
 12. Performance improvements when switching between tag categories, especially on tablets. Can instantly jump to the tag category all the way to the left or right without the loading animation delay.
 13. Added a Home button to jump to the Default page.
+14. Added support to add multiple apps to your launcher's home screen. These apps can be predefined and will be included in your export/import settings. For example, let's say you have 100 apps and you want to add 50 of them to your launcher's home screen. You can select them and the next time you migrate to a new phone, you can just import your Hail settings and they'll all be ticked. Then, just add to home screen in one go.
 
 # Download link here:
 https://github.com/chaoscreater/Hail/blob/master/Hail-v1.10.0-glocal.apk

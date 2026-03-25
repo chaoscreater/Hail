@@ -29,6 +29,7 @@ object HailData {
     private const val KEY_TAGS = "tags"
     private const val KEY_PINNED = "pinned"
     private const val KEY_WHITELISTED = "whitelisted"
+    private const val KEY_ADD_TO_HOME_SCREEN = "add_to_home_screen"
     const val KEY_PACKAGE = "package"
     const val KEY_FROZEN = "frozen"
     private const val SORT_BY = "sort_by"
@@ -206,7 +207,8 @@ object HailData {
                             whitelisted = optBoolean(KEY_WHITELISTED),
                             tagIdList = optJSONArray(KEY_TAGS)?.let {
                                 MutableList(it.length()) { index -> it.getInt(index) }
-                            } ?: mutableListOf(optInt(KEY_TAG))
+                            } ?: mutableListOf(optInt(KEY_TAG)),
+                            addToHomeScreen = optBoolean(KEY_ADD_TO_HOME_SCREEN)
                         )
                     })
                 }
@@ -236,6 +238,7 @@ object HailData {
                         .put(KEY_PINNED, it.pinned)
                         .put(KEY_WHITELISTED, it.whitelisted)
                         .put(KEY_TAGS, JSONArray(it.tagIdList))
+                        .put(KEY_ADD_TO_HOME_SCREEN, it.addToHomeScreen)
                 )
             }
             toString()
