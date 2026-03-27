@@ -22,9 +22,11 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 15. You can now systematically add/remove an app to/from whitelist.
 
   - Whitelist an app (must already be on Home)
+    <br>
     adb shell am start -a com.aistra.hail.action.ADD_WHITELIST -e package com.example.app
 
   - Remove whitelist status (app stays on Home)
+    <br>
     adb shell am start -a com.aistra.hail.action.REMOVE_WHITELIST -e package com.example.app
 
 

@@ -62,6 +62,15 @@
             android:text="@string/action_freeze_current"
             app:icon="@drawable/ic_round_frozen" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_pin_shortcuts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/home_shortcuts"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_outline_add_to_home" />
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
