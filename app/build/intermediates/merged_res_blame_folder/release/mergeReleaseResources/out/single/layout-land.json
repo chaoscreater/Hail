@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout-land/activity_main.xml",
+        "source": "com.aistra.hail.app-main-76:/layout-land/activity_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout-land/app_bar_main.xml",
+        "source": "com.aistra.hail.app-main-76:/layout-land/app_bar_main.xml"
+    }
+]

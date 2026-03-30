@@ -1,0 +1,4 @@
+#Mon Mar 30 18:09:48 NZDT 2026
+base.0=D\:\\Documents\\0. My Stuffs\\Personal_Projects\\Android\\Hail\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex

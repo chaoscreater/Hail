@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="apps_span">2</integer>
+    <integer name="home_span">8</integer>
+    <integer name="home_span_compact">10</integer>
+</resources>
