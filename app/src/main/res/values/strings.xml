@@ -96,6 +96,8 @@
     <string name="whitelisted_apps">Whitelisted apps</string>
     <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
     <string name="home_shortcuts">Home screen shortcuts</string>
+    <string name="tab_all_apps">All apps</string>
+    <string name="tab_selected">Selected</string>
     <string name="app_not_installed">App not installed</string>
     <string name="activity_not_found">Launch activity not found</string>
     <string name="shizuku_missing">Shizuku missing :(</string>

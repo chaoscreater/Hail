@@ -114,37 +114,84 @@ class HomeFragment : MainFragment() {
     }
 
     private fun showPinShortcutsDialog() {
-        val apps = HailData.checkedList
+        val allApps = HailData.checkedList
             .filter { it.applicationInfo != null }
             .sortedWith(NameComparator)
 
-        val selected = BooleanArray(apps.size) { apps[it].addToHomeScreen }
-
         val dialogView = layoutInflater.inflate(R.layout.dialog_home_shortcuts, null)
+        val tabLayout = dialogView.findViewById<TabLayout>(R.id.shortcut_tabs)
         val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
         val recyclerView = dialogView.findViewById<RecyclerView>(R.id.home_shortcuts_list)
+        val btnContainer = dialogView.findViewById<View>(R.id.btn_container)
         val btnSelectAll = dialogView.findViewById<MaterialButton>(R.id.btn_select_all)
         val btnDeselectAll = dialogView.findViewById<MaterialButton>(R.id.btn_deselect_all)
 
-        val shortcutsAdapter = HomeShortcutsAdapter(apps, selected)
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.tab_all_apps))
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.tab_selected))
+
+        // Tab 1 ("All Apps"): persistent addToHomeScreen flag
+        val allAppsSelected = BooleanArray(allApps.size) { allApps[it].addToHomeScreen }
+        val allAppsAdapter = AllAppsShortcutsAdapter(allApps, allAppsSelected)
+
+        // Tab 2 ("Selected"): transient selection for which to actually pin now
+        var selectedApps = allApps.filterIndexed { i, _ -> allAppsSelected[i] }
+        var pinNow = BooleanArray(selectedApps.size) { true }
+        var selectedAdapter = SelectedAppsShortcutsAdapter(selectedApps, pinNow)
+
         recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.adapter = shortcutsAdapter
+        recyclerView.adapter = allAppsAdapter
+        btnContainer.isVisible = false
+
+        // Rebuild the "Selected" tab data from the current addToHomeScreen state
+        fun rebuildSelectedTab() {
+            selectedApps = allApps.filter { it.addToHomeScreen }
+            pinNow = BooleanArray(selectedApps.size) { true }
+            selectedAdapter = SelectedAppsShortcutsAdapter(selectedApps, pinNow)
+        }
+
+        allAppsAdapter.onSelectionChanged = {
+            // Keep allAppsSelected in sync for the positive button
+            rebuildSelectedTab()
+        }
+
+        var currentTab = 0
+        var currentQuery = ""
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                currentTab = tab.position
+                if (currentTab == 0) {
+                    btnContainer.isVisible = false
+                    recyclerView.adapter = allAppsAdapter
+                    allAppsAdapter.filter(currentQuery)
+                } else {
+                    rebuildSelectedTab()
+                    btnContainer.isVisible = true
+                    recyclerView.adapter = selectedAdapter
+                    selectedAdapter.filter(currentQuery)
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
 
         searchEdit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                shortcutsAdapter.filter(s?.toString() ?: "")
+                currentQuery = s?.toString() ?: ""
+                if (currentTab == 0) allAppsAdapter.filter(currentQuery)
+                else selectedAdapter.filter(currentQuery)
             }
         })
-        btnSelectAll.setOnClickListener { shortcutsAdapter.selectAll() }
-        btnDeselectAll.setOnClickListener { shortcutsAdapter.deselectAll() }
+        btnSelectAll.setOnClickListener { selectedAdapter.selectAll() }
+        btnDeselectAll.setOnClickListener { selectedAdapter.deselectAll() }
 
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.home_shortcuts)
             .setView(dialogView)
             .setPositiveButton(R.string.action_add_pin_shortcut) { _, _ ->
-                val toAdd = apps.filterIndexed { i, _ -> selected[i] }
+                val toAdd = selectedApps.filterIndexed { i, _ -> pinNow[i] }
                 startBatchPinShortcuts(toAdd)
             }
             .setNegativeButton(android.R.string.cancel, null)
@@ -200,11 +247,13 @@ class HomeFragment : MainFragment() {
         )
     }
 
-    private inner class HomeShortcutsAdapter(
+    /** Tab 1 adapter: all apps with persistent addToHomeScreen checkboxes. */
+    private inner class AllAppsShortcutsAdapter(
         private val apps: List<AppInfo>,
         private val selected: BooleanArray
-    ) : RecyclerView.Adapter<HomeShortcutsAdapter.VH>() {
+    ) : RecyclerView.Adapter<AllAppsShortcutsAdapter.VH>() {
 
+        var onSelectionChanged: (() -> Unit)? = null
         private var displayed: List<IndexedValue<AppInfo>> = apps.withIndex().toList()
 
         inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
@@ -236,6 +285,7 @@ class HomeFragment : MainFragment() {
                 holder.check.isChecked = selected[srcIdx]
                 info.addToHomeScreen = selected[srcIdx]
                 HailData.saveApps()
+                onSelectionChanged?.invoke()
             }
             holder.view.setOnClickListener { toggle() }
             holder.check.setOnCheckedChangeListener { _, checked ->
@@ -243,6 +293,61 @@ class HomeFragment : MainFragment() {
                     selected[srcIdx] = checked
                     info.addToHomeScreen = checked
                     HailData.saveApps()
+                    onSelectionChanged?.invoke()
+                }
+            }
+        }
+
+        fun filter(query: String) {
+            displayed = if (query.isBlank()) apps.withIndex().toList()
+            else apps.withIndex().filter { (_, app) ->
+                app.name.contains(query, ignoreCase = true) ||
+                    app.packageName.contains(query, ignoreCase = true)
+            }.toList()
+            notifyDataSetChanged()
+        }
+    }
+
+    /** Tab 2 adapter: only selected apps, with transient checkboxes for pinning now. */
+    private inner class SelectedAppsShortcutsAdapter(
+        private val apps: List<AppInfo>,
+        private val pinNow: BooleanArray
+    ) : RecyclerView.Adapter<SelectedAppsShortcutsAdapter.VH>() {
+
+        private var displayed: List<IndexedValue<AppInfo>> = apps.withIndex().toList()
+
+        inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
+            val icon: ImageView = view.findViewById(R.id.app_icon)
+            val name: MaterialTextView = view.findViewById(R.id.app_name)
+            val pkg: MaterialTextView = view.findViewById(R.id.app_desc)
+            val check: MaterialCheckBox = view.findViewById(R.id.app_star)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
+            VH(layoutInflater.inflate(R.layout.item_apps, parent, false))
+
+        override fun getItemCount() = displayed.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val (srcIdx, info) = displayed[position]
+            holder.name.text = info.name
+            holder.pkg.text = info.packageName
+            holder.check.setOnCheckedChangeListener(null)
+            holder.check.isChecked = pinNow[srcIdx]
+            info.applicationInfo?.let {
+                AppIconCache.loadIconBitmapAsync(
+                    requireContext(), it, myUserId, holder.icon,
+                    HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN
+                )
+            } ?: holder.icon.setImageDrawable(requireContext().packageManager.defaultActivityIcon)
+            val toggle = {
+                pinNow[srcIdx] = !pinNow[srcIdx]
+                holder.check.isChecked = pinNow[srcIdx]
+            }
+            holder.view.setOnClickListener { toggle() }
+            holder.check.setOnCheckedChangeListener { _, checked ->
+                if (checked != pinNow[srcIdx]) {
+                    pinNow[srcIdx] = checked
                 }
             }
         }
@@ -257,20 +362,12 @@ class HomeFragment : MainFragment() {
         }
 
         fun selectAll() {
-            apps.forEachIndexed { i, info ->
-                selected[i] = true
-                info.addToHomeScreen = true
-            }
-            HailData.saveApps()
+            pinNow.indices.forEach { pinNow[it] = true }
             notifyDataSetChanged()
         }
 
         fun deselectAll() {
-            apps.forEachIndexed { i, info ->
-                selected[i] = false
-                info.addToHomeScreen = false
-            }
-            HailData.saveApps()
+            pinNow.indices.forEach { pinNow[it] = false }
             notifyDataSetChanged()
         }
     }
