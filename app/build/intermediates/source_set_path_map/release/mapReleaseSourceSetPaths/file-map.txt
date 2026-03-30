@@ -1,0 +1,77 @@
+com.aistra.hail.app-transition-1.6.0-0 C:\Users\Ricky\.gradle\caches\8.13\transforms\02a66095f80c3060627e004b450467b7\transformed\transition-1.6.0\res
+com.aistra.hail.app-drawerlayout-1.1.1-1 C:\Users\Ricky\.gradle\caches\8.13\transforms\049dc5536796edd8652bbb7d2eae7eea\transformed\drawerlayout-1.1.1\res
+com.aistra.hail.app-appiconloader-iconloaderlib-1.5.0-2 C:\Users\Ricky\.gradle\caches\8.13\transforms\0728fd652250dd53263ac82afeaae2c0\transformed\appiconloader-iconloaderlib-1.5.0\res
+com.aistra.hail.app-work-runtime-2.11.0-3 C:\Users\Ricky\.gradle\caches\8.13\transforms\0ed48c7b2e71c6ca8e0d798b28d6305b\transformed\work-runtime-2.11.0\res
+com.aistra.hail.app-lifecycle-livedata-2.10.0-4 C:\Users\Ricky\.gradle\caches\8.13\transforms\0f2f1bdf1ca509714c756c9b2c1b76d5\transformed\lifecycle-livedata-2.10.0\res
+com.aistra.hail.app-room-runtime-release-5 C:\Users\Ricky\.gradle\caches\8.13\transforms\12462069d8d96abd616d46e1afab6370\transformed\room-runtime-release\res
+com.aistra.hail.app-annotation-experimental-1.4.1-6 C:\Users\Ricky\.gradle\caches\8.13\transforms\127ee94520b2b24363da516ac35d63b2\transformed\annotation-experimental-1.4.1\res
+com.aistra.hail.app-ui-7 C:\Users\Ricky\.gradle\caches\8.13\transforms\1af9c3f7649752e64b2d83604acd4009\transformed\ui\res
+com.aistra.hail.app-customview-poolingcontainer-1.0.0-8 C:\Users\Ricky\.gradle\caches\8.13\transforms\207b4690df5e2a32d024f41a58c72a22\transformed\customview-poolingcontainer-1.0.0\res
+com.aistra.hail.app-insetter-0.6.1-9 C:\Users\Ricky\.gradle\caches\8.13\transforms\210679f20839062cf87fc04941bb1d1c\transformed\insetter-0.6.1\res
+com.aistra.hail.app-biometric-1.2.0-alpha05-10 C:\Users\Ricky\.gradle\caches\8.13\transforms\21939fe19ba188f7f54ebfc0b9adcc17\transformed\biometric-1.2.0-alpha05\res
+com.aistra.hail.app-window-1.5.0-11 C:\Users\Ricky\.gradle\caches\8.13\transforms\222d6e2341ec39b41b6ca09ed52a0564\transformed\window-1.5.0\res
+com.aistra.hail.app-foundation-12 C:\Users\Ricky\.gradle\caches\8.13\transforms\33e354df896d8bb91209b339b214cddd\transformed\foundation\res
+com.aistra.hail.app-material-icons-extended-release-13 C:\Users\Ricky\.gradle\caches\8.13\transforms\3cafb6ea1fe13096d9ce0953b24aa57f\transformed\material-icons-extended-release\res
+com.aistra.hail.app-biometric-ktx-1.2.0-alpha05-14 C:\Users\Ricky\.gradle\caches\8.13\transforms\40a66a9d6a6a215aecb8a70576a5ee85\transformed\biometric-ktx-1.2.0-alpha05\res
+com.aistra.hail.app-emoji2-1.4.0-15 C:\Users\Ricky\.gradle\caches\8.13\transforms\41d2baf3492efa077dab8ea6fcb0b45e\transformed\emoji2-1.4.0\res
+com.aistra.hail.app-material3-16 C:\Users\Ricky\.gradle\caches\8.13\transforms\4599c6abc19d9a4e39951091da7a7b3c\transformed\material3\res
+com.aistra.hail.app-fragment-1.6.2-17 C:\Users\Ricky\.gradle\caches\8.13\transforms\4601d4bf5750bef9dc95e3d512f78ad2\transformed\fragment-1.6.2\res
+com.aistra.hail.app-slidingpanelayout-1.2.0-18 C:\Users\Ricky\.gradle\caches\8.13\transforms\5388a55ed5b797899028eb3e0065c7f0\transformed\slidingpanelayout-1.2.0\res
+com.aistra.hail.app-navigation-ui-2.9.6-19 C:\Users\Ricky\.gradle\caches\8.13\transforms\579eef1cac909d00195a7648153b105c\transformed\navigation-ui-2.9.6\res
+com.aistra.hail.app-activity-compose-1.8.2-20 C:\Users\Ricky\.gradle\caches\8.13\transforms\5a4487beaaf9a32add49bdbba4016ec4\transformed\activity-compose-1.8.2\res
+com.aistra.hail.app-lifecycle-service-2.10.0-21 C:\Users\Ricky\.gradle\caches\8.13\transforms\5a83bd529963bd0dca538c1a70d096b9\transformed\lifecycle-service-2.10.0\res
+com.aistra.hail.app-lifecycle-viewmodel-22 C:\Users\Ricky\.gradle\caches\8.13\transforms\5f33f5cb29e9ce0eaf591b0b03b340f4\transformed\lifecycle-viewmodel\res
+com.aistra.hail.app-ui-graphics-23 C:\Users\Ricky\.gradle\caches\8.13\transforms\626487851fa0aca65a625c80abc14509\transformed\ui-graphics\res
+com.aistra.hail.app-tracing-ktx-1.2.0-24 C:\Users\Ricky\.gradle\caches\8.13\transforms\65ed67c606ef0ec5536df67d22551ade\transformed\tracing-ktx-1.2.0\res
+com.aistra.hail.app-navigation-common-release-25 C:\Users\Ricky\.gradle\caches\8.13\transforms\670bef76a3c5c0b9b6465683acc4b84f\transformed\navigation-common-release\res
+com.aistra.hail.app-material-1.13.0-26 C:\Users\Ricky\.gradle\caches\8.13\transforms\6ce8ef31d096f9fb36080208bebb2cff\transformed\material-1.13.0\res
+com.aistra.hail.app-activity-ktx-1.8.2-27 C:\Users\Ricky\.gradle\caches\8.13\transforms\716c52332e94ece1477e9d5401f88656\transformed\activity-ktx-1.8.2\res
+com.aistra.hail.app-navigation-runtime-release-28 C:\Users\Ricky\.gradle\caches\8.13\transforms\73516592c9e395a0bbfd91073691cc62\transformed\navigation-runtime-release\res
+com.aistra.hail.app-appcompat-1.7.1-29 C:\Users\Ricky\.gradle\caches\8.13\transforms\740ef6509ae96686acfec42f1af8f228\transformed\appcompat-1.7.1\res
+com.aistra.hail.app-coordinatorlayout-1.1.0-30 C:\Users\Ricky\.gradle\caches\8.13\transforms\7a459ec07e10d0c8a6e61c44ef3904fe\transformed\coordinatorlayout-1.1.0\res
+com.aistra.hail.app-profileinstaller-1.4.0-31 C:\Users\Ricky\.gradle\caches\8.13\transforms\7bfd86208f7e67e71bec93053aa6aa61\transformed\profileinstaller-1.4.0\res
+com.aistra.hail.app-dynamicanimation-1.1.0-32 C:\Users\Ricky\.gradle\caches\8.13\transforms\7c5d21b9beab11b45e565fd9552590c1\transformed\dynamicanimation-1.1.0\res
+com.aistra.hail.app-material-icons-core-release-33 C:\Users\Ricky\.gradle\caches\8.13\transforms\7ed95c85fe610095382d58167f17b9ca\transformed\material-icons-core-release\res
+com.aistra.hail.app-preference-ktx-1.2.1-34 C:\Users\Ricky\.gradle\caches\8.13\transforms\8024ed98099bcebf647ce7594991fad0\transformed\preference-ktx-1.2.1\res
+com.aistra.hail.app-lifecycle-livedata-core-ktx-2.10.0-35 C:\Users\Ricky\.gradle\caches\8.13\transforms\8b6f9883937a35c8592165d0620bfeec\transformed\lifecycle-livedata-core-ktx-2.10.0\res
+com.aistra.hail.app-viewpager2-1.0.0-36 C:\Users\Ricky\.gradle\caches\8.13\transforms\945a40bf85bbcbf05f72e0b97f1c6f29\transformed\viewpager2-1.0.0\res
+com.aistra.hail.app-activity-1.8.2-37 C:\Users\Ricky\.gradle\caches\8.13\transforms\94b455497c582da85503252f8db7c36f\transformed\activity-1.8.2\res
+com.aistra.hail.app-savedstate-ktx-1.4.0-38 C:\Users\Ricky\.gradle\caches\8.13\transforms\a01f0a966f52bbd7d6cfd3746ca9b1f7\transformed\savedstate-ktx-1.4.0\res
+com.aistra.hail.app-tracing-1.2.0-39 C:\Users\Ricky\.gradle\caches\8.13\transforms\a07c951bcf57263f36c1ab7f787f4ec5\transformed\tracing-1.2.0\res
+com.aistra.hail.app-constraintlayout-2.2.1-40 C:\Users\Ricky\.gradle\caches\8.13\transforms\a898f4b796d752712db7a952c51fe17c\transformed\constraintlayout-2.2.1\res
+com.aistra.hail.app-navigation-fragment-2.9.6-41 C:\Users\Ricky\.gradle\caches\8.13\transforms\a999f2b4c8c5a6c67af5efa55926ad01\transformed\navigation-fragment-2.9.6\res
+com.aistra.hail.app-lifecycle-livedata-core-2.10.0-42 C:\Users\Ricky\.gradle\caches\8.13\transforms\ae8978a837c22434ebbb730bc3b0b89d\transformed\lifecycle-livedata-core-2.10.0\res
+com.aistra.hail.app-graphics-path-1.0.1-43 C:\Users\Ricky\.gradle\caches\8.13\transforms\b1d2d7aa3db8948ba1b7312b96f3edfc\transformed\graphics-path-1.0.1\res
+com.aistra.hail.app-graphics-shapes-release-44 C:\Users\Ricky\.gradle\caches\8.13\transforms\b44554f764722229104a99512173259b\transformed\graphics-shapes-release\res
+com.aistra.hail.app-savedstate-45 C:\Users\Ricky\.gradle\caches\8.13\transforms\b6450c8e0c58fc9fb5c562abf3ba4822\transformed\savedstate\res
+com.aistra.hail.app-recyclerview-1.2.1-46 C:\Users\Ricky\.gradle\caches\8.13\transforms\b6a04347c4df44eea6646ba2b1e9c749\transformed\recyclerview-1.2.1\res
+com.aistra.hail.app-work-runtime-ktx-2.11.0-47 C:\Users\Ricky\.gradle\caches\8.13\transforms\b7d9f4e359ad4036f57070302d811e67\transformed\work-runtime-ktx-2.11.0\res
+com.aistra.hail.app-startup-runtime-1.1.1-48 C:\Users\Ricky\.gradle\caches\8.13\transforms\b9eb7eb503596bb44db30cff1f75a5b9\transformed\startup-runtime-1.1.1\res
+com.aistra.hail.app-swiperefreshlayout-1.2.0-49 C:\Users\Ricky\.gradle\caches\8.13\transforms\ba80494fde91f6fd74fad73c8dbfe645\transformed\swiperefreshlayout-1.2.0\res
+com.aistra.hail.app-core-runtime-2.2.0-50 C:\Users\Ricky\.gradle\caches\8.13\transforms\c3164c0655338693d45fb92a275a76c9\transformed\core-runtime-2.2.0\res
+com.aistra.hail.app-appcompat-resources-1.7.1-51 C:\Users\Ricky\.gradle\caches\8.13\transforms\c45ccd2658b41cb808016bb0e280b12f\transformed\appcompat-resources-1.7.1\res
+com.aistra.hail.app-fragment-ktx-1.6.2-52 C:\Users\Ricky\.gradle\caches\8.13\transforms\c5f150be57de63f3814a1e6f17f11e18\transformed\fragment-ktx-1.6.2\res
+com.aistra.hail.app-core-ktx-1.17.0-53 C:\Users\Ricky\.gradle\caches\8.13\transforms\c7e18a53d13412649848a7cf82ec4b7f\transformed\core-ktx-1.17.0\res
+com.aistra.hail.app-emoji2-views-helper-1.4.0-54 C:\Users\Ricky\.gradle\caches\8.13\transforms\c94f39b0147c2b0b96345fe68ab4871c\transformed\emoji2-views-helper-1.4.0\res
+com.aistra.hail.app-lifecycle-runtime-55 C:\Users\Ricky\.gradle\caches\8.13\transforms\c9eec3cdcf2bd76763612f62eef642ed\transformed\lifecycle-runtime\res
+com.aistra.hail.app-lifecycle-livedata-ktx-2.10.0-56 C:\Users\Ricky\.gradle\caches\8.13\transforms\cda52a17df0a9d7332d8ef2eec79849d\transformed\lifecycle-livedata-ktx-2.10.0\res
+com.aistra.hail.app-preference-1.2.1-57 C:\Users\Ricky\.gradle\caches\8.13\transforms\d82daeea1fd107b5d56554a2e5531444\transformed\preference-1.2.1\res
+com.aistra.hail.app-lifecycle-viewmodel-ktx-2.10.0-58 C:\Users\Ricky\.gradle\caches\8.13\transforms\dac0ef07c5a9519f14b4bf9e76b17636\transformed\lifecycle-viewmodel-ktx-2.10.0\res
+com.aistra.hail.app-sqlite-framework-release-59 C:\Users\Ricky\.gradle\caches\8.13\transforms\dbb5fa6b37f5bab79d1e25b46ff54591\transformed\sqlite-framework-release\res
+com.aistra.hail.app-navigation-ui-ktx-2.9.6-60 C:\Users\Ricky\.gradle\caches\8.13\transforms\e78c154b7a098c4544572052c362f14e\transformed\navigation-ui-ktx-2.9.6\res
+com.aistra.hail.app-sqlite-release-61 C:\Users\Ricky\.gradle\caches\8.13\transforms\e9f8018fd39b29e5546e5749045c1d4c\transformed\sqlite-release\res
+com.aistra.hail.app-navigation-fragment-ktx-2.9.6-62 C:\Users\Ricky\.gradle\caches\8.13\transforms\eaa83aeb351b5f5844e591a4eea954c1\transformed\navigation-fragment-ktx-2.9.6\res
+com.aistra.hail.app-core-1.17.0-63 C:\Users\Ricky\.gradle\caches\8.13\transforms\f29f498caa6f9e77866b7f3dccb9d40b\transformed\core-1.17.0\res
+com.aistra.hail.app-ui-text-64 C:\Users\Ricky\.gradle\caches\8.13\transforms\f62ba412aa58aabb720914ccbab10bcf\transformed\ui-text\res
+com.aistra.hail.app-cardview-1.0.0-65 C:\Users\Ricky\.gradle\caches\8.13\transforms\f72d137b99db751e1c9b7ede702520c2\transformed\cardview-1.0.0\res
+com.aistra.hail.app-lifecycle-process-2.10.0-66 C:\Users\Ricky\.gradle\caches\8.13\transforms\f98eed5497924838b42aa5a21b67ebe7\transformed\lifecycle-process-2.10.0\res
+com.aistra.hail.app-runtime-saveable-67 C:\Users\Ricky\.gradle\caches\8.13\transforms\fba1edd1c7bfb2a4f9c5067cb2591ee4\transformed\runtime-saveable\res
+com.aistra.hail.app-core-viewtree-1.0.0-68 C:\Users\Ricky\.gradle\caches\8.13\transforms\fce2a9dfa2a6f1320a3984456a02292e\transformed\core-viewtree-1.0.0\res
+com.aistra.hail.app-pngs-69 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\generated\res\pngs\release
+com.aistra.hail.app-resValues-70 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\generated\res\resValues\release
+com.aistra.hail.app-packageReleaseResources-71 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.aistra.hail.app-packageReleaseResources-72 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.aistra.hail.app-merged-not-compiled-resources-73 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\intermediates\merged-not-compiled-resources\release
+com.aistra.hail.app-release-74 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\intermediates\merged_res\release\mergeReleaseResources
+com.aistra.hail.app-main-75 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\src\main\res
+com.aistra.hail.app-release-76 D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\src\release\res

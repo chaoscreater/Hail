@@ -1,0 +1,58 @@
+[
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/content_main.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/content_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/activity_main.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/dialog_input.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/dialog_input.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/item_whitelist.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/item_whitelist.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/fragment_home.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/item_apps.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/item_apps.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/item_tag_check.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/item_tag_check.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/fragment_apps.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/fragment_apps.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/app_bar_main.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/app_bar_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/fragment_pager.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/fragment_pager.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/dialog_whitelist.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/dialog_whitelist.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/dialog_tag_select.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/dialog_tag_select.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/dialog_home_shortcuts.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/dialog_home_shortcuts.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-mergeReleaseResources-73:/layout/dialog_tag_manage.xml",
+        "source": "com.aistra.hail.app-main-76:/layout/dialog_tag_manage.xml"
+    }
+]

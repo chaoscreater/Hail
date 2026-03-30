@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <string-array name="app_theme_entries">
+        <item>@string/follow_system</item>
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+    </string-array>
+    <string-array name="apps_action_entries">
+        <item>@string/action_details</item>
+        <item>@string/action_export_clipboard</item>
+        <item>@string/action_extract_apk</item>
+        <item>@string/action_uninstall</item>
+    </string-array>
+    <integer-array name="deferred_task_values">
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </integer-array>
+    <string-array name="donate_payment_entries">
+        <item>@string/donate_alipay</item>
+        <item>@string/donate_wechat</item>
+        <item>@string/donate_bilibili</item>
+        <item>@string/donate_liberapay</item>
+        <item>@string/donate_paypal</item>
+    </string-array>
+    <string-array name="dynamic_shortcut_entries">
+        <item>@string/action_none</item>
+        <item>@string/action_freeze_all</item>
+        <item>@string/action_unfreeze_all</item>
+        <item>@string/action_freeze_non_whitelisted</item>
+        <item>@string/action_lock</item>
+        <item>@string/action_lock_freeze</item>
+    </string-array>
+    <string-array name="home_action_entries">
+        <item>@string/action_launch</item>
+        <item>@string/action_freeze</item>
+        <item>@string/action_unfreeze</item>
+        <item>@string/action_deferred_task</item>
+        <item>@string/action_pin</item>
+        <item>@string/action_unpin</item>
+        <item>@string/action_whitelist</item>
+        <item>@string/action_remove_whitelist</item>
+        <item>@string/action_tag_set</item>
+        <item>@string/action_add_pin_shortcut</item>
+        <item>@string/action_export_clipboard</item>
+        <item>@string/action_remove_home</item>
+        <item>@string/action_unfreeze_remove_home</item>
+    </string-array>
+    <string-array name="pin_shortcut_entries">
+        <item>@string/action_freeze_tag</item>
+        <item>@string/action_unfreeze_tag</item>
+        <item>@string/action_freeze_all</item>
+        <item>@string/action_unfreeze_all</item>
+        <item>@string/action_freeze_non_whitelisted</item>
+        <item>@string/action_lock</item>
+        <item>@string/action_lock_freeze</item>
+    </string-array>
+    <string-array name="tile_action_entries">
+        <item>@string/auto_freeze</item>
+        <item>@string/action_freeze_all</item>
+        <item>@string/action_unfreeze_all</item>
+        <item>@string/action_freeze_non_whitelisted</item>
+        <item>@string/action_lock</item>
+        <item>@string/action_lock_freeze</item>
+    </string-array>
+    <string-array name="working_mode_entries">
+        <item>@string/mode_default</item>
+        <item>@string/mode_shizuku_stop</item>
+        <item>@string/mode_shizuku_disable</item>
+        <item>@string/mode_shizuku_hide</item>
+        <item>@string/mode_shizuku_suspend</item>
+        <item>@string/mode_su_stop</item>
+        <item>@string/mode_su_disable</item>
+        <item>@string/mode_su_hide</item>
+        <item>@string/mode_su_suspend</item>
+        <item>@string/mode_dhizuku_hide</item>
+        <item>@string/mode_dhizuku_suspend</item>
+        <item>@string/mode_owner_hide</item>
+        <item>@string/mode_owner_suspend</item>
+        <item>@string/mode_island_hide</item>
+        <item>@string/mode_island_suspend</item>
+        <item>@string/mode_privapp_stop</item>
+        <item>@string/mode_privapp_disable</item>
+    </string-array>
+    <string-array name="xposed_scope">
+        <item>com.android.launcher</item>
+        <item>com.android.launcher3</item>
+    </string-array>
+    <color name="color_hail">#81D4FA</color>
+    <color name="md_theme_background">#F7F9FF</color>
+    <color name="md_theme_error">#BA1A1A</color>
+    <color name="md_theme_errorContainer">#FFDAD6</color>
+    <color name="md_theme_inverseOnSurface">#EFF1F6</color>
+    <color name="md_theme_inversePrimary">#9DCBFC</color>
+    <color name="md_theme_inverseSurface">#2D3135</color>
+    <color name="md_theme_onBackground">#191C20</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_onErrorContainer">#410002</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_onPrimaryContainer">#001D34</color>
+    <color name="md_theme_onPrimaryFixed">#001D34</color>
+    <color name="md_theme_onPrimaryFixedVariant">#134A74</color>
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_onSecondaryContainer">#0F1D2A</color>
+    <color name="md_theme_onSecondaryFixed">#0F1D2A</color>
+    <color name="md_theme_onSecondaryFixedVariant">#3A4857</color>
+    <color name="md_theme_onSurface">#191C20</color>
+    <color name="md_theme_onSurfaceVariant">#42474E</color>
+    <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_onTertiaryContainer">#241532</color>
+    <color name="md_theme_onTertiaryFixed">#241532</color>
+    <color name="md_theme_onTertiaryFixedVariant">#514060</color>
+    <color name="md_theme_outline">#73777F</color>
+    <color name="md_theme_outlineVariant">#C2C7CF</color>
+    <color name="md_theme_primary">#32628D</color>
+    <color name="md_theme_primaryContainer">#CFE5FF</color>
+    <color name="md_theme_primaryFixed">#CFE5FF</color>
+    <color name="md_theme_primaryFixedDim">#9DCBFC</color>
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_secondary">#526070</color>
+    <color name="md_theme_secondaryContainer">#D6E4F7</color>
+    <color name="md_theme_secondaryFixed">#D6E4F7</color>
+    <color name="md_theme_secondaryFixedDim">#BAC8DA</color>
+    <color name="md_theme_surface">#F7F9FF</color>
+    <color name="md_theme_surfaceBright">#F7F9FF</color>
+    <color name="md_theme_surfaceContainer">#ECEEF4</color>
+    <color name="md_theme_surfaceContainerHigh">#E6E8EE</color>
+    <color name="md_theme_surfaceContainerHighest">#E0E2E8</color>
+    <color name="md_theme_surfaceContainerLow">#F2F3F9</color>
+    <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_surfaceDim">#D8DAE0</color>
+    <color name="md_theme_surfaceVariant">#DEE3EB</color>
+    <color name="md_theme_tertiary">#695779</color>
+    <color name="md_theme_tertiaryContainer">#F0DBFF</color>
+    <color name="md_theme_tertiaryFixed">#F0DBFF</color>
+    <color name="md_theme_tertiaryFixedDim">#D4BEE6</color>
+    <dimen name="app_icon_size">64dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="header_height">176dp</dimen>
+    <dimen name="padding_extra_small">4dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <integer name="apps_span">1</integer>
+    <integer name="home_span">4</integer>
+    <integer name="home_span_compact">5</integer>
+    <plurals name="deferred_task_entry">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="msg_deferred_task">
+        <item quantity="one">%2$s after %1$d minute: %3$s</item>
+        <item quantity="other">%2$s after %1$d minutes: %3$s</item>
+    </plurals>
+    <string name="action_add_pin_shortcut">Add to Home screen</string>
+    <string name="action_biometric">Biometric login</string>
+    <string name="action_clear_dynamic_shortcuts">Clear all dynamic shortcuts</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_deferred_task">Deferred task</string>
+    <string name="action_deselect">Deselect</string>
+    <string name="action_deselect_all">Deselect all</string>
+    <string name="action_details">App info</string>
+    <string name="action_donate">Donate</string>
+    <string name="action_export_all">Export all</string>
+    <string name="action_export_clipboard">Export to Clipboard</string>
+    <string name="action_export_current">Export visible</string>
+    <string name="action_export_settings">Export Settings</string>
+    <string name="action_extract_apk">Extract APK</string>
+    <string name="action_fdroid">F-Droid</string>
+    <string name="action_freeze">Freeze</string>
+    <string name="action_freeze_all">Freeze all</string>
+    <string name="action_freeze_current">Freeze visible</string>
+    <string name="action_freeze_non_whitelisted">Freeze non-whitelisted</string>
+    <string name="action_freeze_tag">Freeze tag</string>
+    <string name="action_github">GitHub</string>
+    <string name="action_help">Help</string>
+    <string name="action_hide_apps">Hide Apps from List</string>
+    <string name="action_import_app">Import app</string>
+    <string name="action_import_clipboard">Import from Clipboard</string>
+    <string name="action_import_frozen">Import frozen app</string>
+    <string name="action_import_settings">Import Settings</string>
+    <string name="action_launch">Launch</string>
+    <string name="action_licenses">Licenses</string>
+    <string name="action_lock">Lock</string>
+    <string name="action_lock_freeze">Lock &amp; Freeze</string>
+    <string name="action_none">None</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_process">Process</string>
+    <string name="action_qq">QQ Group</string>
+    <string name="action_reinstall">Reinstall</string>
+    <string name="action_remove_home">Remove from Home</string>
+    <string name="action_remove_whitelist">Remove from Whitelist</string>
+    <string name="action_reorganize_tags">Reorganize Tags</string>
+    <string name="action_search">Search</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_show_uninstalled">Show uninstalled apps</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_tag_add">Add tag</string>
+    <string name="action_tag_remove">Remove tag</string>
+    <string name="action_tag_set">Set tag</string>
+    <string name="action_telegram">Telegram Group</string>
+    <string name="action_terminal">Terminal</string>
+    <string name="action_translate">Translate</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_unfreeze">Unfreeze</string>
+    <string name="action_unfreeze_all">Unfreeze all</string>
+    <string name="action_unfreeze_current">Unfreeze visible</string>
+    <string name="action_unfreeze_remove_home">Unfreeze and Remove from Home</string>
+    <string name="action_unfreeze_tag">Unfreeze tag</string>
+    <string name="action_uninstall">Uninstall</string>
+    <string name="action_unpin">Unpin</string>
+    <string name="action_whitelist">Add to Whitelist</string>
+    <string name="activity_not_found">Launch activity not found</string>
+    <string name="app_already_in_whitelist">Already in Whitelist: %s</string>
+    <string name="app_name">Hail</string>
+    <string name="app_not_in_home">App not added to Home: %s</string>
+    <string name="app_not_in_whitelist">Not in Whitelist: %s</string>
+    <string name="app_not_installed">App not installed</string>
+    <string name="app_slogan">Freezedom!</string>
+    <string name="app_theme">App theme</string>
+    <string name="auto_freeze">Auto freeze</string>
+    <string name="auto_freeze_after_lock">After screen locked</string>
+    <string name="auto_freeze_delay">Freeze delay (minutes)</string>
+    <string name="auto_freeze_notification_title">Auto freeze service is running</string>
+    <string name="command">Command</string>
+    <string name="compact_icon">Compact icon</string>
+    <string name="donate_alipay">Alipay</string>
+    <string name="donate_bilibili">Bilibili</string>
+    <string name="donate_bilibili_cancel">Cancel</string>
+    <string name="donate_bilibili_msg">Follow me on Bilibili.</string>
+    <string name="donate_bilibili_space">Bilibili space</string>
+    <string name="donate_liberapay">Liberapay</string>
+    <string name="donate_paypal">PayPal</string>
+    <string name="donate_wechat">WeChat Pay</string>
+    <string name="donate_wechat_scan">Scan</string>
+    <string name="dynamic_shortcut_action">Dynamic shortcut action</string>
+    <string name="filter_added_apps">Added apps</string>
+    <string name="filter_by">Filter</string>
+    <string name="filter_exclude_added_to_home">Exclude Apps already added to Home</string>
+    <string name="filter_frozen_apps">Frozen</string>
+    <string name="filter_hidden_apps">Hidden apps</string>
+    <string name="filter_system_apps">System</string>
+    <string name="filter_unadded_apps">Un-added apps</string>
+    <string name="filter_unfrozen_apps">Unfrozen</string>
+    <string name="filter_unhidden_apps">Un-hidden apps</string>
+    <string name="filter_user_apps">User</string>
+    <string name="follow_system">Follow system</string>
+    <string name="freeze_system_app">Freezing or uninstalling system applications may cause the device to bootloop. Make sure you know what you are doing and backup your data in advance or use recovery that supports file management.</string>
+    <string name="fuzzy_search">Fuzzy Search</string>
+    <string name="grayscale_icon">Grayscale icon</string>
+    <string name="home_font_size">Home font size</string>
+    <string name="home_shortcuts">Home screen shortcuts</string>
+    <string name="icon_pack">Icon pack</string>
+    <string name="label_default">Default</string>
+    <string name="label_time">Install time</string>
+    <string name="label_version">Version</string>
+    <string name="mode_default">Idle</string>
+    <string name="mode_dhizuku_hide">Dhizuku - Hide</string>
+    <string name="mode_dhizuku_suspend">Dhizuku - Suspend</string>
+    <string name="mode_island_hide">Island/Insular - Hide</string>
+    <string name="mode_island_suspend">Island/Insular - Suspend</string>
+    <string name="mode_owner_hide">Device Owner - Hide</string>
+    <string name="mode_owner_suspend">Device Owner - Suspend</string>
+    <string name="mode_privapp_disable">System App - Disable</string>
+    <string name="mode_privapp_stop">System App - Force Stop</string>
+    <string name="mode_shizuku_disable">Shizuku - Disable</string>
+    <string name="mode_shizuku_hide">Shizuku - Hide</string>
+    <string name="mode_shizuku_stop">Shizuku - Force Stop</string>
+    <string name="mode_shizuku_suspend">Shizuku - Suspend</string>
+    <string name="mode_su_disable">Root - Disable</string>
+    <string name="mode_su_hide">Root - Hide</string>
+    <string name="mode_su_stop">Root - Force Stop</string>
+    <string name="mode_su_suspend">Root - Suspend</string>
+    <string name="msg_biometric">Login using your biometric credential</string>
+    <string name="msg_exported">Exported: %s</string>
+    <string name="msg_extract_apk">Extracted to: %s</string>
+    <string name="msg_freeze">Froze: %s</string>
+    <string name="msg_guide">Before freezing applications, please select a working mode in the settings.</string>
+    <string name="msg_hidden_apps_saved">Hidden apps updated</string>
+    <string name="msg_imported">Imported: %s</string>
+    <string name="msg_no_tags_to_reorder">No tags to reorder</string>
+    <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
+    <string name="msg_remove_owner">If Hail is removed as the device owner, there may be difficulties reorganizing Apps after Hail removal.
+\nFrozen apps will remain frozen after removal, please make sure you have unfrozen the important apps.</string>
+    <string name="msg_reorganize_tags_hint">Long press a tag to drag and reorder</string>
+    <string name="msg_selected">Selected: %s</string>
+    <string name="msg_set_owner">Issue the command from adb:\n%s</string>
+    <string name="msg_settings_exported">Settings exported successfully</string>
+    <string name="msg_settings_import_failed">Failed to import settings: invalid file</string>
+    <string name="msg_settings_imported">Settings imported successfully</string>
+    <string name="msg_text_copied">Copied: %s</string>
+    <string name="msg_unfreeze">Unfroze: %s</string>
+    <string name="msg_uninstall">Do you want to uninstall this app?</string>
+    <string name="msg_whitelist_add">Added to Whitelist: %s</string>
+    <string name="msg_whitelist_remove">Removed from Whitelist: %s</string>
+    <string name="nine_key">T9 Search</string>
+    <string name="nothing_here">Nothing here</string>
+    <string name="operation_failed">Operation failed: %s</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="permission_denied_pkg">Permission denied: %s</string>
+    <string name="shizuku_hide_adb">Shizuku is running as adb. To hide apps, please restart Shizuku with root.</string>
+    <string name="shizuku_missing">Shizuku missing :(</string>
+    <string name="skip_foreground_app">Skip foreground app</string>
+    <string name="skip_notifying_app">Skip notifying app</string>
+    <string name="skip_while_charging">Skip while charging</string>
+    <string name="sort_added">Added apps first</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_install">First install</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_unadded">Un-added apps first</string>
+    <string name="sort_update">Last update</string>
+    <string name="synthesize_adaptive_icons">Synthesize adaptive icons</string>
+    <string name="tab_all_apps">All apps</string>
+    <string name="tab_selected">Selected</string>
+    <string name="tag">Tag</string>
+    <string name="tag_show_all_apps">Show all apps</string>
+    <string name="tap_to_select">Tap to multiselect</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="tile_action">Tile action</string>
+    <string name="title_about">About</string>
+    <string name="title_apps">Apps</string>
+    <string name="title_backup_restore">Backup &amp; Restore</string>
+    <string name="title_customize">Customize</string>
+    <string name="title_donate">Thank you!</string>
+    <string name="title_home">Home</string>
+    <string name="title_remove_owner">Remove Device Owner</string>
+    <string name="title_set_owner">Set Device Owner</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_shortcuts">Shortcuts</string>
+    <string name="whitelisted_apps">Whitelisted apps</string>
+    <string name="working_mode">Working mode</string>
+    <string name="xposed_description">Automatically unfreeze suspended app for scoped apps</string>
+    <style name="Theme.Base" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?isLightTheme</item>
+        <item name="android:windowLightNavigationBar" ns1:targetApi="o_mr1">?isLightTheme</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" ns1:targetApi="o_mr1">shortEdges</item>
+        <item name="android:forceDarkAllowed" ns1:targetApi="q">false</item>
+        <item name="android:enforceStatusBarContrast" ns1:targetApi="q">false</item>
+        <item name="android:enforceNavigationBarContrast" ns1:targetApi="q">false</item>
+    </style>
+    <style name="Theme.Hail" parent="Theme.Base">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_background</item>
+        <item name="colorOnBackground">@color/md_theme_onBackground</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_outlineVariant</item>
+        <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_inverseOnSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
+        <item name="colorPrimaryFixed">@color/md_theme_primaryFixed</item>
+        <item name="colorOnPrimaryFixed">@color/md_theme_onPrimaryFixed</item>
+        <item name="colorPrimaryFixedDim">@color/md_theme_primaryFixedDim</item>
+        <item name="colorOnPrimaryFixedVariant">@color/md_theme_onPrimaryFixedVariant</item>
+        <item name="colorSecondaryFixed">@color/md_theme_secondaryFixed</item>
+        <item name="colorOnSecondaryFixed">@color/md_theme_onSecondaryFixed</item>
+        <item name="colorSecondaryFixedDim">@color/md_theme_secondaryFixedDim</item>
+        <item name="colorOnSecondaryFixedVariant">@color/md_theme_onSecondaryFixedVariant</item>
+        <item name="colorTertiaryFixed">@color/md_theme_tertiaryFixed</item>
+        <item name="colorOnTertiaryFixed">@color/md_theme_onTertiaryFixed</item>
+        <item name="colorTertiaryFixedDim">@color/md_theme_tertiaryFixedDim</item>
+        <item name="colorOnTertiaryFixedVariant">@color/md_theme_onTertiaryFixedVariant</item>
+        <item name="colorSurfaceDim">@color/md_theme_surfaceDim</item>
+        <item name="colorSurfaceBright">@color/md_theme_surfaceBright</item>
+        <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
+    </style>
+    <style name="Theme.Hail.AppBarOverlay" parent="ThemeOverlay.Material3.ActionBar"/>
+    <style name="Theme.Hail.PopupOverlay" parent="ThemeOverlay.Material3"/>
+    <style name="Theme.Hail.Translucent">
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>

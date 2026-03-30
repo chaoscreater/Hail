@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <plurals name="deferred_task_entry">
+        <item quantity="one">%d dakika</item>
+        <item quantity="other">%d dakika</item>
+    </plurals>
+    <plurals name="msg_deferred_task">
+        <item quantity="one">%1$d dakika sonra %2$s: %3$s</item>
+        <item quantity="other">%1$d dakika sonra %2$s: %3$s</item>
+    </plurals>
+    <plurals name="mtrl_badge_content_description">
+    <item quantity="one">%d yeni bildirim</item>
+    <item quantity="other">%d yeni bildirim</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Eve gidiş yolunu göster"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Yukarı git"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Diğer seçenekler"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Bitti"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Tümünü göster"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Bir uygulama seçin"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"KAPAT"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AÇ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"sil"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Üst Karakter+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"boşluk"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menü+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Ara…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Sorguyu temizle"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Arama sorgusu"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Ara"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Sorguyu gönder"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Sesli arama"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Şununla paylaş:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> ile paylaş"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Daralt"</string>
+    <string name="action_add_pin_shortcut">Ana ekrana ekle</string>
+    <string name="action_biometric">Biyometrik giriş</string>
+    <string name="action_clear_dynamic_shortcuts">Tüm dinamik kısayolları temizle</string>
+    <string name="action_continue">Devam et</string>
+    <string name="action_deferred_task">Zamanlanmış görev</string>
+    <string name="action_deselect">Seçimi kaldır</string>
+    <string name="action_details">Uygulama bilgisi</string>
+    <string name="action_donate">Bağış</string>
+    <string name="action_export_all">Tümünü panoya aktar</string>
+    <string name="action_export_clipboard">Panoya Aktar</string>
+    <string name="action_export_current">Seçiliyi panoya aktar</string>
+    <string name="action_extract_apk">APK oluştur</string>
+    <string name="action_fdroid">F-Droid</string>
+    <string name="action_freeze">Dondur</string>
+    <string name="action_freeze_all">Tümünü dondur</string>
+    <string name="action_freeze_current">Seçiliyi dondur</string>
+    <string name="action_freeze_non_whitelisted">Beyaz listede olmayanları dondur</string>
+    <string name="action_freeze_tag">Etiketlileri dondur</string>
+    <string name="action_github">GitHub</string>
+    <string name="action_help">Yardım</string>
+    <string name="action_import_app">Uygulamayı içe aktar</string>
+    <string name="action_import_clipboard">Panodan Aktar</string>
+    <string name="action_import_frozen">Dondurulmuş uygulamayı içe aktar</string>
+    <string name="action_launch">Çalıştır</string>
+    <string name="action_licenses">Lisanslar</string>
+    <string name="action_lock">Kilitle</string>
+    <string name="action_lock_freeze">Kilitle &amp; Dondur</string>
+    <string name="action_none">Hiçbiri</string>
+    <string name="action_pin">Sabitle</string>
+    <string name="action_qq">QQ Grubu</string>
+    <string name="action_reinstall">Yeniden yükle</string>
+    <string name="action_remove_home">Ana ekrandan kaldır</string>
+    <string name="action_remove_whitelist">Beyaz listeden kaldır</string>
+    <string name="action_search">Ara</string>
+    <string name="action_select_all">Tümünü seç</string>
+    <string name="action_skip">Atla</string>
+    <string name="action_tag_add">Etiket ekle</string>
+    <string name="action_tag_remove">Etiketi kaldır</string>
+    <string name="action_tag_set">Etiketi ayarla</string>
+    <string name="action_telegram">Telegram Grubu</string>
+    <string name="action_terminal">Terminal</string>
+    <string name="action_translate">Çeviri</string>
+    <string name="action_undo">Geri al</string>
+    <string name="action_unfreeze">Çöz</string>
+    <string name="action_unfreeze_all">Tümünü çöz</string>
+    <string name="action_unfreeze_current">Seçiliyi çöz</string>
+    <string name="action_unfreeze_remove_home">Çöz ve Ana Ekrandan Kaldır</string>
+    <string name="action_unfreeze_tag">Etiketlileri çöz</string>
+    <string name="action_uninstall">Kaldır</string>
+    <string name="action_unpin">Sabitlemeyi kaldır</string>
+    <string name="action_whitelist">Beyaz listeye ekle</string>
+    <string name="activity_not_found">Başlatma etkinliği bulunamadı</string>
+    <string msgid="8719607706653693137" name="androidx_compose_foundation_autofill">"Otomatik doldurma"</string>
+    <string msgid="1150566100598813236" name="androidx_compose_ui_autofill">"Otomatik doldurma"</string>
+    <string name="app_name">Hail</string>
+    <string name="app_not_installed">Uygulama yüklü değil</string>
+    <string name="app_slogan">Özgürlük!</string>
+    <string name="auto_freeze">Otomatik dondur</string>
+    <string name="auto_freeze_after_lock">Ekran kilitlendikten sonra</string>
+    <string name="auto_freeze_delay">Dondurma gecikmesi (dakika)</string>
+    <string name="auto_freeze_notification_title">Otomatik dondurma hizmeti çalışıyor</string>
+    <string msgid="2102429900219199821" name="biometric_or_screen_lock_prompt_message">"Devam etmek için biyometrik kimlik bilginizi veya ekran kilidinizi kullanın"</string>
+    <string msgid="1160635338192065472" name="biometric_prompt_message">"Devam etmek için biyometrik kimlik bilginizi kullanın"</string>
+    <string name="bottomsheet_action_collapse">Alt sayfayı daralt</string>
+    <string name="bottomsheet_action_expand">Alt sayfayı genişlet</string>
+    <string name="bottomsheet_action_expand_halfway">Yarım genişlet</string>
+    <string name="bottomsheet_drag_handle_content_description">Sürükleme tutamacı</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Yanıtla"</string>
+    <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
+    <string msgid="3229508546291798546" name="call_notification_decline_action">"Reddet"</string>
+    <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Kapat"</string>
+    <string msgid="6107532579223922871" name="call_notification_incoming_text">"Gelen arama"</string>
+    <string msgid="8623827134497363134" name="call_notification_ongoing_text">"Devam eden arama"</string>
+    <string msgid="59049573811482460" name="call_notification_screening_text">"Gelen arama süzülüyor"</string>
+    <string name="character_counter_content_description">Girilen karakter: %1$d / %2$d</string>
+    <string name="character_counter_overflowed_content_description">Karakter sınırı aşıldı %1$d / %2$d</string>
+    <string name="clear_text_end_icon_content_description">Metni temizle</string>
+    <string msgid="406453423630273620" name="close_drawer">"Gezinme menüsünü kapat"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"Sayfayı kapat"</string>
+    <string name="command">Komut</string>
+    <string name="compact_icon">Kompakt ikon</string>
+    <string msgid="5912733858573823945" name="confirm_device_credential_password">"Şifre kullan"</string>
+    <string msgid="6083905920877235314" name="copy">"Kopyala"</string>
+    <string msgid="8038256446254964252" name="default_error_message">"Geçersiz giriş"</string>
+    <string msgid="4776854077120974966" name="default_error_msg">"Bilinmeyen hata"</string>
+    <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-up Pencere"</string>
+    <string name="donate_alipay">Alipay</string>
+    <string name="donate_bilibili">bilibili</string>
+    <string name="donate_bilibili_cancel">\@android:string/cancel</string>
+    <string name="donate_bilibili_msg">Beni bilibili\'de takip et.</string>
+    <string name="donate_bilibili_space">Benim sayfam</string>
+    <string name="donate_liberapay">Liberapay</string>
+    <string name="donate_paypal">PayPal</string>
+    <string name="donate_wechat">WeChat Pay</string>
+    <string name="donate_wechat_scan">Tara</string>
+    <string msgid="1890207353314751437" name="dropdown_menu">"Açılır menü"</string>
+    <string name="dynamic_shortcut_action">Dinamik kısayol eylemi</string>
+    <string name="error_a11y_label">Hata: geçersiz</string>
+    <string name="error_icon_content_description">Hata</string>
+    <string msgid="2427401033573778270" name="expand_button_title">"Gelişmiş"</string>
+    <string name="exposed_dropdown_menu_content_description">Açılır menüyü göster</string>
+    <string msgid="4562557128765735254" name="face_or_screen_lock_prompt_message">"Devam etmek için yüz veya ekran kilidinizi kullanın"</string>
+    <string msgid="2282389249605674226" name="face_prompt_message">"Devam etmek için yüzünüzü kullanın"</string>
+    <string name="filter_by">Filtrele</string>
+    <string name="filter_frozen_apps">Dondurulmuş</string>
+    <string name="filter_system_apps">Sistem</string>
+    <string name="filter_unfrozen_apps">Çözülmüş</string>
+    <string name="filter_user_apps">Kullanıcı</string>
+    <string msgid="5462024216548165325" name="fingerprint_dialog_icon_description">"Parmak izi simgesi"</string>
+    <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Parmak izi sensörüne dokunun"</string>
+    <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Parmak izi donanımı kullanılamıyor."</string>
+    <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Bu cihazda parmak izi sensörü yok"</string>
+    <string msgid="7291787166416782245" name="fingerprint_error_lockout">"Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin."</string>
+    <string msgid="7520712796891883488" name="fingerprint_error_no_fingerprints">"Parmak izi kaydedilmedi."</string>
+    <string msgid="7627716295344353987" name="fingerprint_error_user_canceled">"Parmak izi işlemi kullanıcı tarafından iptal edildi."</string>
+    <string msgid="3873359464293253009" name="fingerprint_not_recognized">"Tanınmadı"</string>
+    <string msgid="8382576858490514495" name="fingerprint_or_screen_lock_prompt_message">"Devam etmek için parmak izi veya ekran kilidinizi kullanın"</string>
+    <string msgid="7449360011861769080" name="fingerprint_prompt_message">"Devam etmek için parmak izinizi kullanın"</string>
+    <string name="freeze_system_app">Sistem uygulamalarının dondurulması veya kaldırılması önyükleme döngüsüne girmesine neden olabilir. Ne yaptığınızı bildiğinizden emin olun, verilerinizi önceden yedekleyin veya dosya yönetimini destekleyen kurtarma kullanın.</string>
+    <string name="fuzzy_search">Yaklaşık Arama</string>
+    <string msgid="3791785319221634505" name="generic_error_no_device_credential">"PIN, desen veya şifre seti yok"</string>
+    <string msgid="1807436368654974044" name="generic_error_no_keyguard">"Bu cihaz PIN, desen veya şifre kullanımını desteklemiyor"</string>
+    <string msgid="7309881387583143581" name="generic_error_user_canceled">"Kimlik doğrulama kullanıcı tarafından iptal edildi."</string>
+    <string name="grayscale_icon">Gri tonlamalı ikonlar</string>
+    <string name="home_font_size">Ana ekran yazı tipi boyutu</string>
+    <string name="icon_content_description">İletişim kutusu simgesi</string>
+    <string name="icon_pack">Simge paketi</string>
+    <string msgid="6827826412747255547" name="in_progress">"Devam ediyor"</string>
+    <string msgid="7933458017204019916" name="indeterminate">"Kısmi olarak kontrol edildi"</string>
+    <string name="item_view_role_description">Sekme</string>
+    <string name="label_default">Varsayılan</string>
+    <string name="label_time">Kurulum süresi</string>
+    <string name="label_version">Sürüm</string>
+    <string name="m3_loading_indicator_content_description">Yükleniyor</string>
+    <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Alt sayfayı daralt"</string>
+    <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Alt sayfayı kapat"</string>
+    <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Sürükleme tutamacı"</string>
+    <string msgid="6670819569745899763" name="m3c_bottom_sheet_expand_description">"Alt sayfayı genişlet"</string>
+    <string msgid="3010635850035863127" name="m3c_bottom_sheet_pane_title">"Alt Sayfa"</string>
+    <string msgid="8166741421776570875" name="m3c_date_input_headline">"Girilen tarih"</string>
+    <string msgid="229313757840775812" name="m3c_date_input_headline_description">"Girilen tarih: %1$s"</string>
+    <string msgid="6116910750161463197" name="m3c_date_input_invalid_for_pattern">"Tarih, istenen biçimle eşleşmiyor: %1$s"</string>
+    <string msgid="2521768508935305279" name="m3c_date_input_invalid_not_allowed">"Tarihe izin verilmiyor: %1$s"</string>
+    <string msgid="7052898923934555305" name="m3c_date_input_invalid_year_range">"Tarih, istenen %1$s-%2$s yıl aralığının dışında"</string>
+    <string msgid="2895559812010326913" name="m3c_date_input_label">"Tarih"</string>
+    <string msgid="1237013946323089826" name="m3c_date_input_no_input_description">"Yok"</string>
+    <string msgid="7306227249789210568" name="m3c_date_input_title">"Tarih seç"</string>
+    <string msgid="7605002211875882969" name="m3c_date_picker_headline">"Seçilen tarih"</string>
+    <string msgid="3664277305226978227" name="m3c_date_picker_headline_description">"Geçerli seçim: %1$s"</string>
+    <string msgid="8436650776581492840" name="m3c_date_picker_navigate_to_year_description">"%1$s yılına gidin"</string>
+    <string msgid="5811000998184572395" name="m3c_date_picker_no_selection_description">"Yok"</string>
+    <string msgid="7813882352367152251" name="m3c_date_picker_scroll_to_earlier_years">"Önceki yılları göstermek için kaydırın"</string>
+    <string msgid="5727367015496556177" name="m3c_date_picker_scroll_to_later_years">"Sonraki yılları göstermek için kaydırın"</string>
+    <string msgid="1804346892470238807" name="m3c_date_picker_switch_to_calendar_mode">"Takvim giriş moduna geç"</string>
+    <string msgid="395627960681594326" name="m3c_date_picker_switch_to_day_selection">"Kaydırarak bir yıl seçin veya gün seçme bölümüne geri dönmek için dokunun"</string>
+    <string msgid="2219746470065162704" name="m3c_date_picker_switch_to_input_mode">"Metin giriş moduna geç"</string>
+    <string msgid="7142101321095356500" name="m3c_date_picker_switch_to_next_month">"Sonraki aya değiştir"</string>
+    <string msgid="228438865139394590" name="m3c_date_picker_switch_to_previous_month">"Önceki aya değiştir"</string>
+    <string msgid="791651718641787594" name="m3c_date_picker_switch_to_year_selection">"Yıl seçimine geç"</string>
+    <string msgid="7430790972741451689" name="m3c_date_picker_title">"Tarih seç"</string>
+    <string msgid="3199387177749801575" name="m3c_date_picker_today_description">"Bugün"</string>
+    <string msgid="2068382232816991922" name="m3c_date_picker_year_picker_pane_title">"Yıl seçici görünür durumda"</string>
+    <string msgid="3190049423327661366" name="m3c_date_range_input_invalid_range_input">"Geçersiz tarih aralığı girişi"</string>
+    <string msgid="3148384720560189467" name="m3c_date_range_input_title">"Tarihleri girin"</string>
+    <string msgid="2138321128465719402" name="m3c_date_range_picker_day_in_range">"Aralıkta"</string>
+    <string msgid="4947636797751277713" name="m3c_date_range_picker_end_headline">"Bitiş tarihi"</string>
+    <string msgid="602077859540990149" name="m3c_date_range_picker_scroll_to_next_month">"Sonraki ayı göstermek için kaydırın"</string>
+    <string msgid="4592174524846109496" name="m3c_date_range_picker_scroll_to_previous_month">"Önceki ayı göstermek için kaydırın"</string>
+    <string msgid="4665981448952749820" name="m3c_date_range_picker_start_headline">"Başlangıç tarihi"</string>
+    <string msgid="3134165431120340385" name="m3c_date_range_picker_title">"Tarihleri seçin"</string>
+    <string msgid="7617233117134790350" name="m3c_dialog">"Dialog"</string>
+    <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Daraltıldı"</string>
+    <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Genişletildi"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Açılır menüyü açın/kapatın"</string>
+    <string msgid="6072492480528318635" name="m3c_floating_toolbar_collapse">"Araç çubuğunu daralt"</string>
+    <string msgid="6880757017246780255" name="m3c_floating_toolbar_expand">"Araç çubuğunu genişlet"</string>
+    <string msgid="6152806324422087846" name="m3c_search_bar_search">"Arama"</string>
+    <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Kapat"</string>
+    <string msgid="3868801555855510515" name="m3c_snackbar_pane_title">"Uyarı"</string>
+    <string msgid="7655536806087401899" name="m3c_suggestions_available">"Önerileri aşağıda bulabilirsiniz"</string>
+    <string msgid="409352516511718051" name="m3c_time_input_dialog_title">"Saat Girin"</string>
+    <string msgid="2786685010796619560" name="m3c_time_picker_am">"ÖÖ"</string>
+    <string msgid="7412665527536641863" name="m3c_time_picker_dialog_title">"Saat Seçin"</string>
+    <string msgid="2349193472625211372" name="m3c_time_picker_hour">"Saat"</string>
+    <string msgid="9179527532316922345" name="m3c_time_picker_hour_24h_suffix">"%1$d saat"</string>
+    <string msgid="8876759303332837035" name="m3c_time_picker_hour_selection">"Saat seçin"</string>
+    <string msgid="3458167507790628988" name="m3c_time_picker_hour_suffix">"Saat %1$d"</string>
+    <string msgid="6973808109666874069" name="m3c_time_picker_hour_text_field">"saat"</string>
+    <string msgid="4313071914266462005" name="m3c_time_picker_minute">"Dakika"</string>
+    <string msgid="4699133535056739733" name="m3c_time_picker_minute_selection">"Dakikayı seçin"</string>
+    <string msgid="5064177921781937179" name="m3c_time_picker_minute_suffix">"%1$d dakika"</string>
+    <string msgid="7661234488295443182" name="m3c_time_picker_minute_text_field">"dakika"</string>
+    <string msgid="5865171949528594571" name="m3c_time_picker_period_toggle_description">"ÖÖ veya ÖS\'yi seçin"</string>
+    <string msgid="6616362054113087709" name="m3c_time_picker_pm">"ÖS"</string>
+    <string msgid="4145073906612931838" name="m3c_time_picker_toggle_keyboard">"Saat girmek için metin giriş moduna geç"</string>
+    <string msgid="8841786098195101324" name="m3c_time_picker_toggle_touch">"Saati girmek için saat moduna geç"</string>
+    <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Araç ipucunu göster"</string>
+    <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"İpucu"</string>
+    <string msgid="6564222473543418073" name="m3c_wide_navigation_rail_close_rail">"Sütunu kapat"</string>
+    <string msgid="8350283435461615411" name="m3c_wide_navigation_rail_pane_title">"Gezinme sütunu"</string>
+    <string name="material_clock_toggle_content_description">ÖÖ veya ÖS\'yi seçin</string>
+    <string name="material_hour_24h_suffix">%1$s saat</string>
+    <string name="material_hour_selection">Saat seçin</string>
+    <string name="material_hour_suffix">Saat %1$s</string>
+    <string name="material_minute_selection">Dakikayı seçin</string>
+    <string name="material_minute_suffix">%1$s dakika</string>
+    <string name="material_slider_range_end">Aralık sonu</string>
+    <string name="material_slider_range_start">Aralık başlangıcı</string>
+    <string name="material_slider_value">Değer</string>
+    <string name="material_timepicker_am">AM</string>
+    <string name="material_timepicker_clock_mode_description">Zaman girişi için saat moduna geçin.</string>
+    <string name="material_timepicker_hour">Saat</string>
+    <string name="material_timepicker_minute">Dakika</string>
+    <string name="material_timepicker_pm">PM</string>
+    <string name="material_timepicker_select_time">Zamanı seçin</string>
+    <string name="material_timepicker_text_input_mode_description">Zaman girişi için metin girişi moduna geçin.</string>
+    <string name="mode_default">Yok</string>
+    <string name="mode_dhizuku_hide">Dhizuku - Gizle</string>
+    <string name="mode_dhizuku_suspend">Dhizuku - Askıya al</string>
+    <string name="mode_island_hide">Island/Insular - Gizle</string>
+    <string name="mode_island_suspend">Island/Insular - Askıya al</string>
+    <string name="mode_owner_hide">Cihaz Yöneticisi - Gizle</string>
+    <string name="mode_owner_suspend">Cihaz Yöneticisi - Askıya Al</string>
+    <string name="mode_privapp_disable">Sistem Uygulaması - Devre Dışı Bırak</string>
+    <string name="mode_privapp_stop">Sistem Uygulaması - Durdurmaya Zorla</string>
+    <string name="mode_shizuku_disable">Shizuku - Devre dışı bırak</string>
+    <string name="mode_shizuku_hide">Shizuku - Gizle</string>
+    <string name="mode_shizuku_stop">Shizuku - Durdurmaya Zorla</string>
+    <string name="mode_shizuku_suspend">Shizuku - Askıya al</string>
+    <string name="mode_su_disable">Root - Devre dışı bırak</string>
+    <string name="mode_su_hide">Root - Gizle</string>
+    <string name="mode_su_stop">Root - Durdurmaya Zorla</string>
+    <string name="mode_su_suspend">Root - Askıya al</string>
+    <string name="msg_biometric">Biyometrik kimlik bilgilerinizi kullanarak giriş yapın</string>
+    <string name="msg_exported">Dışa aktarılan: %s</string>
+    <string name="msg_extract_apk">Çıkarıldığı konum: %s</string>
+    <string name="msg_freeze">Donuk: %s</string>
+    <string name="msg_guide">Uygulamaları dondurmadan önce, lütfen ayarlardan bir çalışma yöntemi seçin.</string>
+    <string name="msg_imported">İçe Aktarılan: %s</string>
+    <string name="msg_remove_owner">Cihaz Yöneticisi kaldırılacak, kaldırdıktan sonra yeniden ayarlamak zor olabilir.
+\n Dondurulmuş uygulamalar, kaldırıldıktan sonra da donuk olarak kalır, önemli uygulamaların çözülmüş olduğundan emin olun.</string>
+    <string name="msg_selected">Seçilen: %s</string>
+    <string name="msg_set_owner">adb komutu hatalı:
+\n%s</string>
+    <string name="msg_text_copied">Kopyalanan: %s</string>
+    <string name="msg_unfreeze">Çözülmüş: %s</string>
+    <string name="msg_uninstall">Bu uygulamayı kaldırmak istiyor musunuz\?</string>
+    <string name="mtrl_badge_numberless_content_description">Yeni bildirim</string>
+    <string name="mtrl_checkbox_state_description_checked">İşaretlendi</string>
+    <string name="mtrl_checkbox_state_description_indeterminate">Kısmi olarak işaretlendi</string>
+    <string name="mtrl_checkbox_state_description_unchecked">İşaretlenmedi</string>
+    <string name="mtrl_chip_close_icon_content_description">%1$s içeriğini kaldır</string>
+    <string name="mtrl_exceed_max_badge_number_content_description" ns2:ignore="PluralsCandidate">%1$d adetten fazla yeni bildirim</string>
+    <string name="mtrl_picker_a11y_next_month">Sonraki aya değiştir</string>
+    <string name="mtrl_picker_a11y_prev_month">Önceki aya değiştir</string>
+    <string name="mtrl_picker_announce_current_range_selection">Başlangıç tarihi seçimi: %1$s – Bitiş tarihi seçimi: %2$s</string>
+    <string name="mtrl_picker_announce_current_selection">Geçerli seçim: %1$s</string>
+    <string name="mtrl_picker_announce_current_selection_none">yok</string>
+    <string name="mtrl_picker_cancel">İptal</string>
+    <string name="mtrl_picker_confirm">Tamam</string>
+    <string name="mtrl_picker_date_header_selected">%1$s</string>
+    <string name="mtrl_picker_date_header_title">Tarih Seçin</string>
+    <string name="mtrl_picker_date_header_unselected">Seçilen tarih</string>
+    <string name="mtrl_picker_day_of_week_column_header">%1$s</string>
+    <string name="mtrl_picker_end_date_description">Bitiş tarihi: %1$s</string>
+    <string name="mtrl_picker_invalid_format">Geçersiz biçim.</string>
+    <string name="mtrl_picker_invalid_format_example">Örnek: %1$s</string>
+    <string name="mtrl_picker_invalid_format_use">Tarih biçimi: %1$s</string>
+    <string name="mtrl_picker_invalid_range">Geçersiz aralık.</string>
+    <string name="mtrl_picker_navigate_to_current_year_description">Geçerli yıla (%1$d) git</string>
+    <string name="mtrl_picker_navigate_to_year_description">%1$d yılına git</string>
+    <string name="mtrl_picker_out_of_range">İzin verilen aralığın dışında: %1$s</string>
+    <string name="mtrl_picker_range_header_only_end_selected">Başlangıç tarihi – %1$s</string>
+    <string name="mtrl_picker_range_header_only_start_selected">%1$s – Bitiş tarihi</string>
+    <string name="mtrl_picker_range_header_selected">%1$s-%2$s</string>
+    <string name="mtrl_picker_range_header_title">Aralık Seçin</string>
+    <string name="mtrl_picker_range_header_unselected">Başlangıç tarihi - Bitiş tarihi</string>
+    <string name="mtrl_picker_save">Kaydet</string>
+    <string name="mtrl_picker_start_date_description">Başlangıç tarihi: %1$s</string>
+    <string name="mtrl_picker_text_input_date_hint">Tarih</string>
+    <string name="mtrl_picker_text_input_date_range_end_hint">Bitiş tarihi</string>
+    <string name="mtrl_picker_text_input_date_range_start_hint">Başlangıç tarihi</string>
+    <string name="mtrl_picker_text_input_day_abbr">g</string>
+    <string name="mtrl_picker_text_input_month_abbr">a</string>
+    <string name="mtrl_picker_text_input_year_abbr">y</string>
+    <string name="mtrl_picker_today_description">Bugün, %1$s</string>
+    <string name="mtrl_picker_toggle_to_calendar_input_mode">Takvim giriş moduna geç</string>
+    <string name="mtrl_picker_toggle_to_day_selection">Takvim görünümüne geç</string>
+    <string name="mtrl_picker_toggle_to_text_input_mode">Metin giriş moduna geç</string>
+    <string name="mtrl_picker_toggle_to_year_selection">Yıl görünümüne geç</string>
+    <string name="mtrl_picker_toggled_to_day_selection">Takvim görünümüne geçildi</string>
+    <string name="mtrl_picker_toggled_to_year_selection">Yıl görünümüne geçildi</string>
+    <string name="mtrl_timepicker_cancel">İptal</string>
+    <string name="mtrl_timepicker_confirm">Tamam</string>
+    <string msgid="6301633601645100427" name="nav_app_bar_navigate_up_description">"Yukarı git"</string>
+    <string msgid="7456070600745802113" name="nav_app_bar_open_drawer_description">"Gezinme çekmecesini aç"</string>
+    <string msgid="542007171693138492" name="navigation_menu">"Gezinme menüsü"</string>
+    <string name="nine_key">T9 Arama</string>
+    <string msgid="6610465462668679431" name="not_selected">"Seçili değil"</string>
+    <string msgid="6573031135582639649" name="not_set">"Ayarlanmadı"</string>
+    <string name="nothing_here">Burada hiçbir şey yok</string>
+    <string name="operation_failed">İşlem başarısız oldu: %s</string>
+    <string name="password_toggle_content_description">Şifreyi göster</string>
+    <string name="permission_denied">İzin reddedildi</string>
+    <string msgid="6685851473431805375" name="preference_copied">"\"<ns1:g id="SUMMARY">%1$s</ns1:g>\" panoya kopyalandı."</string>
+    <string msgid="5941395253238309765" name="range_end">"Aralık sonu"</string>
+    <string msgid="7097486360902471446" name="range_start">"Aralık başlangıcı"</string>
+    <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Devam etmek için ekran kilidinizi girin"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Ara"</string>
+    <string name="searchview_clear_text_content_description">Metni temizle</string>
+    <string name="searchview_navigation_content_description">Geri</string>
+    <string msgid="6043586758067023" name="selected">"Seçili"</string>
+    <string name="shizuku_hide_adb">Shizuku adb olarak çalışıyor. Uygulamaları gizlemek için lütfen Shizuku\'yu root ile yeniden başlatın.</string>
+    <string name="shizuku_missing">Shizuku kayıp :(</string>
+    <string name="side_sheet_accessibility_pane_title">Yan Sayfa</string>
+    <string name="skip_foreground_app">Çalışan uygulamaları atla</string>
+    <string name="skip_notifying_app">Bildirim gönderen uygulamaları atla</string>
+    <string name="skip_while_charging">Şarjdayken atla</string>
+    <string msgid="2792228137354697160" name="snackbar_pane_title">"Uyarı"</string>
+    <string name="sort_by">Şuna göre sırala</string>
+    <string name="sort_install">İlk yüklenme</string>
+    <string name="sort_name">İsim</string>
+    <string name="sort_update">Son güncellenme</string>
+    <string msgid="4139871816613051306" name="state_empty">"Boş"</string>
+    <string msgid="5834637030682409883" name="state_off">"Kapalı"</string>
+    <string msgid="1490883874751719580" name="state_on">"Açık"</string>
+    <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string msgid="9167775378838880170" name="summary_collapsed_preference_list">"<ns1:g id="CURRENT_ITEMS">%1$s</ns1:g>, <ns1:g id="ADDED_ITEMS">%2$s</ns1:g>"</string>
+    <string msgid="2561197295334830845" name="switch_role">"Anahtar"</string>
+    <string name="synthesize_adaptive_icons">Uyarlanabilir simgeler kullan</string>
+    <string msgid="1672349317127674378" name="tab">"Sekme"</string>
+    <string name="tag">Etiket</string>
+    <string name="tap_to_select">Çoklu seçim için tıkla</string>
+    <string msgid="5946805113151406391" name="template_percent">"Yüzde <ns1:g id="PERCENTAGE">%1$d</ns1:g>."</string>
+    <string name="tile_action">Hızlı eylem</string>
+    <string name="title_about">Hakkında</string>
+    <string name="title_apps">Uygulamalar</string>
+    <string name="title_customize">Kişiselleştir</string>
+    <string name="title_donate">Teşekkürler!</string>
+    <string name="title_home">Ana ekran</string>
+    <string name="title_remove_owner">Cihaz Yöneticisini Kaldır</string>
+    <string name="title_set_owner">Cihaz yöneticisi ayarla</string>
+    <string name="title_settings">Ayarlar</string>
+    <string name="title_shortcuts">Kısayollar</string>
+    <string msgid="3765533235322692011" name="tooltip_description">"ipucu"</string>
+    <string msgid="3124740595719787496" name="tooltip_label">"ipucunu göster"</string>
+    <string msgid="6524145989441579428" name="use_biometric_label">"Biyometri kullan"</string>
+    <string msgid="5385448280139639016" name="use_biometric_or_screen_lock_label">"Biyometri veya ekran kilidi kullan"</string>
+    <string msgid="6533512708069459542" name="use_face_label">"Yüz tanıma kullan"</string>
+    <string msgid="2116180187159450292" name="use_face_or_screen_lock_label">"Yüz tanıma veya ekran kilidi kullan"</string>
+    <string msgid="6961788485681412417" name="use_fingerprint_label">"Parmak izi kullan"</string>
+    <string msgid="7577690399303139443" name="use_fingerprint_or_screen_lock_label">"Parmak izi veya ekran kilidi kullan"</string>
+    <string msgid="5459869335976243512" name="use_screen_lock_label">"Ekran kilidi kullan"</string>
+    <string msgid="3140233346420563315" name="v7_preference_off">"KAPALI"</string>
+    <string msgid="89551595707643515" name="v7_preference_on">"AÇIK"</string>
+    <string name="working_mode">Çalışma yöntemi</string>
+</resources>

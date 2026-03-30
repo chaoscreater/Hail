@@ -1,0 +1,242 @@
+[
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_activity_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_round_frozen_shortcut.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_round_frozen_shortcut.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_round_frozen.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_round_frozen.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_baseline_terminal.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_baseline_terminal.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_item_apps.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/item_apps.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/menu_menu_home.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/menu/menu_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_lock_shortcut.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_lock_shortcut.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_progress.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_progress.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_add_to_home.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_add_to_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_settings.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_settings.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_baseline_info.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_baseline_info.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/xml_device_admin.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/xml/device_admin.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_whitelist.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_whitelist.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_fragment_home.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_home_shortcuts.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_home_shortcuts.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_settings_selector.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_settings_selector.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout-land_app_bar_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout-land/app_bar_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_item_tag_check.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/item_tag_check.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_round_unfrozen.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_round_unfrozen.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/menu_menu_settings.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/menu/menu_settings.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_baseline_settings.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_baseline_settings.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_app_bar_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/app_bar_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-xhdpi_qr_wechat.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-xhdpi/qr_wechat.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_baseline_android.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_baseline_android.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_launcher_monochrome.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_launcher_monochrome.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout-land_activity_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout-land/activity_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_tag_manage.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_tag_manage.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_filter.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_filter.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_lock.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_lock.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_item_home.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/item_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_remove_owner.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_remove_owner.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/menu_menu_apps_action.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/menu/menu_apps_action.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/raw_licenses.flat",
+        "source": "com.aistra.hail.app-main-78:/raw/licenses"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_input.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_input.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/menu_menu_apps.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/menu/menu_apps.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_content_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/content_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_round_unfrozen_shortcut.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_round_unfrozen_shortcut.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_home.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_home.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_fragment_pager.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/fragment_pager.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_select_all.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_select_all.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_deselect_all.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_deselect_all.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/menu_nav_main.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/menu/nav_main.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_dialog_tag_select.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/dialog_tag_select.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.aistra.hail.app-main-78:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_help.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_help.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_info_selector.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_info_selector.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_info.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_info.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/navigation_mobile_navigation.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/navigation/mobile_navigation.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_search.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_search.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/drawable_ic_outline_sort.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/drawable/ic_outline_sort.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_fragment_apps.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/fragment_apps.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/layout_item_whitelist.xml.flat",
+        "source": "com.aistra.hail.app-main-78:/layout/item_whitelist.xml"
+    },
+    {
+        "merged": "com.aistra.hail.app-debug-76:/xml__generated_res_locale_config.xml.flat",
+        "source": "com.aistra.hail.app-localeConfig-71:/xml/_generated_res_locale_config.xml"
+    }
+]
