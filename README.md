@@ -31,7 +31,7 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 
 
 # Download link here:
-https://github.com/chaoscreater/Hail/blob/master/Hail-v1.10.0-glocal.apk
+https://github.com/chaoscreater/Hail/blob/master/app/build/outputs/apk/release/Hail-v1.10.0-glocal.apk
 
 <br>
 <br>
