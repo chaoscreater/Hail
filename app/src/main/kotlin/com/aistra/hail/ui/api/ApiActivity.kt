@@ -54,7 +54,16 @@ class ApiActivity : ComponentActivity() {
 
             Intent.ACTION_VIEW -> return handleSchema(intent.data)
 
-            HailApi.ACTION_LAUNCH -> launchApp(requirePackage, runCatching { requireTagId }.getOrNull())
+            HailApi.ACTION_LAUNCH -> {
+                val pkg = requirePackage
+                val tagId = runCatching { requireTagId }.getOrNull()
+                val fromShell = referrer?.toString() == "android-app://com.android.shell"
+                if (!fromShell && HailData.shortcutLaunchPrompt) {
+                    setContent { AppTheme { LaunchPromptDialog(pkg, tagId) } }
+                    return false
+                }
+                launchApp(pkg, tagId)
+            }
             HailApi.ACTION_FREEZE -> setAppFrozen(requirePackage, true)
             HailApi.ACTION_UNFREEZE -> setAppFrozen(requirePackage, false)
             HailApi.ACTION_FREEZE_TAG -> setListFrozen(
@@ -162,6 +171,34 @@ class ApiActivity : ComponentActivity() {
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
         )
         Text(text = stringResource(title), style = MaterialTheme.typography.bodyLarge)
+    }
+
+    @Composable
+    private fun LaunchPromptDialog(pkg: String, tagId: Int?) {
+        val label = HPackages.getApplicationInfoOrNull(pkg)
+            ?.loadLabel(packageManager)?.toString() ?: pkg
+        AlertDialog(
+            onDismissRequest = ::finish,
+            title = { Text(text = label) },
+            text = { Text(text = stringResource(R.string.shortcut_launch_prompt_title)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        if (!HailData.isChecked(pkg)) HailData.addCheckedApp(pkg)
+                        setAppFrozen(pkg, true)
+                        finish()
+                    }.onFailure(::setErrorDialog)
+                }) { Text(text = stringResource(R.string.action_freeze)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    runCatching {
+                        launchApp(pkg, tagId)
+                        finish()
+                    }.onFailure(::setErrorDialog)
+                }) { Text(text = stringResource(R.string.action_launch)) }
+            }
+        )
     }
 
     @Composable

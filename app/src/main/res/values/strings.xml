@@ -96,6 +96,8 @@
     <string name="whitelisted_apps">Whitelisted apps</string>
     <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
     <string name="home_shortcuts">Home screen shortcuts</string>
+    <string name="shortcut_launch_prompt">Prompt on shortcut launch</string>
+    <string name="shortcut_launch_prompt_title">What would you like to do?</string>
     <string name="tab_all_apps">All apps</string>
     <string name="tab_selected">Selected</string>
     <string name="app_not_installed">App not installed</string>

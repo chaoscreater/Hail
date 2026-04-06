@@ -291,6 +291,12 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 icon = { Icon(imageVector = Icons.AutoMirrored.Outlined.Shortcut, contentDescription = null) },
                 onClick = ::addPinShortcut
             )
+            switchPreference(
+                key = HailData.SHORTCUT_LAUNCH_PROMPT,
+                defaultValue = false,
+                titleId = R.string.shortcut_launch_prompt,
+                icon = Icons.Outlined.TouchApp
+            )
             listPreference(
                 key = HailData.DYNAMIC_SHORTCUT_ACTION,
                 defaultValue = HailData.ACTION_NONE,
