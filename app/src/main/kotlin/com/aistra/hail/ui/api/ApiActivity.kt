@@ -182,21 +182,27 @@ class ApiActivity : ComponentActivity() {
             title = { Text(text = label) },
             text = { Text(text = stringResource(R.string.shortcut_launch_prompt_title)) },
             confirmButton = {
-                TextButton(onClick = {
-                    runCatching {
-                        if (!HailData.isChecked(pkg)) HailData.addCheckedApp(pkg)
-                        setAppFrozen(pkg, true)
-                        finish()
-                    }.onFailure(::setErrorDialog)
-                }) { Text(text = stringResource(R.string.action_freeze)) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    runCatching {
-                        launchApp(pkg, tagId)
-                        finish()
-                    }.onFailure(::setErrorDialog)
-                }) { Text(text = stringResource(R.string.action_launch)) }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    TextButton(
+                        onClick = {
+                            runCatching {
+                                launchApp(pkg, tagId)
+                                finish()
+                            }.onFailure(::setErrorDialog)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(text = stringResource(R.string.action_launch)) }
+                    TextButton(
+                        onClick = {
+                            runCatching {
+                                if (!HailData.isChecked(pkg)) HailData.addCheckedApp(pkg)
+                                setAppFrozen(pkg, true)
+                                finish()
+                            }.onFailure(::setErrorDialog)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(text = stringResource(R.string.action_freeze)) }
+                }
             }
         )
     }

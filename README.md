@@ -19,7 +19,8 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 12. Performance improvements when switching between tag categories, especially on tablets. Can instantly jump to the tag category all the way to the left or right without the loading animation delay.
 13. Added a Home button to jump to the Default page.
 14. Added support to add multiple apps to your launcher's home screen. These apps can be predefined and will be included in your export/import settings. For example, let's say you have 100 apps and you want to add 50 of them to your launcher's home screen. You can select them and the next time you migrate to a new phone, you can just import your Hail settings and they'll all be ticked. Then, just add to home screen in one go.
-15. You can now systematically add/remove an app to/from whitelist.
+15. You can now launch and freeze an app using the same shortcut that you've added to the home launcher. You must first enable the prompt in the Hail settings, then add an app in Hail to the home launcher and launch it. The freezing of the app will just for that app, not for any other apps. Note that if you launch a Hail app via adb command (adb shell am start -a com.aistra.hail.action.LAUNCH -e package XYZ), it will still just launch fine without a prompt. The prompt is only for manual user app launches.
+16. You can now systematically add/remove an app to/from whitelist.
 
   - Whitelist an app (must already be on Home)
     <br>
