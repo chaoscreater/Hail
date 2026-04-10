@@ -9,7 +9,10 @@ class AppInfo(
     var pinned: Boolean = false,
     var whitelisted: Boolean = false,
     val tagIdList: MutableList<Int> = mutableListOf(0),
-    var addToHomeScreen: Boolean = false
+    var addToHomeScreen: Boolean = false,
+    var prereqPackage: String? = null,
+    var prereqLaunch: Boolean = false,
+    var prereqEnable: Boolean = false
 ) {
     enum class State { NOT_FOUND, UNFROZEN, FROZEN }
 

@@ -1,5 +1,6 @@
 package com.aistra.hail.ui.home
 
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.provider.Settings
@@ -259,20 +260,14 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
 
                 6 -> if (tabs.tabCount > 1) MaterialAlertDialogBuilder(requireActivity()).setTitle(R.string.action_unfreeze_tag)
                     .setItems(HailData.tags.map { it.first }.toTypedArray()) { _, index ->
-                        HShortcuts.addPinShortcut(
-                            info,
-                            pkg,
-                            info.name,
-                            HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg).addTag(HailData.tags[index].first)
-                        )
+                        showPrerequisiteDialog(info, pkg,
+                            HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg).addTag(HailData.tags[index].first))
                     }.setPositiveButton(R.string.action_skip) { _, _ ->
-                        HShortcuts.addPinShortcut(
-                            info, pkg, info.name, HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg)
-                        )
+                        showPrerequisiteDialog(info, pkg,
+                            HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg))
                     }.setNegativeButton(android.R.string.cancel, null).show()
-                else HShortcuts.addPinShortcut(
-                    info, pkg, info.name, HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg)
-                )
+                else showPrerequisiteDialog(info, pkg,
+                    HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg))
 
                 7 -> exportToClipboard(listOf(info))
                 8 -> removeCheckedApp(pkg)
@@ -355,6 +350,40 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             else tags.withIndex().filter { (_, tag) -> tag.first.contains(query, ignoreCase = true) }.toList()
             notifyDataSetChanged()
         }
+    }
+
+    private fun showPrerequisiteDialog(info: AppInfo, pkg: String, shortcutIntent: Intent) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_prerequisite, null)
+        val editText = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
+        val checkboxLaunch = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_launch)
+        val checkboxEnable = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable)
+
+        // Pre-fill with existing prereq config if any
+        info.prereqPackage?.let { editText.setText(it) }
+        checkboxLaunch.isChecked = info.prereqLaunch
+        checkboxEnable.isChecked = info.prereqEnable
+
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.prerequisite_app_title)
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val prereqPkg = editText.text?.toString()?.trim().orEmpty()
+                if (prereqPkg.isNotEmpty() && (checkboxLaunch.isChecked || checkboxEnable.isChecked)) {
+                    info.prereqPackage = prereqPkg
+                    info.prereqLaunch = checkboxLaunch.isChecked
+                    info.prereqEnable = checkboxEnable.isChecked
+                } else {
+                    info.prereqPackage = null
+                    info.prereqLaunch = false
+                    info.prereqEnable = false
+                }
+                HailData.saveApps()
+                HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
+            }
+            .setNegativeButton(R.string.action_skip) { _, _ ->
+                HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
+            }
+            .show()
     }
 
     private fun deselect(update: Boolean = true) {

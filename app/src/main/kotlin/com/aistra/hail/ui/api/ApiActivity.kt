@@ -244,6 +244,7 @@ class ApiActivity : ComponentActivity() {
         } ?: throw IllegalArgumentException("Tag must not be null")
 
     private fun launchApp(pkg: String, tagId: Int? = null) {
+        handlePrerequisiteApp(pkg)
         if (tagId != null) setListFrozen(false, HailData.checkedList.filter { tagId in it.tagIdList })
         if (AppManager.isAppFrozen(pkg) && AppManager.setAppFrozen(pkg, false)) {
             app.setAutoFreezeService()
@@ -252,6 +253,22 @@ class ApiActivity : ComponentActivity() {
             HShortcuts.addDynamicShortcut(pkg)
             startActivity(it)
         } ?: throw ActivityNotFoundException(getString(R.string.activity_not_found))
+    }
+
+    private fun handlePrerequisiteApp(pkg: String) {
+        val appInfo = HailData.checkedList.find { it.packageName == pkg } ?: return
+        val prereqPkg = appInfo.prereqPackage ?: return
+
+        // Unfreeze the prerequisite app if it's frozen and either launch or enable is requested
+        if ((appInfo.prereqLaunch || appInfo.prereqEnable) && AppManager.isAppFrozen(prereqPkg)) {
+            if (AppManager.setAppFrozen(prereqPkg, false)) {
+                app.setAutoFreezeService()
+            }
+        }
+        // Launch the prerequisite app after unfreezing
+        if (appInfo.prereqLaunch) {
+            packageManager.getLaunchIntentForPackage(prereqPkg)?.let { startActivity(it) }
+        }
     }
 
     private fun setAppFrozen(pkg: String, frozen: Boolean) = when {

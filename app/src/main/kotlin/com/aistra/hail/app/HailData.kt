@@ -32,6 +32,9 @@ object HailData {
     private const val KEY_ADD_TO_HOME_SCREEN = "add_to_home_screen"
     const val KEY_PACKAGE = "package"
     const val KEY_FROZEN = "frozen"
+    const val KEY_PREREQ_PACKAGE = "prereq_package"
+    const val KEY_PREREQ_LAUNCH = "prereq_launch"
+    const val KEY_PREREQ_ENABLE = "prereq_enable"
     private const val SORT_BY = "sort_by"
     const val SORT_NAME = "name"
     const val SORT_INSTALL = "install"
@@ -210,7 +213,10 @@ object HailData {
                             tagIdList = optJSONArray(KEY_TAGS)?.let {
                                 MutableList(it.length()) { index -> it.getInt(index) }
                             } ?: mutableListOf(optInt(KEY_TAG)),
-                            addToHomeScreen = optBoolean(KEY_ADD_TO_HOME_SCREEN)
+                            addToHomeScreen = optBoolean(KEY_ADD_TO_HOME_SCREEN),
+                            prereqPackage = optString(KEY_PREREQ_PACKAGE).ifEmpty { null },
+                            prereqLaunch = optBoolean(KEY_PREREQ_LAUNCH),
+                            prereqEnable = optBoolean(KEY_PREREQ_ENABLE)
                         )
                     })
                 }
@@ -241,6 +247,9 @@ object HailData {
                         .put(KEY_WHITELISTED, it.whitelisted)
                         .put(KEY_TAGS, JSONArray(it.tagIdList))
                         .put(KEY_ADD_TO_HOME_SCREEN, it.addToHomeScreen)
+                        .put(KEY_PREREQ_PACKAGE, it.prereqPackage ?: "")
+                        .put(KEY_PREREQ_LAUNCH, it.prereqLaunch)
+                        .put(KEY_PREREQ_ENABLE, it.prereqEnable)
                 )
             }
             toString()
