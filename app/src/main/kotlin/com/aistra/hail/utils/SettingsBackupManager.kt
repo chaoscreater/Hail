@@ -35,6 +35,9 @@ object SettingsBackupManager {
             obj.put("whitelisted", appInfo.whitelisted)
             obj.put("tags", JSONArray(appInfo.tagIdList))
             obj.put("add_to_home_screen", appInfo.addToHomeScreen)
+            obj.put(HailData.KEY_PREREQ_PACKAGE, appInfo.prereqPackage ?: "")
+            obj.put(HailData.KEY_PREREQ_LAUNCH, appInfo.prereqLaunch)
+            obj.put(HailData.KEY_PREREQ_ENABLE, appInfo.prereqEnable)
             appsArray.put(obj)
         }
         root.put(KEY_APPS, appsArray)
@@ -149,13 +152,19 @@ object SettingsBackupManager {
                     mutableListOf(0)
                 }
                 val addToHomeScreen = obj.optBoolean("add_to_home_screen", false)
+                val prereqPackage = obj.optString(HailData.KEY_PREREQ_PACKAGE).ifEmpty { null }
+                val prereqLaunch = obj.optBoolean(HailData.KEY_PREREQ_LAUNCH, false)
+                val prereqEnable = obj.optBoolean(HailData.KEY_PREREQ_ENABLE, false)
                 HailData.checkedList.add(
                     com.aistra.hail.app.AppInfo(
                         packageName = packageName,
                         pinned = pinned,
                         whitelisted = whitelisted,
                         tagIdList = tagIdList,
-                        addToHomeScreen = addToHomeScreen
+                        addToHomeScreen = addToHomeScreen,
+                        prereqPackage = prereqPackage,
+                        prereqLaunch = prereqLaunch,
+                        prereqEnable = prereqEnable
                     )
                 )
             }

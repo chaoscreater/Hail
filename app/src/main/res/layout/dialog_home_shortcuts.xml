@@ -30,6 +30,16 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_include_prereqs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_medium"
+            android:layout_marginEnd="@dimen/padding_medium"
+            android:text="@string/prerequisite_include_prompt"
+            android:checked="true"
+            android:visibility="gone"/>
+
     <LinearLayout
             android:id="@+id/btn_container"
             android:layout_width="match_parent"

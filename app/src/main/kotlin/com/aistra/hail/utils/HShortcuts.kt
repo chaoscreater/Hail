@@ -14,15 +14,11 @@ import com.aistra.hail.R
 import com.aistra.hail.app.AppInfo
 import com.aistra.hail.app.HailApi
 import com.aistra.hail.app.HailData
-import me.zhanghai.android.appiconloader.AppIconLoader
+import com.aistra.hail.utils.HPackages
 
 object HShortcuts {
-    private val iconLoader by lazy {
-        AppIconLoader(
-            app.resources.getDimensionPixelSize(R.dimen.app_icon_size),
-            HailData.synthesizeAdaptiveIcons,
-            app
-        )
+    private val iconSize by lazy {
+        app.resources.getDimensionPixelSize(R.dimen.app_icon_size)
     }
 
     fun addPinShortcut(icon: Drawable, id: String, label: CharSequence, intent: Intent) {
@@ -34,7 +30,9 @@ object HShortcuts {
         callback: IntentSender? = null
     ) {
         appInfo.applicationInfo?.let {
-            val icon = IconPack.loadIcon(it.packageName) ?: iconLoader.loadIcon(it)
+            // Use AppIconCache so icons pre-warmed by the home screen are served instantly
+            // rather than reloading from disk on the main thread.
+            val icon = AppIconCache.getOrLoadBitmap(app, it, HPackages.myUserId, iconSize)
             addPinShortcut(IconCompat.createWithBitmap(icon), id, label, intent, callback)
         } ?: run {
             addPinShortcut(app.packageManager.defaultActivityIcon, id, label, intent)
@@ -61,7 +59,7 @@ object HShortcuts {
         val shortcut =
             ShortcutInfoCompat.Builder(app, packageName.hashCode().toString()) // Make id different from pin
                 .setIcon(IconCompat.createWithBitmap(applicationInfo?.let {
-                    IconPack.loadIcon(it.packageName) ?: iconLoader.loadIcon(it)
+                    AppIconCache.getOrLoadBitmap(app, it, HPackages.myUserId, iconSize)
                 } ?: getBitmapFromDrawable(
                     app.packageManager.defaultActivityIcon
                 ))).setShortLabel(

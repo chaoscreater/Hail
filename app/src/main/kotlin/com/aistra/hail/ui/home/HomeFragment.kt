@@ -1,10 +1,5 @@
 package com.aistra.hail.ui.home
 
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,18 +35,17 @@ import com.google.android.material.textview.MaterialTextView
 
 class HomeFragment : MainFragment() {
 
-    companion object {
-        private const val ACTION_SHORTCUT_PINNED = "com.aistra.hail.action.SHORTCUT_PINNED"
-    }
-
     var multiselect: Boolean = false
     val selectedList: MutableList<AppInfo> = mutableListOf()
 
-    // Queue for sequential pin-shortcut requests — populated when the user taps
-    // "Add to Home screen" in the XYZ dialog. Each accepted shortcut fires the
-    // ACTION_SHORTCUT_PINNED broadcast which advances the queue.
+    // Batch pin state — one shortcut is requested at a time; onResume advances the queue
+    // when Hail regains focus after the user has handled the launcher's pin dialog.
     private val shortcutQueue = ArrayDeque<AppInfo>()
-    private var shortcutReceiver: BroadcastReceiver? = null
+    private var batchPinActive = false
+    // Set to true immediately after requestPinShortcut fires so we know onResume
+    // is returning from the launcher pin dialog (not from some unrelated resume).
+    private var waitingForLauncherReturn = false
+
     private var _binding: FragmentHomeBinding? = null
     val binding get() = _binding!!
 
@@ -125,6 +118,7 @@ class HomeFragment : MainFragment() {
         val btnContainer = dialogView.findViewById<View>(R.id.btn_container)
         val btnSelectAll = dialogView.findViewById<MaterialButton>(R.id.btn_select_all)
         val btnDeselectAll = dialogView.findViewById<MaterialButton>(R.id.btn_deselect_all)
+        val checkboxPrereqs = dialogView.findViewById<MaterialCheckBox>(R.id.checkbox_include_prereqs)
 
         tabLayout.addTab(tabLayout.newTab().setText(R.string.tab_all_apps))
         tabLayout.addTab(tabLayout.newTab().setText(R.string.tab_selected))
@@ -162,11 +156,14 @@ class HomeFragment : MainFragment() {
                 currentTab = tab.position
                 if (currentTab == 0) {
                     btnContainer.isVisible = false
+                    checkboxPrereqs.isVisible = false
                     recyclerView.adapter = allAppsAdapter
                     allAppsAdapter.filter(currentQuery)
                 } else {
                     rebuildSelectedTab()
                     btnContainer.isVisible = true
+                    val hasPrereqs = selectedApps.any { !it.prereqPackage.isNullOrEmpty() }
+                    checkboxPrereqs.isVisible = hasPrereqs
                     recyclerView.adapter = selectedAdapter
                     selectedAdapter.filter(currentQuery)
                 }
@@ -187,64 +184,81 @@ class HomeFragment : MainFragment() {
         btnSelectAll.setOnClickListener { selectedAdapter.selectAll() }
         btnDeselectAll.setOnClickListener { selectedAdapter.deselectAll() }
 
-        MaterialAlertDialogBuilder(activity)
+        val dialog = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.home_shortcuts)
             .setView(dialogView)
             .setPositiveButton(R.string.action_add_pin_shortcut) { _, _ ->
                 val toAdd = selectedApps.filterIndexed { i, _ -> pinNow[i] }
+                if (!checkboxPrereqs.isChecked) {
+                    toAdd.filter { !it.prereqPackage.isNullOrEmpty() }.forEach {
+                        it.prereqPackage = null
+                        it.prereqLaunch = false
+                        it.prereqEnable = false
+                    }
+                    HailData.saveApps()
+                }
                 startBatchPinShortcuts(toAdd)
             }
             .setNegativeButton(android.R.string.cancel, null)
-            .show().also { dialog ->
-                dialog.window?.setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    (resources.displayMetrics.heightPixels * 0.95).toInt()
-                )
+            .show()
+
+        // Hide the positive button until the user switches to the Selected tab
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).isVisible = false
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            (resources.displayMetrics.heightPixels * 0.95).toInt()
+        )
+
+        // Wire tab changes to show/hide the positive button
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).isVisible =
+                    tab.position == 1
             }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
     }
 
     /**
-     * Fires [requestPinShortcut] for each app in [apps] one at a time.
-     * Each accepted shortcut broadcasts [ACTION_SHORTCUT_PINNED] which advances the queue
-     * so the next dialog appears only after the user has handled the current one.
-     * Dismissing (not accepting) a dialog stops the chain at that point.
+     * Starts a sequential batch-pin flow. One [requestPinShortcut] is made at a time;
+     * [onResume] advances the queue after Hail regains focus from the launcher's dialog.
      */
     private fun startBatchPinShortcuts(apps: List<AppInfo>) {
         if (apps.isEmpty()) return
         shortcutQueue.clear()
         shortcutQueue.addAll(apps)
-        if (shortcutReceiver == null) {
-            shortcutReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    processNextShortcut()
-                }
-            }
-            ContextCompat.registerReceiver(
-                requireContext(), shortcutReceiver!!,
-                IntentFilter(ACTION_SHORTCUT_PINNED),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
-        }
-        processNextShortcut()
+        batchPinActive = true
+        waitingForLauncherReturn = false
+        pinNextInQueue()
     }
 
-    private fun processNextShortcut() {
-        if (shortcutQueue.isEmpty()) {
-            shortcutReceiver?.let { runCatching { requireContext().unregisterReceiver(it) } }
-            shortcutReceiver = null
+    private fun pinNextInQueue() {
+        val info = shortcutQueue.removeFirstOrNull() ?: run {
+            batchPinActive = false
+            waitingForLauncherReturn = false
             return
         }
-        val info = shortcutQueue.removeFirst()
-        val callbackIntent = Intent(ACTION_SHORTCUT_PINNED).setPackage(requireContext().packageName)
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(), 0, callbackIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
         HShortcuts.addPinShortcut(
             info, info.packageName, info.name,
-            HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, info.packageName),
-            pendingIntent.intentSender
+            HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, info.packageName)
         )
+        // Mark that we're now waiting for Hail to regain focus after the launcher dialog.
+        waitingForLauncherReturn = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // If we fired a requestPinShortcut and the user has now returned to Hail
+        // (confirmed or dismissed the launcher's pin dialog), advance to the next shortcut.
+        if (batchPinActive && waitingForLauncherReturn) {
+            waitingForLauncherReturn = false
+            if (shortcutQueue.isNotEmpty()) {
+                pinNextInQueue()
+            } else {
+                batchPinActive = false
+            }
+        }
     }
 
     /** Tab 1 adapter: all apps with persistent addToHomeScreen checkboxes. */
@@ -375,9 +389,9 @@ class HomeFragment : MainFragment() {
     override fun onDestroyView() {
         multiselect = false
         selectedList.clear()
-        shortcutReceiver?.let { runCatching { requireContext().unregisterReceiver(it) } }
-        shortcutReceiver = null
         shortcutQueue.clear()
+        batchPinActive = false
+        waitingForLauncherReturn = false
         super.onDestroyView()
         _binding = null
     }

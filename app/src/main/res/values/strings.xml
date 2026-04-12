@@ -168,6 +168,7 @@
     <string name="prerequisite_app_hint">Package name (e.g. com.example.app)</string>
     <string name="prerequisite_launch">Launch prerequisite app</string>
     <string name="prerequisite_enable">Enable (unfreeze) prerequisite app</string>
+    <string name="prerequisite_include_prompt">Include prerequisite apps</string>
     <string name="xposed_description">Automatically unfreeze suspended app for scoped apps</string>
     <string name="mode_island_hide">Island/Insular - Hide</string>
     <string name="mode_island_suspend">Island/Insular - Suspend</string>
