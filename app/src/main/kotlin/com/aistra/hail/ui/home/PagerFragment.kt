@@ -523,6 +523,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
     }
 
     private fun launchApp(packageName: String) {
+        handlePrerequisiteApp(packageName)
         if (AppManager.isAppFrozen(packageName) && AppManager.setAppFrozen(packageName, false)) {
             updateCurrentList()
         }
@@ -530,6 +531,19 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             HShortcuts.addDynamicShortcut(packageName)
             startActivity(it)
         } ?: HUI.showToast(R.string.activity_not_found)
+    }
+
+    private fun handlePrerequisiteApp(packageName: String) {
+        val appInfo = HailData.checkedList.find { it.packageName == packageName } ?: return
+        val prereqPkg = appInfo.prereqPackage ?: return
+        if ((appInfo.prereqLaunch || appInfo.prereqEnable) && AppManager.isAppFrozen(prereqPkg)) {
+            if (AppManager.setAppFrozen(prereqPkg, false)) {
+                app.setAutoFreezeService()
+            }
+        }
+        if (appInfo.prereqLaunch) {
+            app.packageManager.getLaunchIntentForPackage(prereqPkg)?.let { startActivity(it) }
+        }
     }
 
     private fun setListFrozen(
