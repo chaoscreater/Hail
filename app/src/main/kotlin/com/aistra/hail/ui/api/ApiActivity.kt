@@ -272,7 +272,7 @@ class ApiActivity : ComponentActivity() {
     }
 
     private fun setAppFrozen(pkg: String, frozen: Boolean) = when {
-        frozen && !HailData.isChecked(pkg) -> throw SecurityException("Package not checked")
+        frozen && !HailData.isChecked(pkg) -> throw SecurityException("Package not checked: $pkg")
         AppManager.isAppFrozen(pkg) != frozen && !AppManager.setAppFrozen(
             pkg, frozen
         ) -> throw IllegalStateException(getString(R.string.permission_denied_pkg, pkg))
