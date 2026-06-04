@@ -103,6 +103,9 @@
     <string name="app_not_installed">App not installed</string>
     <string name="activity_not_found">Launch activity not found</string>
     <string name="shizuku_missing">Shizuku missing :(</string>
+    <string name="shizuku_required">Shizuku required</string>
+    <string name="shizuku_required_notification">Launch failure notification</string>
+    <string name="shizuku_required_notification_summary">Post a notification when a launch fails (e.g. Shizuku not running), so automation apps like MacroDroid can detect it. The broadcast intent is always sent regardless of this setting.</string>
     <string name="operation_failed">Operation failed: %s</string>
     <string name="msg_selected">Selected: %s</string>
     <string name="msg_exported">Exported: %s</string>

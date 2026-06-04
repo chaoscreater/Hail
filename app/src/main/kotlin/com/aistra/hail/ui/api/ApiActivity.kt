@@ -252,7 +252,13 @@ class ApiActivity : ComponentActivity() {
         packageManager.getLaunchIntentForPackage(pkg)?.let {
             HShortcuts.addDynamicShortcut(pkg)
             startActivity(it)
-        } ?: throw ActivityNotFoundException(getString(R.string.activity_not_found))
+        } ?: run {
+            // Launch failed (commonly because the backend e.g. Shizuku is not running and
+            // the app is still frozen). Fire the automation signal before surfacing the error
+            // so MacroDroid can start Shizuku.
+            HUI.notifyShizukuRequired(pkg)
+            throw ActivityNotFoundException(getString(R.string.activity_not_found))
+        }
     }
 
     private fun handlePrerequisiteApp(pkg: String) {

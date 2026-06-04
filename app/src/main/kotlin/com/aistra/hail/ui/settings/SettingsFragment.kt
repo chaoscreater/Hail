@@ -297,6 +297,13 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 titleId = R.string.shortcut_launch_prompt,
                 icon = Icons.Outlined.TouchApp
             )
+            switchPreference(
+                key = HailData.SHIZUKU_REQUIRED_NOTIFICATION,
+                defaultValue = true,
+                titleId = R.string.shizuku_required_notification,
+                summaryId = R.string.shizuku_required_notification_summary,
+                icon = Icons.Outlined.NotificationsActive
+            )
             listPreference(
                 key = HailData.DYNAMIC_SHORTCUT_ACTION,
                 defaultValue = HailData.ACTION_NONE,
@@ -326,6 +333,7 @@ class SettingsFragment : MainFragment(), MenuProvider {
         rememberState: @Composable () -> MutableState<Boolean>,
         onValueChange: (MutableState<Boolean>, Boolean) -> Boolean = { _, _ -> true },
         @StringRes titleId: Int,
+        @StringRes summaryId: Int? = null,
         enabled: Boolean = true,
         icon: ImageVector,
     ) = item(key = titleId, contentType = "SwitchPreference") {
@@ -334,6 +342,7 @@ class SettingsFragment : MainFragment(), MenuProvider {
             value = state.value,
             onValueChange = { if (onValueChange(state, it)) state.value = it },
             title = { Text(text = stringResource(titleId)) },
+            summary = summaryId?.let { { Text(text = stringResource(it)) } },
             enabled = enabled,
             icon = { Icon(imageVector = icon, contentDescription = null) })
     }
@@ -343,12 +352,14 @@ class SettingsFragment : MainFragment(), MenuProvider {
         defaultValue: Boolean,
         onValueChange: (MutableState<Boolean>, Boolean) -> Boolean = { _, _ -> true },
         @StringRes titleId: Int,
+        @StringRes summaryId: Int? = null,
         enabled: Boolean = true,
         icon: ImageVector,
     ) = switchPreference(
         rememberState = { rememberPreferenceState(key, defaultValue) },
         onValueChange = onValueChange,
         titleId = titleId,
+        summaryId = summaryId,
         enabled = enabled,
         icon = icon
     )

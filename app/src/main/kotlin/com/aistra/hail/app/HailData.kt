@@ -134,6 +134,7 @@ object HailData {
     const val SKIP_NOTIFYING_APP = "skip_notifying_app"
     const val SHOW_UNINSTALLED = "show_uninstalled"
     const val SHORTCUT_LAUNCH_PROMPT = "shortcut_launch_prompt"
+    const val SHIZUKU_REQUIRED_NOTIFICATION = "shizuku_required_notification"
     const val DYNAMIC_SHORTCUT_ACTION = "dynamic_shortcut_action"
     val DYNAMIC_SHORTCUT_ACTIONS = listOf(
         ACTION_NONE,
@@ -178,6 +179,7 @@ object HailData {
         get() = sp.getBoolean(SHOW_UNINSTALLED, true)
         set(value) = sp.edit { putBoolean(SHOW_UNINSTALLED, value) }
     val shortcutLaunchPrompt get() = sp.getBoolean(SHORTCUT_LAUNCH_PROMPT, false)
+    val shizukuRequiredNotification get() = sp.getBoolean(SHIZUKU_REQUIRED_NOTIFICATION, true)
     val dynamicShortcutAction get() = sp.getString(DYNAMIC_SHORTCUT_ACTION, ACTION_NONE)!!
 
     private val dir = "${app.filesDir.path}/v1"

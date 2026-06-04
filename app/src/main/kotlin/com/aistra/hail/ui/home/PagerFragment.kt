@@ -530,7 +530,10 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         app.packageManager.getLaunchIntentForPackage(packageName)?.let {
             HShortcuts.addDynamicShortcut(packageName)
             startActivity(it)
-        } ?: HUI.showToast(R.string.activity_not_found)
+        } ?: run {
+            HUI.showToast(R.string.activity_not_found)
+            HUI.notifyShizukuRequired(packageName)
+        }
     }
 
     private fun handlePrerequisiteApp(packageName: String) {
