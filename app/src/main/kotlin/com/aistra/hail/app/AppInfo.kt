@@ -12,7 +12,10 @@ class AppInfo(
     var addToHomeScreen: Boolean = false,
     var prereqPackage: String? = null,
     var prereqLaunch: Boolean = false,
-    var prereqEnable: Boolean = false
+    var prereqEnable: Boolean = false,
+    var enableBluetooth: Boolean = false,
+    var enableLocation: Boolean = false,
+    var dexApp: Boolean = false
 ) {
     enum class State { NOT_FOUND, UNFROZEN, FROZEN }
 

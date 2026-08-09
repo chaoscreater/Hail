@@ -9,6 +9,14 @@
         android:icon="@drawable/ic_baseline_android"
         android:title="@string/title_apps" />
     <item
+        android:id="@+id/nav_shortcut_settings"
+        android:icon="@drawable/ic_outline_add_to_home"
+        android:title="@string/title_shortcut_settings" />
+    <item
+        android:id="@+id/nav_dex_apps"
+        android:icon="@drawable/ic_baseline_terminal"
+        android:title="@string/title_dex_apps" />
+    <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_settings_selector"
         android:title="@string/title_settings" />

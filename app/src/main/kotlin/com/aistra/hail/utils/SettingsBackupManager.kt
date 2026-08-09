@@ -17,6 +17,7 @@ object SettingsBackupManager {
     private const val KEY_TAGS = "tags"
     private const val KEY_HIDDEN_APPS = "hidden_apps"
     private const val KEY_PREFERENCES = "preferences"
+    private const val KEY_DEX_APP = "dex_app"
     private const val BACKUP_VERSION = 2
 
     /**
@@ -38,6 +39,9 @@ object SettingsBackupManager {
             obj.put(HailData.KEY_PREREQ_PACKAGE, appInfo.prereqPackage ?: "")
             obj.put(HailData.KEY_PREREQ_LAUNCH, appInfo.prereqLaunch)
             obj.put(HailData.KEY_PREREQ_ENABLE, appInfo.prereqEnable)
+            obj.put(HailData.KEY_ENABLE_BLUETOOTH, appInfo.enableBluetooth)
+            obj.put(HailData.KEY_ENABLE_LOCATION, appInfo.enableLocation)
+            obj.put(KEY_DEX_APP, appInfo.dexApp)
             appsArray.put(obj)
         }
         root.put(KEY_APPS, appsArray)
@@ -155,6 +159,9 @@ object SettingsBackupManager {
                 val prereqPackage = obj.optString(HailData.KEY_PREREQ_PACKAGE).ifEmpty { null }
                 val prereqLaunch = obj.optBoolean(HailData.KEY_PREREQ_LAUNCH, false)
                 val prereqEnable = obj.optBoolean(HailData.KEY_PREREQ_ENABLE, false)
+                val enableBluetooth = obj.optBoolean(HailData.KEY_ENABLE_BLUETOOTH, false)
+                val enableLocation = obj.optBoolean(HailData.KEY_ENABLE_LOCATION, false)
+                val dexApp = obj.optBoolean(KEY_DEX_APP, false)
                 HailData.checkedList.add(
                     com.aistra.hail.app.AppInfo(
                         packageName = packageName,
@@ -164,7 +171,10 @@ object SettingsBackupManager {
                         addToHomeScreen = addToHomeScreen,
                         prereqPackage = prereqPackage,
                         prereqLaunch = prereqLaunch,
-                        prereqEnable = prereqEnable
+                        prereqEnable = prereqEnable,
+                        enableBluetooth = enableBluetooth,
+                        enableLocation = enableLocation,
+                        dexApp = dexApp
                     )
                 )
             }

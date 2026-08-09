@@ -35,6 +35,9 @@ object HailData {
     const val KEY_PREREQ_PACKAGE = "prereq_package"
     const val KEY_PREREQ_LAUNCH = "prereq_launch"
     const val KEY_PREREQ_ENABLE = "prereq_enable"
+    const val KEY_ENABLE_BLUETOOTH = "enable_bluetooth"
+    const val KEY_ENABLE_LOCATION = "enable_location"
+    private const val KEY_DEX_APP = "dex_app"
     private const val SORT_BY = "sort_by"
     const val SORT_NAME = "name"
     const val SORT_INSTALL = "install"
@@ -136,6 +139,7 @@ object HailData {
     const val SHORTCUT_LAUNCH_PROMPT = "shortcut_launch_prompt"
     const val SHIZUKU_REQUIRED_NOTIFICATION = "shizuku_required_notification"
     const val DYNAMIC_SHORTCUT_ACTION = "dynamic_shortcut_action"
+    private const val LAST_USED_TAG_IDS = "last_used_tag_ids"
     val DYNAMIC_SHORTCUT_ACTIONS = listOf(
         ACTION_NONE,
         ACTION_FREEZE_ALL,
@@ -181,6 +185,9 @@ object HailData {
     val shortcutLaunchPrompt get() = sp.getBoolean(SHORTCUT_LAUNCH_PROMPT, false)
     val shizukuRequiredNotification get() = sp.getBoolean(SHIZUKU_REQUIRED_NOTIFICATION, true)
     val dynamicShortcutAction get() = sp.getString(DYNAMIC_SHORTCUT_ACTION, ACTION_NONE)!!
+    var lastUsedTagIds
+        get() = sp.getString(LAST_USED_TAG_IDS, "")!!.split(",").mapNotNull { it.toIntOrNull() }
+        set(value) = sp.edit { putString(LAST_USED_TAG_IDS, value.joinToString(",")) }
 
     private val dir = "${app.filesDir.path}/v1"
     private val appsPath = "$dir/apps.json"
@@ -218,7 +225,10 @@ object HailData {
                             addToHomeScreen = optBoolean(KEY_ADD_TO_HOME_SCREEN),
                             prereqPackage = optString(KEY_PREREQ_PACKAGE).ifEmpty { null },
                             prereqLaunch = optBoolean(KEY_PREREQ_LAUNCH),
-                            prereqEnable = optBoolean(KEY_PREREQ_ENABLE)
+                            prereqEnable = optBoolean(KEY_PREREQ_ENABLE),
+                            enableBluetooth = optBoolean(KEY_ENABLE_BLUETOOTH),
+                            enableLocation = optBoolean(KEY_ENABLE_LOCATION),
+                            dexApp = optBoolean(KEY_DEX_APP)
                         )
                     })
                 }
@@ -252,6 +262,9 @@ object HailData {
                         .put(KEY_PREREQ_PACKAGE, it.prereqPackage ?: "")
                         .put(KEY_PREREQ_LAUNCH, it.prereqLaunch)
                         .put(KEY_PREREQ_ENABLE, it.prereqEnable)
+                        .put(KEY_ENABLE_BLUETOOTH, it.enableBluetooth)
+                        .put(KEY_ENABLE_LOCATION, it.enableLocation)
+                        .put(KEY_DEX_APP, it.dexApp)
                 )
             }
             toString()

@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     lateinit var fabWhitelist: FloatingActionButton
     lateinit var fabHome: FloatingActionButton
     lateinit var fabPinShortcuts: FloatingActionButton
+    lateinit var fabDexApps: FloatingActionButton
     lateinit var fabContainer: LinearLayout
     lateinit var appbar: AppBarLayout
 
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         fabWhitelist = appBarMain.fabWhitelist!!
         fabHome = appBarMain.fabHome!!
         fabPinShortcuts = appBarMain.fabPinShortcuts!!
+        fabDexApps = appBarMain.fabDexApps!!
         fabContainer = appBarMain.fabContainer!!
         appbar = appBarMain.appBarLayout
 
@@ -80,7 +82,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         val navController = navHostFragment.navController
         navController.addOnDestinationChangedListener(this@MainActivity)
         val appBarConfiguration = AppBarConfiguration.Builder(
-            R.id.nav_home, R.id.nav_apps, R.id.nav_settings, R.id.nav_about
+            R.id.nav_home, R.id.nav_apps, R.id.nav_shortcut_settings, R.id.nav_dex_apps,
+            R.id.nav_settings, R.id.nav_about
         ).build()
         setupActionBarWithNavController(navController, appBarConfiguration)
         bottomNav?.setupWithNavController(navController)
@@ -129,5 +132,6 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             fabHome.hide()
             fabPinShortcuts.hide()
         }
+        if (destination.id == R.id.nav_dex_apps) fabDexApps.show() else fabDexApps.hide()
     }
 }

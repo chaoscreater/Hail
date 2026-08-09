@@ -16,6 +16,16 @@
         android:label="@string/title_apps" />
 
     <fragment
+        android:id="@+id/nav_shortcut_settings"
+        android:name="com.aistra.hail.ui.home.ShortcutSettingsFragment"
+        android:label="@string/title_shortcut_settings" />
+
+    <fragment
+        android:id="@+id/nav_dex_apps"
+        android:name="com.aistra.hail.ui.home.DexAppsFragment"
+        android:label="@string/title_dex_apps" />
+
+    <fragment
         android:id="@+id/nav_settings"
         android:name="com.aistra.hail.ui.settings.SettingsFragment"
         android:label="@string/title_settings" />

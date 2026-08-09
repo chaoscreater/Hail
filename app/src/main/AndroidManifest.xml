@@ -29,6 +29,11 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="com.oasisfeng.island.permission.FREEZE_PACKAGE"/>
     <uses-permission android:name="com.oasisfeng.island.permission.SUSPEND_PACKAGE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions"/>
 
     <application
             android:name=".HailApp"
@@ -85,6 +90,32 @@
                 <data android:scheme="hail"/>
             </intent-filter>
         </activity>
+
+        <activity
+                android:name=".ui.widget.AppLaunchWidgetConfigActivity"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name=".ui.widget.AppLaunchWidgetClickActivity"
+                android:excludeFromRecents="true"
+                android:exported="false"
+                android:theme="@style/Theme.Hail.Translucent"/>
+
+        <receiver
+                android:name=".ui.widget.AppLaunchWidgetProvider"
+                android:exported="false"
+                android:label="@string/widget_launch_app_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/app_launch_widget_info"/>
+        </receiver>
 
         <meta-data
                 android:name="xposedmodule"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.aistra.hail.ui.widget.AppLaunchWidgetConfigActivity"
+    android:description="@string/widget_launch_app_description"
+    android:initialLayout="@layout/widget_app_launch"
+    android:minHeight="60dp"
+    android:minWidth="60dp"
+    android:previewImage="@mipmap/ic_launcher"
+    android:resizeMode="none"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"/>

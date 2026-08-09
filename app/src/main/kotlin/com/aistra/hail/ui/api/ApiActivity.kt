@@ -57,6 +57,16 @@ class ApiActivity : ComponentActivity() {
             HailApi.ACTION_LAUNCH -> {
                 val pkg = requirePackage
                 val tagId = runCatching { requireTagId }.getOrNull()
+                val appInfo = HailData.checkedList.find { it.packageName == pkg }
+                val enableBT = intent.getBooleanExtra(HailData.KEY_ENABLE_BLUETOOTH, false) || (appInfo?.enableBluetooth == true)
+                val enableLoc = intent.getBooleanExtra(HailData.KEY_ENABLE_LOCATION, false) || (appInfo?.enableLocation == true)
+                if (enableBT || enableLoc) {
+                    val appContext = applicationContext
+                    kotlin.concurrent.thread {
+                        if (enableBT) AppManager.enableBluetooth(appContext)
+                        if (enableLoc) AppManager.enableLocation(appContext)
+                    }
+                }
                 val fromShell = referrer?.toString() == "android-app://com.android.shell"
                 if (!fromShell && HailData.shortcutLaunchPrompt) {
                     setContent { AppTheme { LaunchPromptDialog(pkg, tagId) } }

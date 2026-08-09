@@ -1,7 +1,10 @@
 package com.aistra.hail.app
 
+import android.content.Context
 import android.content.Intent
 import com.aistra.hail.BuildConfig
+import com.aistra.hail.HailApp.Companion.app
+import com.aistra.hail.R
 import com.aistra.hail.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -78,6 +81,38 @@ object AppManager {
             else -> false
         }
 
+    /**
+     * Launches [packageName] directly, unfreezing it (and its configured prerequisite app, if
+     * any) first — with no user-facing prompt. Used by the home-screen app-launch widget, which
+     * must bypass [HailData.shortcutLaunchPrompt] entirely regardless of the user's shortcut
+     * setting; pinned shortcuts and the API's `ACTION_LAUNCH` keep their own separate prompt
+     * logic in [com.aistra.hail.ui.api.ApiActivity].
+     */
+    fun launchApp(context: Context, packageName: String): Boolean {
+        val appInfo = HailData.checkedList.find { it.packageName == packageName }
+        appInfo?.prereqPackage?.let { prereqPkg ->
+            if ((appInfo.prereqLaunch || appInfo.prereqEnable) && isAppFrozen(prereqPkg)) {
+                if (setAppFrozen(prereqPkg, false)) app.setAutoFreezeService()
+            }
+            if (appInfo.prereqLaunch) {
+                context.packageManager.getLaunchIntentForPackage(prereqPkg)?.let {
+                    context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+        }
+        if (isAppFrozen(packageName) && setAppFrozen(packageName, false)) {
+            app.setAutoFreezeService()
+        }
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName) ?: run {
+            HUI.notifyShizukuRequired(packageName)
+            HUI.showToast(R.string.activity_not_found)
+            return false
+        }
+        HShortcuts.addDynamicShortcut(packageName)
+        context.startActivity(launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        return true
+    }
+
     fun uninstallApp(packageName: String): Boolean {
         when {
             HailData.workingMode.startsWith(HailData.OWNER) ->
@@ -108,5 +143,53 @@ object AppManager {
             HailData.workingMode.startsWith(HailData.SHIZUKU) -> HShizuku.execute(command)
             else -> 0 to null
         }
+    }
+
+    fun execCommand(command: String) {
+        runCatching {
+            when {
+                HailData.workingMode.startsWith(HailData.SU) -> HShell.execute(command, true)
+                HailData.workingMode.startsWith(HailData.SHIZUKU) -> HShizuku.execute(command)
+                else -> {
+                    if (HShell.checkSU) HShell.execute(command, true)
+                    else HShizuku.execute(command)
+                }
+            }
+        }
+        runCatching {
+            Runtime.getRuntime().exec(command)
+        }
+    }
+
+    @android.annotation.SuppressLint("MissingPermission")
+    fun enableBluetooth(context: Context) {
+        runCatching {
+            val btManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
+            @Suppress("DEPRECATION")
+            val adapter = btManager?.adapter ?: android.bluetooth.BluetoothAdapter.getDefaultAdapter()
+            if (adapter != null && !adapter.isEnabled) {
+                @Suppress("DEPRECATION")
+                adapter.enable()
+            }
+        }
+        execCommand("svc bluetooth enable")
+        execCommand("cmd bluetooth_manager enable")
+        execCommand("cmd bluetooth set-state enable")
+        execCommand("settings put global bluetooth_on 1")
+    }
+
+    fun enableLocation(context: Context) {
+        runCatching {
+            @Suppress("DEPRECATION")
+            android.provider.Settings.Secure.putInt(
+                context.contentResolver,
+                android.provider.Settings.Secure.LOCATION_MODE,
+                android.provider.Settings.Secure.LOCATION_MODE_HIGH_ACCURACY
+            )
+        }
+        execCommand("cmd location set-location-enabled true")
+        execCommand("settings put secure location_mode 3")
+        execCommand("settings put secure location_providers_allowed +gps,+network")
+        execCommand("svc location enable")
     }
 }

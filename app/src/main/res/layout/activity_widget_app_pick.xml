@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <com.google.android.material.tabs.TabLayout
-            android:id="@+id/shortcut_tabs"
+    <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="?actionBarSize"
+            android:theme="@style/Theme.Hail.AppBarOverlay"
+            app:popupTheme="@style/Theme.Hail.PopupOverlay"
+            app:title="@string/widget_pick_app_title"/>
 
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/search_layout"
@@ -30,41 +34,18 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-            android:id="@+id/btn_container"
+    <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            android:paddingStart="@dimen/padding_large"
-            android:paddingEnd="@dimen/padding_large"
-            android:paddingTop="@dimen/padding_extra_small"
-            android:paddingBottom="@dimen/padding_extra_small">
-
-        <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_select_all"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/action_select_all"/>
-
-        <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_deselect_all"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/action_deselect_all"/>
-
-    </LinearLayout>
-
-    <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_marginTop="@dimen/padding_large"
+            android:gravity="center"
+            android:text="@string/widget_no_apps"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:visibility="gone"/>
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/home_shortcuts_list"
+            android:id="@+id/app_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

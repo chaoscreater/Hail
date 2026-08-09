@@ -2,6 +2,8 @@ package com.aistra.hail.app
 
 import android.content.Intent
 import com.aistra.hail.BuildConfig
+import com.aistra.hail.HailApp.Companion.app
+import com.aistra.hail.ui.api.ApiActivity
 
 object HailApi {
     /** @since 0.5.0 */
@@ -45,9 +47,10 @@ object HailApi {
     const val ACTION_REMOVE_WHITELIST = "${BuildConfig.APPLICATION_ID}.action.REMOVE_WHITELIST"
 
     fun getIntentForPackage(action: String, packageName: String) =
-        Intent(action).putExtra(HailData.KEY_PACKAGE, packageName)
+        Intent(action).setClass(app, ApiActivity::class.java).putExtra(HailData.KEY_PACKAGE, packageName)
 
     fun Intent.addTag(tag: String) = putExtra(HailData.KEY_TAG, tag)
 
-    fun getIntentForTag(action: String, tag: String) = Intent(action).addTag(tag)
+    fun getIntentForTag(action: String, tag: String) =
+        Intent(action).setClass(app, ApiActivity::class.java).addTag(tag)
 }

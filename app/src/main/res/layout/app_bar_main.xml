@@ -70,6 +70,14 @@
             app:fabSize="mini"
             app:srcCompat="@drawable/ic_outline_add_to_home" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_dex_apps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/dex_app_shortcuts"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_outline_add_to_home" />
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
