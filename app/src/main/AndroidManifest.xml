@@ -117,6 +117,10 @@
                     android:resource="@xml/app_launch_widget_info"/>
         </receiver>
 
+        <receiver
+                android:name=".ui.widget.AppLaunchWidgetPinReceiver"
+                android:exported="false"/>
+
         <meta-data
                 android:name="xposedmodule"
                 android:value="true"/>

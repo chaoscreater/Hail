@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="color_hail">#81D4FA</color>
+    <color name="fab_shortcuts_scoped">#D32F2F</color>
 
     <color name="md_theme_primary">#32628D</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>

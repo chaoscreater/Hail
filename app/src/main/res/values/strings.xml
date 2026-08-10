@@ -4,7 +4,7 @@
     <string name="app_slogan">Freezedom!</string>
     <string name="title_home">Home</string>
     <string name="title_apps">Apps</string>
-    <string name="title_shortcut_settings">Shortcuts (custom settings)</string>
+    <string name="title_shortcut_settings">PreReq (custom settings)</string>
     <string name="title_dex_apps">Dex apps</string>
     <string name="title_settings">Settings</string>
     <string name="title_about">About</string>
@@ -100,6 +100,7 @@
     <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
     <string name="home_shortcuts">Home screen shortcuts</string>
     <string name="dex_app_shortcuts">Dex app shortcuts</string>
+    <string name="tab_shortcuts_title">%1$s shortcuts</string>
     <string name="widget_launch_app_label">Launch App</string>
     <string name="widget_launch_app_description">Pick an app added to Hail to launch directly from the home screen.</string>
     <string name="widget_pick_app_title">Choose app</string>

@@ -25,6 +25,11 @@ import com.google.android.material.textview.MaterialTextView
  * Shown by the launcher when an [AppLaunchWidgetProvider] widget is placed (or reconfigured on
  * API 31+, via long-press "Edit"). Picks one app from [HailData.checkedList] and binds it to the
  * widget id before returning [Activity.RESULT_OK].
+ *
+ * Not involved when placement is requested programmatically from within Hail via
+ * `AppWidgetManager.requestPinAppWidget` (see `PinShortcutsDialogController.requestPinWidget`) —
+ * per that API's contract the launcher does *not* auto-launch this configure activity for such
+ * requests, so that path binds the widget directly in `AppLaunchWidgetPinReceiver` instead.
  */
 class AppLaunchWidgetConfigActivity : AppCompatActivity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID

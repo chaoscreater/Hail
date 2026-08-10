@@ -23,11 +23,11 @@ My version has a couple of new features that the current Hail (v1.10.0) doesn't 
 16. When you add an Hail app shortcut to your home launcher, you can now specify a prerequisite app to enable or launch. For example, some apps rely on Play Store being enabled to work. If you're like me who likes to disable apps (for privacy and battery-saving reasons), then it's a pain trying to remember to enable Play Store for certain apps, or else they won't work. Now, you can just launch those apps and Play Store will be enabled as a prerequisite app automatically.
 17. You can now systematically add/remove an app to/from whitelist.
 
-  - Whitelist an app (must already be on Home)
+  - Whitelist an app (app must be added to Home in the first place before you can whitelist or de-whitelist)
     <br>
     adb shell am start -a com.aistra.hail.action.ADD_WHITELIST -e package com.example.app
 
-  - Remove whitelist status (app stays on Home)
+  - Remove whitelist status (app must be added to Home in the first place before you can whitelist or de-whitelist)
     <br>
     adb shell am start -a com.aistra.hail.action.REMOVE_WHITELIST -e package com.example.app
 

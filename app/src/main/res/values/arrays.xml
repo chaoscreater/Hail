@@ -24,6 +24,7 @@
         <item>@string/action_tag_set</item>
         <item>@string/action_tag_set_last</item>
         <item>@string/action_add_pin_shortcut</item>
+        <item>@string/prerequisite_app_title</item>
         <item>@string/action_export_clipboard</item>
         <item>@string/action_remove_home</item>
         <item>@string/action_unfreeze_remove_home</item>

@@ -64,6 +64,14 @@ class HomeFragment : MainFragment() {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
+        // Red icon signals the shortcuts fab is tag-scoped on non-Default tabs.
+        updateShortcutsFabTint()
+        binding.tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) = updateShortcutsFabTint()
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+
         // When a page fully settles, refresh that page's fragment with the now-correct
         // tab position. This fixes the race where onResume() fires during animation
         // before TabLayoutMediator has updated selectedTabPosition.
@@ -85,7 +93,16 @@ class HomeFragment : MainFragment() {
         })
 
         activity.fabHome.setOnClickListener { binding.pager.setCurrentItem(0, false) }
-        activity.fabPinShortcuts.setOnClickListener { pinShortcutsDialog.show() }
+        activity.fabPinShortcuts.setOnClickListener {
+            val currentTag = tags.getOrNull(binding.tabs.selectedTabPosition)
+            // Tag id 0 is always the Default tag (see HailData.tags) — keep its shortcut dialog
+            // unfiltered, exactly as before tag-scoping existed.
+            if (currentTag == null || currentTag.second == 0) pinShortcutsDialog.show()
+            else pinShortcutsDialog.show(
+                titleOverride = getString(R.string.tab_shortcuts_title, currentTag.first),
+                appFilter = { currentTag.second in it.tagIdList }
+            )
+        }
 
         // Pre-warm the icon cache for all checked apps so switching tag categories
         // shows icons instantly instead of waiting for them to load on demand.
@@ -93,6 +110,11 @@ class HomeFragment : MainFragment() {
         AppIconCache.preloadIconsAsync(requireContext().applicationContext, appsToPreload, myUserId)
 
         return binding.root
+    }
+
+    private fun updateShortcutsFabTint() {
+        val currentTag = tags.getOrNull(binding.tabs.selectedTabPosition)
+        activity.setPinShortcutsFabTinted(currentTag != null && currentTag.second != 0)
     }
 
     override fun onResume() {

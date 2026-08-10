@@ -1,5 +1,6 @@
 package com.aistra.hail.ui.main
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Menu
 import android.widget.LinearLayout
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     lateinit var fabDexApps: FloatingActionButton
     lateinit var fabContainer: LinearLayout
     lateinit var appbar: AppBarLayout
+    private var fabPinShortcutsDefaultBackgroundTint: ColorStateList? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +76,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         fabWhitelist = appBarMain.fabWhitelist!!
         fabHome = appBarMain.fabHome!!
         fabPinShortcuts = appBarMain.fabPinShortcuts!!
+        fabPinShortcutsDefaultBackgroundTint = fabPinShortcuts.backgroundTintList
         fabDexApps = appBarMain.fabDexApps!!
         fabContainer = appBarMain.fabContainer!!
         appbar = appBarMain.appBarLayout
@@ -102,6 +105,13 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.let { MenuCompat.setGroupDividerEnabled(it, true) }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    /** Red background on non-Default tag tabs signals that Home Screen Shortcuts is tag-scoped there. */
+    fun setPinShortcutsFabTinted(tinted: Boolean) {
+        fabPinShortcuts.backgroundTintList = if (tinted) ColorStateList.valueOf(
+            ContextCompat.getColor(this, R.color.fab_shortcuts_scoped)
+        ) else fabPinShortcutsDefaultBackgroundTint
     }
 
     fun ownerRemoveDialog() {

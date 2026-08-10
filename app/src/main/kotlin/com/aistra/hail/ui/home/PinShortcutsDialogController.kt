@@ -1,5 +1,10 @@
 package com.aistra.hail.ui.home
 
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -14,9 +19,12 @@ import com.aistra.hail.app.AppInfo
 import com.aistra.hail.app.HailApi
 import com.aistra.hail.app.HailData
 import com.aistra.hail.ui.main.MainActivity
+import com.aistra.hail.ui.widget.AppLaunchWidgetPinReceiver
+import com.aistra.hail.ui.widget.AppLaunchWidgetProvider
 import com.aistra.hail.utils.AppIconCache
 import com.aistra.hail.utils.HPackages.myUserId
 import com.aistra.hail.utils.HShortcuts
+import com.aistra.hail.utils.HUI
 import com.aistra.hail.utils.NameComparator
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -28,14 +36,18 @@ import com.google.android.material.textview.MaterialTextView
  * Drives the "pick apps to shortcut" dialog (layout `dialog_home_shortcuts`) — the same three-tab
  * (All apps / Selected / Unselected) picker used both for Home screen shortcuts and for Dex app
  * shortcuts. Which [AppInfo] boolean flag it toggles is supplied via [getFlag]/[setFlag] so both
- * call sites share one implementation instead of drifting apart.
+ * call sites share one implementation instead of drifting apart. [show] additionally takes an
+ * optional title override and app filter so the same controller can be scoped to a single tag
+ * category. When [pinAsWidget] is set, the "Add to Home screen" action pins each app as a
+ * [AppLaunchWidgetProvider] widget instead of a launcher shortcut.
  */
 class PinShortcutsDialogController(
     private val fragment: Fragment,
     private val titleRes: Int,
     private val getFlag: (AppInfo) -> Boolean,
     private val setFlag: (AppInfo, Boolean) -> Unit,
-    private val onSelectionChanged: () -> Unit = {}
+    private val onSelectionChanged: () -> Unit = {},
+    private val pinAsWidget: Boolean = false
 ) {
     private val activity: MainActivity get() = fragment.requireActivity() as MainActivity
     private val layoutInflater get() = fragment.layoutInflater
@@ -48,9 +60,16 @@ class PinShortcutsDialogController(
     // is returning from the launcher pin dialog (not from some unrelated resume).
     private var waitingForLauncherReturn = false
 
-    fun show() {
+    /**
+     * @param titleOverride Replaces [titleRes] for the dialog title, e.g. "Chat shortcuts" when
+     * scoped to a non-Default tag.
+     * @param appFilter Restricts all three tabs (All apps / Selected / Unselected) to a subset,
+     * e.g. apps carrying a given tag. Defaults to no restriction.
+     */
+    fun show(titleOverride: CharSequence? = null, appFilter: (AppInfo) -> Boolean = { true }) {
         val allApps = HailData.checkedList
             .filter { it.applicationInfo != null }
+            .filter(appFilter)
             .sortedWith(NameComparator)
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_home_shortcuts, null)
@@ -158,7 +177,7 @@ class PinShortcutsDialogController(
         btnDeselectAll.setOnClickListener { selectedAdapter.deselectAll() }
 
         val dialog = MaterialAlertDialogBuilder(activity)
-            .setTitle(titleRes)
+            .setTitle(titleOverride ?: fragment.getString(titleRes))
             .setView(dialogView)
             .setPositiveButton(R.string.action_add_pin_shortcut) { _, _ ->
                 val toAdd = selectedApps.filterIndexed { i, _ -> pinNow[i] }
@@ -191,6 +210,10 @@ class PinShortcutsDialogController(
      */
     private fun startBatchPinShortcuts(apps: List<AppInfo>) {
         if (apps.isEmpty()) return
+        if (pinAsWidget && !isPinAppWidgetSupported()) {
+            HUI.showToast(R.string.operation_failed, activity.getString(R.string.action_add_pin_shortcut))
+            return
+        }
         shortcutQueue.clear()
         shortcutQueue.addAll(apps)
         batchPinActive = true
@@ -204,12 +227,44 @@ class PinShortcutsDialogController(
             waitingForLauncherReturn = false
             return
         }
-        val intent = HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, info.packageName)
-            .putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
-            .putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
-        HShortcuts.addPinShortcut(info, info.packageName, info.name, intent)
-        // Mark that we're now waiting for Hail to regain focus after the launcher dialog.
+        if (pinAsWidget) {
+            requestPinWidget(info)
+        } else {
+            val intent = HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, info.packageName)
+                .putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
+                .putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
+            HShortcuts.addPinShortcut(info, info.packageName, info.name, intent)
+        }
+        // Mark that we're now waiting for Hail to regain focus after the launcher dialog
+        // (or, in widget mode, after the pin-widget confirmation and our own auto-configure step).
         waitingForLauncherReturn = true
+    }
+
+    private fun isPinAppWidgetSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+        AppWidgetManager.getInstance(activity).isRequestPinAppWidgetSupported
+
+    /**
+     * Requests placement of an [AppLaunchWidgetProvider] widget pre-bound to [info], via the same
+     * system "add to Home screen" confirmation used for manual widget placement.
+     *
+     * `requestPinAppWidget` does not auto-launch the provider's configure activity for
+     * programmatic requests (unlike manual placement) — the caller must bind the widget itself in
+     * response to the success callback once the launcher assigns an id, so that's done in
+     * [AppLaunchWidgetPinReceiver] instead of [AppLaunchWidgetConfigActivity].
+     */
+    private fun requestPinWidget(info: AppInfo) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val pinIntent = Intent(activity, AppLaunchWidgetPinReceiver::class.java).apply {
+            data = AppLaunchWidgetPinReceiver.uriFor(info.packageName)
+        }
+        val mutableFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
+        val successCallback = PendingIntent.getBroadcast(
+            activity, info.packageName.hashCode(), pinIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or mutableFlag
+        )
+        AppWidgetManager.getInstance(activity).requestPinAppWidget(
+            ComponentName(activity, AppLaunchWidgetProvider::class.java), null, successCallback
+        )
     }
 
     /** Call from the host fragment's `onResume`. */

@@ -20,10 +20,12 @@ import com.aistra.hail.utils.NameComparator
 
 /**
  * A user-curated list of "Dex apps" — apps flagged via the fab's "Dex app shortcuts" picker
- * (same UI as Home screen shortcuts, just backed by [AppInfo.dexApp] instead of
+ * (same picker UI as Home screen shortcuts, just backed by [AppInfo.dexApp] instead of
  * [AppInfo.addToHomeScreen]). Membership here is independent of tag categories: an app can
  * appear both under its tag in Apps and here. Tap/long-press behave identically to a Home tag
- * page via the shared [AppContextActions].
+ * page via the shared [AppContextActions]. Unlike Home screen shortcuts, "Add to Home screen"
+ * here pins each app as a widget rather than a shortcut — see `pinAsWidget` on
+ * [PinShortcutsDialogController].
  */
 class DexAppsFragment : MainFragment(), PagerAdapter.OnItemClickListener,
     PagerAdapter.OnItemLongClickListener {
@@ -38,7 +40,8 @@ class DexAppsFragment : MainFragment(), PagerAdapter.OnItemClickListener,
             titleRes = R.string.dex_app_shortcuts,
             getFlag = { it.dexApp },
             setFlag = { info, value -> info.dexApp = value },
-            onSelectionChanged = { updateList() }
+            onSelectionChanged = { updateList() },
+            pinAsWidget = true
         )
     }
 

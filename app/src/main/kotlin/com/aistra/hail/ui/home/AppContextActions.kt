@@ -122,18 +122,19 @@ class AppContextActions(
 
                 7 -> if (HailData.tags.size > 1) MaterialAlertDialogBuilder(activity).setTitle(R.string.action_unfreeze_tag)
                     .setItems(HailData.tags.map { it.first }.toTypedArray()) { _, index ->
-                        showPrerequisiteDialog(info, pkg,
+                        addPinShortcut(info, pkg,
                             HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg).addTag(HailData.tags[index].first))
                     }.setPositiveButton(R.string.action_skip) { _, _ ->
-                        showPrerequisiteDialog(info, pkg,
+                        addPinShortcut(info, pkg,
                             HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg))
                     }.setNegativeButton(android.R.string.cancel, null).show()
-                else showPrerequisiteDialog(info, pkg,
+                else addPinShortcut(info, pkg,
                     HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg))
 
-                8 -> exportToClipboard(listOf(info))
-                9 -> removeCheckedApp(pkg)
-                10 -> {
+                8 -> showPrerequisiteDialog(info)
+                9 -> exportToClipboard(listOf(info))
+                10 -> removeCheckedApp(pkg)
+                11 -> {
                     setListFrozen(false, listOf(info), false)
                     if (!AppManager.isAppFrozen(pkg)) removeCheckedApp(pkg)
                 }
@@ -309,7 +310,13 @@ class AppContextActions(
         }
     }
 
-    fun showPrerequisiteDialog(info: AppInfo, pkg: String, shortcutIntent: Intent) {
+    private fun addPinShortcut(info: AppInfo, pkg: String, shortcutIntent: Intent) {
+        shortcutIntent.putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
+        shortcutIntent.putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
+        HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
+    }
+
+    fun showPrerequisiteDialog(info: AppInfo) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_prerequisite, null)
         val editText = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
         val checkboxLaunch = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_launch)
@@ -342,16 +349,8 @@ class AppContextActions(
                 info.enableLocation = checkboxLocation.isChecked
                 HailData.saveApps()
                 onListChanged()
-
-                shortcutIntent.putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
-                shortcutIntent.putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
-                HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
             }
-            .setNegativeButton(R.string.action_skip) { _, _ ->
-                shortcutIntent.putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
-                shortcutIntent.putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
-                HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
-            }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 }
