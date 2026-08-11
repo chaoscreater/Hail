@@ -33,6 +33,8 @@
     <string name="action_tag_remove">Remove tag</string>
     <string name="action_tag_set">Set tag</string>
     <string name="action_tag_set_last">Set last used tag(s)</string>
+    <string name="action_jump_to_tab_category">Jump to tab category</string>
+    <string name="tab_category_search_result">%1$s (category)</string>
     <string name="tag_show_all_apps">Show all apps</string>
     <string name="action_add_pin_shortcut">Add to Home screen</string>
     <string name="action_export_clipboard">Export to Clipboard</string>
