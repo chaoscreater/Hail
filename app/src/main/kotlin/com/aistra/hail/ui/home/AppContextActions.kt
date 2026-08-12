@@ -1,11 +1,13 @@
 package com.aistra.hail.ui.home
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -152,13 +154,57 @@ class AppContextActions(
             })
         }
 
-        MaterialAlertDialogBuilder(activity).setTitle(info.name)
+        val dialog = MaterialAlertDialogBuilder(activity).setTitle(info.name)
             .setItems(items.map { it.first }.toTypedArray()) { _, which -> items[which].second() }
             .setNeutralButton(R.string.action_details) { _, _ ->
                 HUI.startActivity(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS, HPackages.packageUri(pkg)
                 )
-            }.setNegativeButton(android.R.string.cancel, null).show()
+            }.setNegativeButton(R.string.action_play_store) { _, _ -> openPlayStore(pkg) }
+            .setPositiveButton(android.R.string.cancel, null).show()
+
+        evenlySpaceDialogButtons(dialog)
+    }
+
+    /**
+     * Material's alert dialog button bar lays out as `[neutral] [weighted spacer] [negative]
+     * [positive]` — the spacer only pushes the neutral button to the far start, leaving negative
+     * and positive clumped together at the end. With three buttons (App info / Play Store /
+     * Cancel) that puts the middle one off-center, hugging the last. Rebuild the bar as
+     * `[gap][neutral][gap][negative][gap][positive][gap]` with equal-weight gaps so the three
+     * buttons end up evenly spaced, keeping each button at its natural (untruncated) width.
+     */
+    private fun evenlySpaceDialogButtons(dialog: androidx.appcompat.app.AlertDialog) {
+        val neutralBtn = dialog.getButton(DialogInterface.BUTTON_NEUTRAL) ?: return
+        val negativeBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE) ?: return
+        val positiveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE) ?: return
+        val barLayout = neutralBtn.parent as? LinearLayout ?: return
+
+        fun gap() = android.widget.Space(activity).apply {
+            layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+        }
+        listOf(neutralBtn, negativeBtn, positiveBtn).forEach { button ->
+            (button.layoutParams as? LinearLayout.LayoutParams)?.let {
+                it.width = LinearLayout.LayoutParams.WRAP_CONTENT
+                it.weight = 0f
+                button.layoutParams = it
+            }
+        }
+        barLayout.removeAllViews()
+        barLayout.addView(gap())
+        barLayout.addView(neutralBtn)
+        barLayout.addView(gap())
+        barLayout.addView(negativeBtn)
+        barLayout.addView(gap())
+        barLayout.addView(positiveBtn)
+        barLayout.addView(gap())
+    }
+
+    /** Opens the Play Store listing for [pkg] directly, falling back to the web listing if the Play Store app isn't available. */
+    private fun openPlayStore(pkg: String) {
+        if (!HUI.startActivity(uri = "market://details?id=$pkg")) {
+            HUI.startActivity(uri = "https://play.google.com/store/apps/details?id=$pkg")
+        }
     }
 
     /**
