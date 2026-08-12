@@ -15,7 +15,8 @@ class AppInfo(
     var prereqEnable: Boolean = false,
     var enableBluetooth: Boolean = false,
     var enableLocation: Boolean = false,
-    var dexApp: Boolean = false
+    var dexApp: Boolean = false,
+    val addedTime: Long = System.currentTimeMillis()
 ) {
     enum class State { NOT_FOUND, UNFROZEN, FROZEN }
 

@@ -14,6 +14,39 @@
             android:title="@string/tap_to_select"
             app:showAsAction="always"
             tools:ignore="AlwaysShowAction"/>
+    <item
+            android:icon="@drawable/ic_outline_sort"
+            android:title="@string/sort_by"
+            app:showAsAction="always">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                        android:id="@+id/sort_by_name_asc"
+                        android:title="@string/sort_name_asc"/>
+                <item
+                        android:id="@+id/sort_by_name_desc"
+                        android:title="@string/sort_name_desc"/>
+                <item
+                        android:id="@+id/sort_by_added_time_asc"
+                        android:title="@string/sort_added_time_asc"/>
+                <item
+                        android:id="@+id/sort_by_added_time_desc"
+                        android:title="@string/sort_added_time_desc"/>
+                <item
+                        android:id="@+id/sort_by_install_asc"
+                        android:title="@string/sort_install_asc"/>
+                <item
+                        android:id="@+id/sort_by_install_desc"
+                        android:title="@string/sort_install_desc"/>
+                <item
+                        android:id="@+id/sort_by_update_asc"
+                        android:title="@string/sort_update_asc"/>
+                <item
+                        android:id="@+id/sort_by_update_desc"
+                        android:title="@string/sort_update_desc"/>
+            </group>
+        </menu>
+    </item>
     <group android:id="@+id/group_filter_type">
         <item
                 android:id="@+id/action_filter_user_apps"

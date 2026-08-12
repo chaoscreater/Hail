@@ -53,6 +53,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
     private lateinit var pagerAdapter: PagerAdapter
     private lateinit var tagResultAdapter: TagResultAdapter
     private var searchItem: MenuItem? = null
+    private var scrollToTopOnNextUpdate = false
     private var multiselect: Boolean
         set(value) {
             (parentFragment as HomeFragment).multiselect = value
@@ -164,7 +165,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             }
         }.filter {
             HailData.showUninstalled || it.applicationInfo != null
-        }.sortedWith(NameComparator)
+        }.let { AppSort.sort(it, HailData.sortByScreen(HailData.SORT_SCREEN_HOME)) }
         // Tab categories whose name matches the active search, shown as leading "<name> (category)"
         // tiles (via tagResultAdapter, see onCreateView's ConcatAdapter). Empty while not searching.
         // Deliberately plain substring + pinyin matching, not the full matchesSearchQuery fuzzy/T9
@@ -180,7 +181,12 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         // it — that would overlap a still-visible, still-tappable tag tile.
         binding.empty.isVisible = apps.isEmpty() && tagMatches.isEmpty()
         tagResultAdapter.submitList(tagMatches)
-        pagerAdapter.submitList(apps)
+        pagerAdapter.submitList(apps) {
+            if (scrollToTopOnNextUpdate) {
+                binding.recyclerView.scrollToPosition(0)
+                scrollToTopOnNextUpdate = false
+            }
+        }
         app.setAutoFreezeService()
     }
 
@@ -614,8 +620,24 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
 
             R.id.action_export_current -> actions.exportToClipboard(pagerAdapter.currentList)
             R.id.action_export_all -> actions.exportToClipboard(HailData.checkedList)
+
+            R.id.sort_by_name_asc -> changeSort(HailData.SORT_NAME_ASC, item)
+            R.id.sort_by_name_desc -> changeSort(HailData.SORT_NAME_DESC, item)
+            R.id.sort_by_added_time_asc -> changeSort(HailData.SORT_ADDED_TIME_ASC, item)
+            R.id.sort_by_added_time_desc -> changeSort(HailData.SORT_ADDED_TIME_DESC, item)
+            R.id.sort_by_install_asc -> changeSort(HailData.SORT_INSTALL_ASC, item)
+            R.id.sort_by_install_desc -> changeSort(HailData.SORT_INSTALL_DESC, item)
+            R.id.sort_by_update_asc -> changeSort(HailData.SORT_UPDATE_ASC, item)
+            R.id.sort_by_update_desc -> changeSort(HailData.SORT_UPDATE_DESC, item)
         }
         return false
+    }
+
+    private fun changeSort(sort: String, item: MenuItem) {
+        item.isChecked = true
+        HailData.changeScreenSort(HailData.SORT_SCREEN_HOME, sort)
+        scrollToTopOnNextUpdate = true
+        updateCurrentList()
     }
 
     override fun onPrepareMenu(menu: Menu) {
@@ -623,6 +645,18 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
         menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
         menu.findItem(R.id.action_show_uninstalled)?.isChecked = HailData.showUninstalled
+        menu.findItem(
+            when (HailData.sortByScreen(HailData.SORT_SCREEN_HOME)) {
+                HailData.SORT_NAME_DESC -> R.id.sort_by_name_desc
+                HailData.SORT_ADDED_TIME_ASC -> R.id.sort_by_added_time_asc
+                HailData.SORT_ADDED_TIME_DESC -> R.id.sort_by_added_time_desc
+                HailData.SORT_INSTALL_ASC -> R.id.sort_by_install_asc
+                HailData.SORT_INSTALL_DESC -> R.id.sort_by_install_desc
+                HailData.SORT_UPDATE_ASC -> R.id.sort_by_update_asc
+                HailData.SORT_UPDATE_DESC -> R.id.sort_by_update_desc
+                else -> R.id.sort_by_name_asc
+            }
+        )?.isChecked = true
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.aistra.hail.R
+import com.aistra.hail.app.HailData
 import com.aistra.hail.ui.main.MainFragment
 
 /**
@@ -19,7 +20,7 @@ import com.aistra.hail.ui.main.MainFragment
  */
 class DexAppsFragment : MainFragment() {
 
-    private val controller by lazy { FilteredAppListController(this) { it.dexApp } }
+    private val controller by lazy { FilteredAppListController(this, HailData.SORT_SCREEN_DEX) { it.dexApp } }
     private val pinShortcutsDialog by lazy {
         PinShortcutsDialogController(
             fragment = this,

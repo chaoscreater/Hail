@@ -38,12 +38,24 @@ object HailData {
     const val KEY_ENABLE_BLUETOOTH = "enable_bluetooth"
     const val KEY_ENABLE_LOCATION = "enable_location"
     private const val KEY_DEX_APP = "dex_app"
+    private const val KEY_ADDED_TIME = "added_time"
     private const val SORT_BY = "sort_by"
     const val SORT_NAME = "name"
     const val SORT_INSTALL = "install"
     const val SORT_UPDATE = "update"
     const val SORT_UNADDED = "unadded"
     const val SORT_ADDED = "added"
+    const val SORT_NAME_ASC = "name_asc"
+    const val SORT_NAME_DESC = "name_desc"
+    const val SORT_ADDED_TIME_ASC = "added_time_asc"
+    const val SORT_ADDED_TIME_DESC = "added_time_desc"
+    const val SORT_INSTALL_ASC = "install_asc"
+    const val SORT_INSTALL_DESC = "install_desc"
+    const val SORT_UPDATE_ASC = "update_asc"
+    const val SORT_UPDATE_DESC = "update_desc"
+    const val SORT_SCREEN_HOME = "sort_by_home"
+    const val SORT_SCREEN_PREREQ = "sort_by_prereq"
+    const val SORT_SCREEN_DEX = "sort_by_dex"
     const val FILTER_USER_APPS = "filter_user_apps"
     const val FILTER_SYSTEM_APPS = "filter_system_apps"
     const val FILTER_FROZEN_APPS = "filter_frozen_apps"
@@ -151,6 +163,7 @@ object HailData {
 
     private val sp = PreferenceManager.getDefaultSharedPreferences(app)
     val sortBy get() = sp.getString(SORT_BY, SORT_NAME)
+    fun sortByScreen(key: String) = sp.getString(key, SORT_NAME_ASC)!!
     val filterUserApps get() = sp.getBoolean(FILTER_USER_APPS, true)
     val filterSystemApps get() = sp.getBoolean(FILTER_SYSTEM_APPS, false)
     val filterFrozenApps get() = sp.getBoolean(FILTER_FROZEN_APPS, true)
@@ -228,7 +241,8 @@ object HailData {
                             prereqEnable = optBoolean(KEY_PREREQ_ENABLE),
                             enableBluetooth = optBoolean(KEY_ENABLE_BLUETOOTH),
                             enableLocation = optBoolean(KEY_ENABLE_LOCATION),
-                            dexApp = optBoolean(KEY_DEX_APP)
+                            dexApp = optBoolean(KEY_DEX_APP),
+                            addedTime = optLong(KEY_ADDED_TIME, i.toLong())
                         )
                     })
                 }
@@ -265,6 +279,7 @@ object HailData {
                         .put(KEY_ENABLE_BLUETOOTH, it.enableBluetooth)
                         .put(KEY_ENABLE_LOCATION, it.enableLocation)
                         .put(KEY_DEX_APP, it.dexApp)
+                        .put(KEY_ADDED_TIME, it.addedTime)
                 )
             }
             toString()
@@ -295,6 +310,8 @@ object HailData {
     }
 
     fun changeAppsSort(sort: String) = sp.edit { putString(SORT_BY, sort) }
+
+    fun changeScreenSort(key: String, sort: String) = sp.edit { putString(key, sort) }
 
     fun changeAppsFilter(filter: String, enabled: Boolean) = sp.edit { putBoolean(filter, enabled) }
 }

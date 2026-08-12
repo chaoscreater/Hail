@@ -85,6 +85,14 @@
     <string name="sort_update">Last update</string>
     <string name="sort_unadded">Un-added apps first</string>
     <string name="sort_added">Added apps first</string>
+    <string name="sort_name_asc">Name (ascending)</string>
+    <string name="sort_name_desc">Name (descending)</string>
+    <string name="sort_added_time_asc">Last added (ascending)</string>
+    <string name="sort_added_time_desc">Last added (descending)</string>
+    <string name="sort_install_asc">First install (ascending)</string>
+    <string name="sort_install_desc">First install (descending)</string>
+    <string name="sort_update_asc">Last update (ascending)</string>
+    <string name="sort_update_desc">Last update (descending)</string>
     <string name="action_hide_apps">Hide Apps from List</string>
     <string name="msg_hidden_apps_saved">Hidden apps updated</string>
     <string name="title_donate">Thank you!</string>

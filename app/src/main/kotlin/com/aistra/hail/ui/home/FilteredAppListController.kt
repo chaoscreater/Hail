@@ -28,7 +28,7 @@ import com.aistra.hail.extensions.marginRelative
 import com.aistra.hail.extensions.paddingRelative
 import com.aistra.hail.ui.main.MainActivity
 import com.aistra.hail.utils.HUI
-import com.aistra.hail.utils.NameComparator
+import com.aistra.hail.utils.AppSort
 import com.aistra.hail.utils.matchesSearchQuery
 import com.google.android.material.color.MaterialColors
 
@@ -48,6 +48,7 @@ import com.google.android.material.color.MaterialColors
  */
 class FilteredAppListController(
     private val fragment: Fragment,
+    private val sortPrefKey: String,
     private val baseFilter: (AppInfo) -> Boolean
 ) : MenuProvider, PagerAdapter.OnItemClickListener, PagerAdapter.OnItemLongClickListener {
 
@@ -66,6 +67,7 @@ class FilteredAppListController(
     private val selectedList: MutableList<AppInfo> = mutableListOf()
     private var query: String = ""
     private var appTypeFilter: Int = APP_TYPE_ALL
+    private var scrollToTopOnNextUpdate = false
 
     private val actions by lazy { AppContextActions(fragment, onListChanged = { updateList() }) }
 
@@ -120,9 +122,14 @@ class FilteredAppListController(
             }
         }.filter {
             HailData.showUninstalled || it.applicationInfo != null
-        }.sortedWith(NameComparator)
+        }.let { AppSort.sort(it, HailData.sortByScreen(sortPrefKey)) }
         binding.empty.isVisible = list.isEmpty()
-        pagerAdapter.submitList(list)
+        pagerAdapter.submitList(list) {
+            if (scrollToTopOnNextUpdate) {
+                binding.recyclerView.scrollToPosition(0)
+                scrollToTopOnNextUpdate = false
+            }
+        }
         app.setAutoFreezeService()
     }
 
@@ -210,6 +217,25 @@ class FilteredAppListController(
         menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
         menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
         menu.findItem(R.id.action_show_uninstalled)?.isChecked = HailData.showUninstalled
+        menu.findItem(
+            when (HailData.sortByScreen(sortPrefKey)) {
+                HailData.SORT_NAME_DESC -> R.id.sort_by_name_desc
+                HailData.SORT_ADDED_TIME_ASC -> R.id.sort_by_added_time_asc
+                HailData.SORT_ADDED_TIME_DESC -> R.id.sort_by_added_time_desc
+                HailData.SORT_INSTALL_ASC -> R.id.sort_by_install_asc
+                HailData.SORT_INSTALL_DESC -> R.id.sort_by_install_desc
+                HailData.SORT_UPDATE_ASC -> R.id.sort_by_update_asc
+                HailData.SORT_UPDATE_DESC -> R.id.sort_by_update_desc
+                else -> R.id.sort_by_name_asc
+            }
+        )?.isChecked = true
+    }
+
+    private fun changeSort(sort: String, item: MenuItem) {
+        item.isChecked = true
+        HailData.changeScreenSort(sortPrefKey, sort)
+        scrollToTopOnNextUpdate = true
+        updateList()
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
@@ -249,6 +275,15 @@ class FilteredAppListController(
 
             R.id.action_export_current -> actions.exportToClipboard(pagerAdapter.currentList)
             R.id.action_export_all -> actions.exportToClipboard(HailData.checkedList)
+
+            R.id.sort_by_name_asc -> changeSort(HailData.SORT_NAME_ASC, item)
+            R.id.sort_by_name_desc -> changeSort(HailData.SORT_NAME_DESC, item)
+            R.id.sort_by_added_time_asc -> changeSort(HailData.SORT_ADDED_TIME_ASC, item)
+            R.id.sort_by_added_time_desc -> changeSort(HailData.SORT_ADDED_TIME_DESC, item)
+            R.id.sort_by_install_asc -> changeSort(HailData.SORT_INSTALL_ASC, item)
+            R.id.sort_by_install_desc -> changeSort(HailData.SORT_INSTALL_DESC, item)
+            R.id.sort_by_update_asc -> changeSort(HailData.SORT_UPDATE_ASC, item)
+            R.id.sort_by_update_desc -> changeSort(HailData.SORT_UPDATE_DESC, item)
         }
         return false
     }

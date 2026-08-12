@@ -18,6 +18,7 @@ object SettingsBackupManager {
     private const val KEY_HIDDEN_APPS = "hidden_apps"
     private const val KEY_PREFERENCES = "preferences"
     private const val KEY_DEX_APP = "dex_app"
+    private const val KEY_ADDED_TIME = "added_time"
     private const val BACKUP_VERSION = 2
 
     /**
@@ -42,6 +43,7 @@ object SettingsBackupManager {
             obj.put(HailData.KEY_ENABLE_BLUETOOTH, appInfo.enableBluetooth)
             obj.put(HailData.KEY_ENABLE_LOCATION, appInfo.enableLocation)
             obj.put(KEY_DEX_APP, appInfo.dexApp)
+            obj.put(KEY_ADDED_TIME, appInfo.addedTime)
             appsArray.put(obj)
         }
         root.put(KEY_APPS, appsArray)
@@ -95,6 +97,9 @@ object SettingsBackupManager {
             HailData.FILTER_ADDED_SYSTEM_APPS,
             HailData.FILTER_UNADDED_SYSTEM_APPS,
             "sort_by",
+            HailData.SORT_SCREEN_HOME,
+            HailData.SORT_SCREEN_PREREQ,
+            HailData.SORT_SCREEN_DEX,
         ).forEach { key ->
             allPrefs[key]?.let { value ->
                 when (value) {
@@ -162,6 +167,7 @@ object SettingsBackupManager {
                 val enableBluetooth = obj.optBoolean(HailData.KEY_ENABLE_BLUETOOTH, false)
                 val enableLocation = obj.optBoolean(HailData.KEY_ENABLE_LOCATION, false)
                 val dexApp = obj.optBoolean(KEY_DEX_APP, false)
+                val addedTime = obj.optLong(KEY_ADDED_TIME, i.toLong())
                 HailData.checkedList.add(
                     com.aistra.hail.app.AppInfo(
                         packageName = packageName,
@@ -174,7 +180,8 @@ object SettingsBackupManager {
                         prereqEnable = prereqEnable,
                         enableBluetooth = enableBluetooth,
                         enableLocation = enableLocation,
-                        dexApp = dexApp
+                        dexApp = dexApp,
+                        addedTime = addedTime
                     )
                 )
             }

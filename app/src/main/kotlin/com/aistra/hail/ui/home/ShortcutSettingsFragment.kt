@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.aistra.hail.app.HailData
 import com.aistra.hail.ui.main.MainFragment
 
 /**
@@ -15,7 +16,9 @@ import com.aistra.hail.ui.main.MainFragment
 class ShortcutSettingsFragment : MainFragment() {
 
     private val controller by lazy {
-        FilteredAppListController(this) { !it.prereqPackage.isNullOrEmpty() || it.enableBluetooth || it.enableLocation }
+        FilteredAppListController(this, HailData.SORT_SCREEN_PREREQ) {
+            !it.prereqPackage.isNullOrEmpty() || it.enableBluetooth || it.enableLocation
+        }
     }
 
     override fun onCreateView(
