@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Hail</string>
     <string name="app_slogan">Freezedom!</string>
-    <string name="title_home">Home</string>
-    <string name="title_apps">Apps</string>
+    <string name="title_home">My Apps</string>
+    <string name="title_apps">Add Apps</string>
     <string name="title_shortcut_settings">PreReq (custom settings)</string>
     <string name="title_dex_apps">Dex apps</string>
     <string name="title_settings">Settings</string>
