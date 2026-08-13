@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager.NameNotFoundException
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import com.aistra.hail.HailApp.Companion.app
 import com.aistra.hail.R
 import com.aistra.hail.app.AppInfo
@@ -36,16 +38,36 @@ import com.aistra.hail.utils.HShortcuts
 import com.aistra.hail.utils.HTarget
 import com.aistra.hail.utils.HUI
 import com.aistra.hail.work.HWork.setAutoFreeze
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ApiActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        runCatching {
-            if (handleAction(intent.action)) finish()
-        }.onFailure(::setErrorDialog)
+        // Block this window from intercepting touches/focus while it's invisible: without this,
+        // rapid repeat API calls (e.g. FREEZE fired 2-3x/sec) stack up transparent windows that
+        // eat all touch input on top of the foreground app until they finish() and clear.
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        )
+        lifecycleScope.launch {
+            runCatching {
+                if (handleAction(intent.action)) finish() else allowTouchInput()
+            }.onFailure {
+                allowTouchInput()
+                setErrorDialog(it)
+            }
+        }
     }
 
-    private fun handleAction(action: String?): Boolean {
+    /** Restores normal touch/focus handling for actions that surface an interactive Compose UI. */
+    private fun allowTouchInput() = window.clearFlags(
+        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    )
+
+    private suspend fun handleAction(action: String?): Boolean {
         when (action) {
             Intent.ACTION_SHOW_APP_INFO -> {
                 setContent { AppTheme { RedirectBottomSheet(requirePackage) } }
@@ -113,7 +135,7 @@ class ApiActivity : ComponentActivity() {
      * hail://add_whitelist?package=xxx[&tag=xxx]
      * hail://remove_whitelist?package=xxx
      */
-    private fun handleSchema(uri: Uri?): Boolean {
+    private suspend fun handleSchema(uri: Uri?): Boolean {
         if (uri?.scheme != "hail") throw IllegalArgumentException("Unknown scheme:\n${uri?.scheme}")
         return handleAction(
             when (uri.host) {
@@ -167,12 +189,14 @@ class ApiActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun ClickableItem(icon: ImageVector, @StringRes title: Int, onClick: () -> Unit) = Row(
+    private fun ClickableItem(icon: ImageVector, @StringRes title: Int, onClick: suspend () -> Unit) = Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = {
-            runCatching {
-                onClick()
-                finish()
-            }.onFailure(::setErrorDialog)
+            lifecycleScope.launch {
+                runCatching {
+                    onClick()
+                    finish()
+                }.onFailure(::setErrorDialog)
+            }
         }), verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -195,20 +219,24 @@ class ApiActivity : ComponentActivity() {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     TextButton(
                         onClick = {
-                            runCatching {
-                                launchApp(pkg, tagId)
-                                finish()
-                            }.onFailure(::setErrorDialog)
+                            lifecycleScope.launch {
+                                runCatching {
+                                    launchApp(pkg, tagId)
+                                    finish()
+                                }.onFailure(::setErrorDialog)
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(text = stringResource(R.string.action_launch)) }
                     TextButton(
                         onClick = {
-                            runCatching {
-                                if (!HailData.isChecked(pkg)) HailData.addCheckedApp(pkg)
-                                setAppFrozen(pkg, true)
-                                finish()
-                            }.onFailure(::setErrorDialog)
+                            lifecycleScope.launch {
+                                runCatching {
+                                    if (!HailData.isChecked(pkg)) HailData.addCheckedApp(pkg)
+                                    setAppFrozen(pkg, true)
+                                    finish()
+                                }.onFailure(::setErrorDialog)
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(text = stringResource(R.string.action_freeze)) }
@@ -253,12 +281,13 @@ class ApiActivity : ComponentActivity() {
                 ?: throw IllegalStateException("Tag unavailable:\n$it")
         } ?: throw IllegalArgumentException("Tag must not be null")
 
-    private fun launchApp(pkg: String, tagId: Int? = null) {
+    private suspend fun launchApp(pkg: String, tagId: Int? = null) {
         handlePrerequisiteApp(pkg)
         if (tagId != null) setListFrozen(false, HailData.checkedList.filter { tagId in it.tagIdList })
-        if (AppManager.isAppFrozen(pkg) && AppManager.setAppFrozen(pkg, false)) {
-            app.setAutoFreezeService()
+        val unfroze = withContext(Dispatchers.IO) {
+            AppManager.isAppFrozen(pkg) && AppManager.setAppFrozen(pkg, false)
         }
+        if (unfroze) app.setAutoFreezeService()
         packageManager.getLaunchIntentForPackage(pkg)?.let {
             HShortcuts.addDynamicShortcut(pkg)
             startActivity(it)
@@ -271,15 +300,16 @@ class ApiActivity : ComponentActivity() {
         }
     }
 
-    private fun handlePrerequisiteApp(pkg: String) {
+    private suspend fun handlePrerequisiteApp(pkg: String) {
         val appInfo = HailData.checkedList.find { it.packageName == pkg } ?: return
         val prereqPkg = appInfo.prereqPackage ?: return
 
         // Unfreeze the prerequisite app if it's frozen and either launch or enable is requested
-        if ((appInfo.prereqLaunch || appInfo.prereqEnable) && AppManager.isAppFrozen(prereqPkg)) {
-            if (AppManager.setAppFrozen(prereqPkg, false)) {
-                app.setAutoFreezeService()
+        if (appInfo.prereqLaunch || appInfo.prereqEnable) {
+            val unfroze = withContext(Dispatchers.IO) {
+                AppManager.isAppFrozen(prereqPkg) && AppManager.setAppFrozen(prereqPkg, false)
             }
+            if (unfroze) app.setAutoFreezeService()
         }
         // Launch the prerequisite app after unfreezing
         if (appInfo.prereqLaunch) {
@@ -287,32 +317,34 @@ class ApiActivity : ComponentActivity() {
         }
     }
 
-    private fun setAppFrozen(pkg: String, frozen: Boolean) = when {
-        frozen && !HailData.isChecked(pkg) -> throw SecurityException("Package not checked: $pkg")
-        AppManager.isAppFrozen(pkg) != frozen && !AppManager.setAppFrozen(
-            pkg, frozen
-        ) -> throw IllegalStateException(getString(R.string.permission_denied_pkg, pkg))
-
-        else -> {
-            HUI.showToast(
-                if (frozen) R.string.msg_freeze else R.string.msg_unfreeze,
-                HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
-            )
-            app.setAutoFreezeService()
+    private suspend fun setAppFrozen(pkg: String, frozen: Boolean) {
+        if (frozen && !HailData.isChecked(pkg)) throw SecurityException("Package not checked: $pkg")
+        val denied = withContext(Dispatchers.IO) {
+            AppManager.isAppFrozen(pkg) != frozen && !AppManager.setAppFrozen(pkg, frozen)
         }
+        if (denied) throw IllegalStateException(getString(R.string.permission_denied_pkg, pkg))
+        if (HailData.apiFreezeToast) HUI.showToast(
+            if (frozen) R.string.msg_freeze else R.string.msg_unfreeze,
+            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
+        )
+        app.setAutoFreezeService()
     }
 
-    private fun setListFrozen(
+    private suspend fun setListFrozen(
         frozen: Boolean, list: List<AppInfo> = HailData.checkedList, skipWhitelisted: Boolean = false
     ) {
-        val filtered =
-            list.filter { AppManager.isAppFrozen(it.packageName) != frozen && !(skipWhitelisted && it.whitelisted) }
-        when (val result = AppManager.setListFrozen(frozen, *filtered.toTypedArray())) {
+        val result = withContext(Dispatchers.IO) {
+            val filtered = list.filter {
+                AppManager.isAppFrozen(it.packageName) != frozen && !(skipWhitelisted && it.whitelisted)
+            }
+            AppManager.setListFrozen(frozen, *filtered.toTypedArray())
+        }
+        when (result) {
             null -> throw IllegalStateException(
                 getString(R.string.permission_denied_pkg, AppManager.lastDeniedPackage ?: "")
             )
             else -> {
-                HUI.showToast(
+                if (HailData.apiFreezeToast) HUI.showToast(
                     if (frozen) R.string.msg_freeze else R.string.msg_unfreeze, result
                 )
                 app.setAutoFreezeService()
@@ -348,8 +380,10 @@ class ApiActivity : ComponentActivity() {
         )
     }
 
-    private fun lockScreen(freezeAll: Boolean) {
+    private suspend fun lockScreen(freezeAll: Boolean) {
         if (freezeAll) setListFrozen(true)
-        if (AppManager.lockScreen.not()) throw IllegalStateException(getString(R.string.permission_denied))
+        if (!withContext(Dispatchers.IO) { AppManager.lockScreen }) {
+            throw IllegalStateException(getString(R.string.permission_denied))
+        }
     }
 }

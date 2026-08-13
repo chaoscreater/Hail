@@ -298,6 +298,13 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 icon = Icons.Outlined.TouchApp
             )
             switchPreference(
+                key = HailData.API_FREEZE_TOAST,
+                defaultValue = true,
+                titleId = R.string.api_freeze_toast,
+                summaryId = R.string.api_freeze_toast_summary,
+                icon = Icons.Outlined.AcUnit
+            )
+            switchPreference(
                 key = HailData.SHIZUKU_REQUIRED_NOTIFICATION,
                 defaultValue = true,
                 titleId = R.string.shizuku_required_notification,

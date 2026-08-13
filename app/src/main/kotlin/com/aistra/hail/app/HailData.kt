@@ -150,6 +150,7 @@ object HailData {
     const val SHOW_UNINSTALLED = "show_uninstalled"
     const val SHORTCUT_LAUNCH_PROMPT = "shortcut_launch_prompt"
     const val SHIZUKU_REQUIRED_NOTIFICATION = "shizuku_required_notification"
+    const val API_FREEZE_TOAST = "api_freeze_toast"
     const val DYNAMIC_SHORTCUT_ACTION = "dynamic_shortcut_action"
     private const val LAST_USED_TAG_IDS = "last_used_tag_ids"
     val DYNAMIC_SHORTCUT_ACTIONS = listOf(
@@ -197,6 +198,7 @@ object HailData {
         set(value) = sp.edit { putBoolean(SHOW_UNINSTALLED, value) }
     val shortcutLaunchPrompt get() = sp.getBoolean(SHORTCUT_LAUNCH_PROMPT, false)
     val shizukuRequiredNotification get() = sp.getBoolean(SHIZUKU_REQUIRED_NOTIFICATION, true)
+    val apiFreezeToast get() = sp.getBoolean(API_FREEZE_TOAST, true)
     val dynamicShortcutAction get() = sp.getString(DYNAMIC_SHORTCUT_ACTION, ACTION_NONE)!!
     var lastUsedTagIds
         get() = sp.getString(LAST_USED_TAG_IDS, "")!!.split(",").mapNotNull { it.toIntOrNull() }
