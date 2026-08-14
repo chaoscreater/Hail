@@ -163,6 +163,27 @@
                 <action android:name="android.intent.action.PACKAGE_UNSUSPENDED_MANUALLY"/>
             </intent-filter>
         </receiver>
+        <!-- Same non-interactive API actions as ApiActivity's first intent-filter, but reachable
+             via `am broadcast` instead of `am start` — no window, so nothing for Android to run
+             a window transition around when called rapidly. -->
+        <receiver
+                android:name=".receiver.ApiReceiver"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.FREEZE"/>
+                <action android:name="${applicationId}.action.UNFREEZE"/>
+                <action android:name="${applicationId}.action.FREEZE_TAG"/>
+                <action android:name="${applicationId}.action.UNFREEZE_TAG"/>
+                <action android:name="${applicationId}.action.FREEZE_ALL"/>
+                <action android:name="${applicationId}.action.UNFREEZE_ALL"/>
+                <action android:name="${applicationId}.action.FREEZE_NON_WHITELISTED"/>
+                <action android:name="${applicationId}.action.FREEZE_AUTO"/>
+                <action android:name="${applicationId}.action.LOCK"/>
+                <action android:name="${applicationId}.action.LOCK_FREEZE"/>
+                <action android:name="${applicationId}.action.ADD_WHITELIST"/>
+                <action android:name="${applicationId}.action.REMOVE_WHITELIST"/>
+            </intent-filter>
+        </receiver>
 
 
         <service

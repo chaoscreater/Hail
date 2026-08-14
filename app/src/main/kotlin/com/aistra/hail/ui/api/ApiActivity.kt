@@ -52,6 +52,18 @@ class ApiActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         )
+        handleIntent()
+    }
+
+    // launchMode="singleInstance" (see the manifest) means a second rapid API call is delivered
+    // here instead of creating a new instance/window, as long as this one hasn't finished yet.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent()
+    }
+
+    private fun handleIntent() {
         lifecycleScope.launch {
             runCatching {
                 if (handleAction(intent.action)) finish() else allowTouchInput()
