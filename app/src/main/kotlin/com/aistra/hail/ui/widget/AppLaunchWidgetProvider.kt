@@ -69,7 +69,7 @@ class AppLaunchWidgetProvider : AppWidgetProvider() {
             views.setContentDescription(R.id.widget_app_icon, label)
             views.setTextViewText(R.id.widget_app_label, label)
             if (applicationInfo != null) {
-                val size = context.resources.getDimensionPixelSize(R.dimen.widget_icon_size)
+                val size = context.resources.getDimensionPixelSize(R.dimen.widget_launch_icon_size)
                 views.setImageViewBitmap(
                     R.id.widget_app_icon,
                     AppIconCache.getOrLoadBitmap(context, applicationInfo, HPackages.myUserId, size)

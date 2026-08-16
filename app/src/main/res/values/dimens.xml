@@ -3,6 +3,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_icon_size">64dp</dimen>
     <dimen name="widget_icon_size">48dp</dimen>
+    <dimen name="widget_launch_icon_size">56dp</dimen>
     <dimen name="padding_extra_small">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">16dp</dimen>

@@ -3,9 +3,11 @@
     android:configure="com.aistra.hail.ui.widget.AppLaunchWidgetConfigActivity"
     android:description="@string/widget_launch_app_description"
     android:initialLayout="@layout/widget_app_launch"
+    android:maxResizeHeight="200dp"
+    android:maxResizeWidth="200dp"
     android:minHeight="60dp"
     android:minWidth="60dp"
     android:previewImage="@mipmap/ic_launcher"
-    android:resizeMode="none"
+    android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"/>
