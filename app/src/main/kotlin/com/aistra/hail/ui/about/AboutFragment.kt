@@ -27,6 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.fragment.findNavController
+import com.aistra.hail.BuildConfig
 import com.aistra.hail.HailApp.Companion.app
 import com.aistra.hail.R
 import com.aistra.hail.app.HailData
@@ -37,6 +39,8 @@ import com.aistra.hail.utils.HUI
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AboutFragment : MainFragment() {
 
@@ -45,7 +49,7 @@ class AboutFragment : MainFragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 AppTheme {
-                    AboutScreen(HPackages.getUnhiddenPackageInfoOrNull(app.packageName)!!.firstInstallTime)
+                    AboutScreen(HPackages.getUnhiddenPackageInfoOrNull(app.packageName)!!.lastUpdateTime)
                 }
             }
         }
@@ -54,8 +58,25 @@ class AboutFragment : MainFragment() {
     @Composable
     fun PreviewAboutScreen() = AppTheme { AboutScreen(System.currentTimeMillis()) }
 
+    /** e.g. 1755500000000L -> "August 18th 2026 - 2:30pm" */
+    private fun formatBuildTime(millis: Long): String {
+        val date = Date(millis)
+        val day = SimpleDateFormat("d", Locale.US).format(date).toInt()
+        val suffix = when {
+            day in 11..13 -> "th"
+            day % 10 == 1 -> "st"
+            day % 10 == 2 -> "nd"
+            day % 10 == 3 -> "rd"
+            else -> "th"
+        }
+        val month = SimpleDateFormat("MMMM", Locale.US).format(date)
+        val year = SimpleDateFormat("yyyy", Locale.US).format(date)
+        val time = SimpleDateFormat("h:mma", Locale.US).format(date).lowercase(Locale.US)
+        return "$month $day$suffix $year - $time"
+    }
+
     @Composable
-    private fun AboutScreen(installTime: Long) {
+    private fun AboutScreen(updateTime: Long) {
         var openLicenseDialog by remember { mutableStateOf(false) }
         if (openLicenseDialog) LicenseDialog { openLicenseDialog = false }
         Column(
@@ -89,13 +110,18 @@ class AboutFragment : MainFragment() {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             OutlinedCard(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))) {
                 ClickableItem(
-                    icon = Icons.Outlined.Update, title = R.string.label_version, desc = HailData.VERSION
+                    icon = Icons.Outlined.Update,
+                    title = R.string.label_version,
+                    desc = "${HailData.VERSION} - ${formatBuildTime(BuildConfig.BUILD_TIME)}"
                 ) { HUI.openLink(HailData.URL_RELEASES) }
                 ClickableItem(
                     icon = Icons.Outlined.InstallMobile,
                     title = R.string.label_time,
-                    desc = SimpleDateFormat.getDateInstance().format(installTime)
+                    desc = SimpleDateFormat.getDateInstance().format(Date(updateTime))
                 ) { HUI.showToast("\uD83E\uDD76\uD83D\uDCA8\uD83D\uDC09") }
+                ClickableItem(
+                    icon = Icons.Outlined.History, title = R.string.title_logs
+                ) { findNavController().navigate(R.id.nav_logs) }
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             OutlinedCard(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))) {

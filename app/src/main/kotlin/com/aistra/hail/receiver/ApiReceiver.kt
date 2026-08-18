@@ -10,6 +10,7 @@ import com.aistra.hail.app.AppInfo
 import com.aistra.hail.app.AppManager
 import com.aistra.hail.app.HailApi
 import com.aistra.hail.app.HailData
+import com.aistra.hail.utils.ApiLog
 import com.aistra.hail.utils.HPackages
 import com.aistra.hail.utils.HUI
 import com.aistra.hail.work.HWork.setAutoFreeze
@@ -38,16 +39,18 @@ class ApiReceiver : BroadcastReceiver() {
         // span multiple separate onReceive() calls.
         private val scope = CoroutineScope(Dispatchers.Main)
 
-        private val pendingLabels =
-            mutableMapOf(true to mutableListOf<CharSequence>(), false to mutableListOf<CharSequence>())
+        private val pendingCount = mutableMapOf(true to 0, false to 0)
+        private val pendingLastLabel = mutableMapOf<Boolean, CharSequence?>(true to null, false to null)
         private val flushJobs = mutableMapOf<Boolean, Job?>(true to null, false to null)
 
         /**
-         * Queues [label] for a combined freeze/unfreeze toast instead of showing one immediately,
-         * so a burst of individual FREEZE/UNFREEZE broadcasts (e.g. a MacroDroid loop over
-         * several packages) collapses into a single toast — same as FREEZE_ALL/
-         * FREEZE_NON_WHITELISTED already do for their own batch — instead of one toast per call,
-         * which is what was causing touch input to stall for the whole burst.
+         * Queues [count] more freeze/unfreeze changes (with [lastLabel] as the most recently
+         * changed app's name) for a combined toast instead of showing one immediately. Every
+         * toast-producing path — individual FREEZE/UNFREEZE calls *and* bulk ones like
+         * FREEZE_ALL/FREEZE_NON_WHITELISTED — goes through this same debounce: two separate
+         * toasts landing close together (one from an individual call, one from a bulk call) was
+         * enough to reproduce the touch-block on its own, even with each side individually
+         * debounced/batched.
          *
          * Deliberately does NOT hold any [android.content.BroadcastReceiver.PendingResult] open
          * across the debounce delay: `am broadcast` blocks its caller until the matching
@@ -57,18 +60,20 @@ class ApiReceiver : BroadcastReceiver() {
          * to be collecting (confirmed via logcat: each next call landed ~10-20ms after the
          * previous flush, tracking the debounce length almost exactly).
          */
-        private fun queueToast(frozen: Boolean, label: CharSequence) {
-            pendingLabels.getValue(frozen).add(label)
+        private fun queueToast(frozen: Boolean, count: Int, lastLabel: CharSequence) {
+            pendingCount[frozen] = pendingCount.getValue(frozen) + count
+            pendingLastLabel[frozen] = lastLabel
             flushJobs[frozen]?.cancel()
             flushJobs[frozen] = scope.launch {
                 delay(TOAST_DEBOUNCE_MS)
-                val labels = pendingLabels.getValue(frozen)
-                if (labels.isNotEmpty()) {
+                val total = pendingCount.getValue(frozen)
+                if (total > 0) {
                     HUI.showToast(
                         if (frozen) R.string.msg_freeze else R.string.msg_unfreeze,
-                        if (labels.size == 1) labels[0] else labels.size.toString()
+                        if (total == 1) pendingLastLabel.getValue(frozen)!! else total.toString()
                     )
-                    labels.clear()
+                    pendingCount[frozen] = 0
+                    pendingLastLabel[frozen] = null
                 }
             }
         }
@@ -77,6 +82,7 @@ class ApiReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         scope.launch {
+            ApiLog.log(intent.action, intent.getStringExtra(HailData.KEY_PACKAGE))
             runCatching { handleAction(intent) }
                 .onFailure { HUI.showToast(it.message ?: it.stackTraceToString()) }
             pendingResult.finish()
@@ -126,8 +132,10 @@ class ApiReceiver : BroadcastReceiver() {
         if (denied) throw IllegalStateException(app.getString(R.string.permission_denied_pkg, pkg))
         app.setAutoFreezeService()
         if (!HailData.apiFreezeToast) return
-        val label = HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
-        queueToast(frozen, label)
+        val label = withContext(Dispatchers.IO) {
+            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
+        }
+        queueToast(frozen, 1, label)
     }
 
     private suspend fun setListFrozen(
@@ -145,15 +153,17 @@ class ApiReceiver : BroadcastReceiver() {
             )
 
             else -> {
-                if (HailData.apiFreezeToast) HUI.showToast(
-                    if (frozen) R.string.msg_freeze else R.string.msg_unfreeze, result
-                )
                 app.setAutoFreezeService()
+                // AppManager.setListFrozen()'s return is either the single changed app's name
+                // (when exactly one changed) or the count of changed apps as a string (when
+                // more than one did) — recover the count so it can merge into the same running
+                // total as individual FREEZE/UNFREEZE calls.
+                if (HailData.apiFreezeToast) queueToast(frozen, result.toIntOrNull() ?: 1, result)
             }
         }
     }
 
-    private fun addToWhitelist(pkg: String) {
+    private suspend fun addToWhitelist(pkg: String) {
         val info = HailData.checkedList.find { it.packageName == pkg }
             ?: throw IllegalStateException(app.getString(R.string.app_not_in_home, pkg))
         if (info.whitelisted) throw IllegalStateException(
@@ -161,13 +171,13 @@ class ApiReceiver : BroadcastReceiver() {
         )
         info.whitelisted = true
         HailData.saveApps()
-        HUI.showToast(
-            R.string.msg_whitelist_add,
+        val label = withContext(Dispatchers.IO) {
             HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
-        )
+        }
+        HUI.showToast(R.string.msg_whitelist_add, label)
     }
 
-    private fun removeFromWhitelist(pkg: String) {
+    private suspend fun removeFromWhitelist(pkg: String) {
         val info = HailData.checkedList.find { it.packageName == pkg }
             ?: throw IllegalStateException(app.getString(R.string.app_not_in_home, pkg))
         if (!info.whitelisted) throw IllegalStateException(
@@ -175,10 +185,10 @@ class ApiReceiver : BroadcastReceiver() {
         )
         info.whitelisted = false
         HailData.saveApps()
-        HUI.showToast(
-            R.string.msg_whitelist_remove,
+        val label = withContext(Dispatchers.IO) {
             HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
-        )
+        }
+        HUI.showToast(R.string.msg_whitelist_remove, label)
     }
 
     private suspend fun lockScreen(freezeAll: Boolean) {

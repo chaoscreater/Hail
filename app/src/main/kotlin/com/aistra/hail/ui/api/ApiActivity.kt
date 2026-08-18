@@ -33,6 +33,7 @@ import com.aistra.hail.app.AppManager
 import com.aistra.hail.app.HailApi
 import com.aistra.hail.app.HailData
 import com.aistra.hail.ui.theme.AppTheme
+import com.aistra.hail.utils.ApiLog
 import com.aistra.hail.utils.HPackages
 import com.aistra.hail.utils.HShortcuts
 import com.aistra.hail.utils.HTarget
@@ -65,6 +66,7 @@ class ApiActivity : ComponentActivity() {
 
     private fun handleIntent() {
         lifecycleScope.launch {
+            ApiLog.log(intent.action, runCatching { packageArg }.getOrNull())
             runCatching {
                 if (handleAction(intent.action)) finish() else allowTouchInput()
             }.onFailure {
@@ -94,18 +96,12 @@ class ApiActivity : ComponentActivity() {
                 val appInfo = HailData.checkedList.find { it.packageName == pkg }
                 val enableBT = intent.getBooleanExtra(HailData.KEY_ENABLE_BLUETOOTH, false) || (appInfo?.enableBluetooth == true)
                 val enableLoc = intent.getBooleanExtra(HailData.KEY_ENABLE_LOCATION, false) || (appInfo?.enableLocation == true)
-                if (enableBT || enableLoc) {
-                    val appContext = applicationContext
-                    kotlin.concurrent.thread {
-                        if (enableBT) AppManager.enableBluetooth(appContext)
-                        if (enableLoc) AppManager.enableLocation(appContext)
-                    }
-                }
                 val fromShell = referrer?.toString() == "android-app://com.android.shell"
                 if (!fromShell && HailData.shortcutLaunchPrompt) {
-                    setContent { AppTheme { LaunchPromptDialog(pkg, tagId) } }
+                    setContent { AppTheme { LaunchPromptDialog(pkg, tagId, enableBT, enableLoc) } }
                     return false
                 }
+                applyLaunchExtras(enableBT, enableLoc)
                 launchApp(pkg, tagId)
             }
             HailApi.ACTION_FREEZE -> setAppFrozen(requirePackage, true)
@@ -220,7 +216,7 @@ class ApiActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun LaunchPromptDialog(pkg: String, tagId: Int?) {
+    private fun LaunchPromptDialog(pkg: String, tagId: Int?, enableBT: Boolean, enableLoc: Boolean) {
         val label = HPackages.getApplicationInfoOrNull(pkg)
             ?.loadLabel(packageManager)?.toString() ?: pkg
         AlertDialog(
@@ -233,6 +229,7 @@ class ApiActivity : ComponentActivity() {
                         onClick = {
                             lifecycleScope.launch {
                                 runCatching {
+                                    applyLaunchExtras(enableBT, enableLoc)
                                     launchApp(pkg, tagId)
                                     finish()
                                 }.onFailure(::setErrorDialog)
@@ -293,6 +290,16 @@ class ApiActivity : ComponentActivity() {
                 ?: throw IllegalStateException("Tag unavailable:\n$it")
         } ?: throw IllegalArgumentException("Tag must not be null")
 
+    /** Enables Bluetooth/location for a launch that's actually going through — never before the user commits to launching. */
+    private fun applyLaunchExtras(enableBT: Boolean, enableLoc: Boolean) {
+        if (!enableBT && !enableLoc) return
+        val appContext = applicationContext
+        kotlin.concurrent.thread {
+            if (enableBT) AppManager.enableBluetooth(appContext)
+            if (enableLoc) AppManager.enableLocation(appContext)
+        }
+    }
+
     private suspend fun launchApp(pkg: String, tagId: Int? = null) {
         handlePrerequisiteApp(pkg)
         if (tagId != null) setListFrozen(false, HailData.checkedList.filter { tagId in it.tagIdList })
@@ -335,10 +342,12 @@ class ApiActivity : ComponentActivity() {
             AppManager.isAppFrozen(pkg) != frozen && !AppManager.setAppFrozen(pkg, frozen)
         }
         if (denied) throw IllegalStateException(getString(R.string.permission_denied_pkg, pkg))
-        if (HailData.apiFreezeToast) HUI.showToast(
-            if (frozen) R.string.msg_freeze else R.string.msg_unfreeze,
-            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
-        )
+        if (HailData.apiFreezeToast) {
+            val label = withContext(Dispatchers.IO) {
+                HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
+            }
+            HUI.showToast(if (frozen) R.string.msg_freeze else R.string.msg_unfreeze, label)
+        }
         app.setAutoFreezeService()
     }
 
@@ -364,7 +373,7 @@ class ApiActivity : ComponentActivity() {
         }
     }
 
-    private fun addToWhitelist(pkg: String) {
+    private suspend fun addToWhitelist(pkg: String) {
         val info = HailData.checkedList.find { it.packageName == pkg }
             ?: throw IllegalStateException(getString(R.string.app_not_in_home, pkg))
         if (info.whitelisted) throw IllegalStateException(
@@ -372,13 +381,13 @@ class ApiActivity : ComponentActivity() {
         )
         info.whitelisted = true
         HailData.saveApps()
-        HUI.showToast(
-            R.string.msg_whitelist_add,
+        val label = withContext(Dispatchers.IO) {
             HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
-        )
+        }
+        HUI.showToast(R.string.msg_whitelist_add, label)
     }
 
-    private fun removeFromWhitelist(pkg: String) {
+    private suspend fun removeFromWhitelist(pkg: String) {
         val info = HailData.checkedList.find { it.packageName == pkg }
             ?: throw IllegalStateException(getString(R.string.app_not_in_home, pkg))
         if (!info.whitelisted) throw IllegalStateException(
@@ -386,10 +395,10 @@ class ApiActivity : ComponentActivity() {
         )
         info.whitelisted = false
         HailData.saveApps()
-        HUI.showToast(
-            R.string.msg_whitelist_remove,
+        val label = withContext(Dispatchers.IO) {
             HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(packageManager) ?: pkg
-        )
+        }
+        HUI.showToast(R.string.msg_whitelist_remove, label)
     }
 
     private suspend fun lockScreen(freezeAll: Boolean) {
