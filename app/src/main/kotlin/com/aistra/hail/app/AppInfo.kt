@@ -13,8 +13,15 @@ class AppInfo(
     var prereqPackage: String? = null,
     var prereqLaunch: Boolean = false,
     var prereqEnable: Boolean = false,
+    var prereqDelay: Long = 0L,
+    var prereqLaunchDelay: Long = 0L,
     var enableBluetooth: Boolean = false,
     var enableLocation: Boolean = false,
+    var enableWifi: Boolean = false,
+    var enableHighAccuracy: Boolean = false,
+    var enablePlayStore: Boolean = false,
+    var playStoreDelay: Long = 0L,
+    var shellLaunch: Boolean = false,
     var dexApp: Boolean = false,
     val addedTime: Long = System.currentTimeMillis()
 ) {

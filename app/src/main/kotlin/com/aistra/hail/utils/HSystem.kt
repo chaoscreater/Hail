@@ -39,17 +39,25 @@ object HSystem {
     fun checkOpUsageStats(context: Context): Boolean =
         checkOp(context, AppOpsManager.OPSTR_GET_USAGE_STATS)
 
-    fun isForegroundApp(context: Context, packageName: String): Boolean {
+    private fun mostRecentForegroundPackage(context: Context, windowMinutes: Long): String? {
         val usageStatsManager = context.getSystemService<UsageStatsManager>()!!
         val now = System.currentTimeMillis()
         val stats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_BEST,
-            now - 1000 * 60 * (HailData.autoFreezeDelay + 1), now  // to ensure that we can get the last app used
+            UsageStatsManager.INTERVAL_BEST, now - 1000 * 60 * windowMinutes, now
         )?.sortedBy { it.lastTimeUsed }
-        val foregroundPackageName = stats?.let {
-            if (it.isEmpty()) return@let null
-            it.last()?.packageName
-        }
-        return foregroundPackageName == packageName
+        return stats?.lastOrNull()?.packageName
     }
+
+    fun isForegroundApp(context: Context, packageName: String): Boolean =
+        // window widened by autoFreezeDelay to ensure that we can get the last app used
+        mostRecentForegroundPackage(context, HailData.autoFreezeDelay + 1) == packageName
+
+    /**
+     * Like [isForegroundApp], but uses a short fixed window instead of [HailData.autoFreezeDelay]
+     * so it reflects the app currently in use regardless of the auto-freeze delay setting. Backs
+     * [HailData.excludeForegroundApp], which must protect the foreground app from every freeze
+     * trigger, not just auto-freeze.
+     */
+    fun isCurrentForegroundApp(context: Context, packageName: String): Boolean =
+        mostRecentForegroundPackage(context, 1) == packageName
 }

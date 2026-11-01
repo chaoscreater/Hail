@@ -9,15 +9,17 @@ import com.aistra.hail.ui.main.MainFragment
 
 /**
  * Lists every checked app that has custom add-to-home-screen settings applied — a prerequisite
- * app, or the Bluetooth/location toggles — regardless of which tag category it lives under.
- * Search, multiselect, and the toolbar menu are all provided by [FilteredAppListController]; this
- * class only supplies the membership predicate and forwards lifecycle calls.
+ * app, the Wi-Fi/Bluetooth/location toggles, Enable Play Store, or launching through the shell —
+ * regardless of which tag category
+ * it lives under. Search, multiselect, and the toolbar menu are all provided by
+ * [FilteredAppListController]; this class only supplies the membership predicate and forwards
+ * lifecycle calls.
  */
 class ShortcutSettingsFragment : MainFragment() {
 
     private val controller by lazy {
         FilteredAppListController(this, HailData.SORT_SCREEN_PREREQ) {
-            !it.prereqPackage.isNullOrEmpty() || it.enableBluetooth || it.enableLocation
+            !it.prereqPackage.isNullOrEmpty() || it.enableBluetooth || it.enableLocation || it.enableWifi || it.enablePlayStore || it.shellLaunch || it.prereqDelay > 0 || it.prereqLaunchDelay > 0
         }
     }
 

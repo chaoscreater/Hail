@@ -2,7 +2,9 @@ package com.aistra.hail.ui.widget
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import com.aistra.hail.app.AppManager
+import kotlinx.coroutines.launch
 
 /**
  * Invisible proxy Activity that [AppLaunchWidgetProvider]'s click [android.app.PendingIntent]
@@ -17,8 +19,15 @@ import com.aistra.hail.app.AppManager
 class AppLaunchWidgetClickActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(EXTRA_PACKAGE)?.let { AppManager.launchApp(this, it) }
-        finish()
+        val pkg = intent.getStringExtra(EXTRA_PACKAGE)
+        if (pkg != null) {
+            lifecycleScope.launch {
+                AppManager.launchApp(this@AppLaunchWidgetClickActivity, pkg)
+                finish()
+            }
+        } else {
+            finish()
+        }
     }
 
     companion object {

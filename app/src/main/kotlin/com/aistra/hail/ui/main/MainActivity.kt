@@ -1,8 +1,11 @@
 package com.aistra.hail.ui.main
 
 import android.content.res.ColorStateList
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.Menu
+import android.view.MotionEvent
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -24,6 +27,7 @@ import com.aistra.hail.app.HailData
 import com.aistra.hail.databinding.ActivityMainBinding
 import com.aistra.hail.extensions.*
 import com.aistra.hail.utils.HPolicy
+import com.aistra.hail.utils.HSamsungDex
 import com.aistra.hail.utils.HUI
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,6 +48,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val binding = initView()
+        HSamsungDex.maximizeSelfIfNeeded(this)
         if (!HailData.biometricLogin || BiometricManager.from(this)
                 .canAuthenticate(BIOMETRIC_STRONG or DEVICE_CREDENTIAL) != BiometricManager.BIOMETRIC_SUCCESS
         ) return
@@ -105,6 +110,26 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.let { MenuCompat.setGroupDividerEnabled(it, true) }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    /**
+     * Dismiss the keyboard as soon as the user touches down anywhere outside the focused
+     * text field (e.g. blank space, or an app item they're about to long-press for its
+     * context menu) rather than waiting for that touch to finish, so the keyboard has time
+     * to close before a resulting long-press context menu is shown on top of it.
+     */
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            val focused = currentFocus
+            if (focused is EditText) {
+                val rect = Rect().apply { focused.getGlobalVisibleRect(this) }
+                if (!rect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    focused.hideKeyboard()
+                    focused.clearFocus()
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     /** Red background on non-Default tag tabs signals that Home Screen Shortcuts is tag-scoped there. */

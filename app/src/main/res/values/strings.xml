@@ -13,6 +13,7 @@
     <string name="label_version">Version</string>
     <string name="label_time">Install time</string>
     <string name="msg_logs_empty">No intents received yet</string>
+    <string name="msg_logs_no_match">No matching log entries</string>
     <string name="msg_logs_count">%d entries</string>
     <string name="action_clear_logs">Clear</string>
     <string name="action_copy_logs">Copy</string>
@@ -114,6 +115,9 @@
     <string name="permission_denied_pkg">Permission denied: %s</string>
     <string name="whitelisted_apps">Whitelisted apps</string>
     <string name="msg_no_whitelisted_apps">No whitelisted apps</string>
+    <string name="title_freeze_apps">Freeze apps</string>
+    <string name="msg_no_apps_to_freeze">No running apps to freeze</string>
+    <string name="show_whitelisted_apps">Show whitelisted apps</string>
     <string name="home_shortcuts">Home screen shortcuts</string>
     <string name="dex_app_shortcuts">Dex app shortcuts</string>
     <string name="tab_shortcuts_title">%1$s shortcuts</string>
@@ -123,6 +127,8 @@
     <string name="widget_no_apps">No apps added to Hail yet</string>
     <string name="shortcut_launch_prompt">Prompt on shortcut launch</string>
     <string name="shortcut_launch_prompt_title">What would you like to do?</string>
+    <string name="maximize_apps_in_dex">Maximize apps in DeX</string>
+    <string name="maximize_apps_in_dex_summary">When Samsung DeX is active, launched apps open as a maximized freeform window instead of DeX\'s default window size.</string>
     <string name="tab_all_apps">All apps</string>
     <string name="tab_selected">Selected</string>
     <string name="tab_unselected">Unselected</string>
@@ -162,6 +168,8 @@
     <string name="auto_freeze_after_lock">After screen locked</string>
     <string name="skip_while_charging">Skip while charging</string>
     <string name="skip_foreground_app">Skip foreground app</string>
+    <string name="exclude_foreground_app">Exclude foreground app</string>
+    <string name="exclude_foreground_app_summary">Never freeze the app currently in use, no matter how freezing is triggered (API, shortcut, tile, manual, or auto freeze)</string>
     <string name="title_customize">Customize</string>
     <string name="grayscale_icon">Grayscale icon</string>
     <string name="compact_icon">Compact icon</string>
@@ -199,6 +207,11 @@
     <string name="prerequisite_app_hint">Prerequisite app (e.g. com.example.app)</string>
     <string name="prerequisite_launch">Launch prerequisite app</string>
     <string name="prerequisite_enable">Enable (unfreeze) prerequisite app</string>
+    <string name="prerequisite_delay_hint">Delay before running %1$s</string>
+    <string name="unit_ms">ms</string>
+    <string name="unit_s">s</string>
+    <string name="prerequisite_enable_play_store">Enable Play Store</string>
+    <string name="prerequisite_shell_launch">Launch app through shell (Shizuku/root)</string>
     <string name="xposed_description">Automatically unfreeze suspended app for scoped apps</string>
     <string name="mode_island_hide">Island/Insular - Hide</string>
     <string name="mode_island_suspend">Island/Insular - Suspend</string>
@@ -224,6 +237,8 @@
     <string name="follow_system">Follow system</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="shortcut_enable_wifi">Turn on Wi-Fi</string>
     <string name="shortcut_enable_bluetooth">Turn on Bluetooth</string>
     <string name="shortcut_enable_location">Turn on Location</string>
+    <string name="shortcut_enable_high_accuracy">Enable High Accuracy</string>
 </resources>

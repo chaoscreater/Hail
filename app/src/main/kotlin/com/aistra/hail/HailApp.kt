@@ -1,11 +1,13 @@
 package com.aistra.hail
 
+import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
@@ -16,10 +18,37 @@ import com.aistra.hail.utils.HDhizuku
 import com.aistra.hail.utils.HTarget
 
 class HailApp : Application() {
+    /**
+     * Count of Hail's own currently-resumed activities — 0 whenever none of Hail's screens is the
+     * one on top. Used by [com.aistra.hail.app.AppManager.isForegroundExcluded] to answer "is Hail
+     * itself the foreground app" instantly and exactly, instead of via
+     * [com.aistra.hail.utils.HSystem.isCurrentForegroundApp]'s [android.app.usage.UsageStatsManager]
+     * query — which only reports batched, sometimes minutes-stale data, and could otherwise still
+     * show whatever app the user had open just before switching to Hail as "current" while Hail is
+     * plainly the one on screen right now.
+     */
+    private var resumedActivityCount = 0
+    val isInForeground get() = resumedActivityCount > 0
+
     override fun onCreate() {
         super.onCreate()
         app = this
         // DirtyDataUpdater.update(app)
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityResumed(activity: Activity) {
+                resumedActivityCount++
+            }
+
+            override fun onActivityPaused(activity: Activity) {
+                resumedActivityCount--
+            }
+
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+            override fun onActivityStarted(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+            override fun onActivityDestroyed(activity: Activity) {}
+        })
         if (!HTarget.S) setAppTheme(HailData.appTheme)
         if (HailData.workingMode.startsWith(HailData.DHIZUKU)) HDhizuku.init()
     }

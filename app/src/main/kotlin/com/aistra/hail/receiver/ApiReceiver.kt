@@ -82,34 +82,48 @@ class ApiReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         scope.launch {
-            ApiLog.log(intent.action, intent.getStringExtra(HailData.KEY_PACKAGE))
-            runCatching { handleAction(intent) }
-                .onFailure { HUI.showToast(it.message ?: it.stackTraceToString()) }
+            val entry = ApiLog.log(intent.action, intent.getStringExtra(HailData.KEY_PACKAGE))
+            val detail = runCatching { handleAction(intent) }.getOrElse {
+                HUI.showToast(it.message ?: it.stackTraceToString())
+                it.message?.replace("\n", " — ") ?: it.javaClass.simpleName
+            }
+            detail?.let { ApiLog.setDetail(entry, it) }
             pendingResult.finish()
         }
     }
 
-    private suspend fun handleAction(intent: Intent) {
+    /** @return a one-line outcome for the API log (or why the change was refused), if the action has one. */
+    private suspend fun handleAction(intent: Intent): String? {
+        var detail: String? = null
         when (intent.action) {
-            HailApi.ACTION_FREEZE -> setAppFrozen(requirePackage(intent), true)
-            HailApi.ACTION_UNFREEZE -> setAppFrozen(requirePackage(intent), false)
-            HailApi.ACTION_FREEZE_TAG -> setListFrozen(
+            HailApi.ACTION_FREEZE -> detail = setAppFrozen(
+                requirePackage(intent), true, intent.getBooleanExtra(HailData.KEY_FORCE, false)
+            )
+            HailApi.ACTION_UNFREEZE -> detail = setAppFrozen(requirePackage(intent), false)
+            HailApi.ACTION_FREEZE_TAG -> detail = setListFrozen(
                 true, HailData.checkedList.filter { requireTagId(intent) in it.tagIdList }, true
             )
 
-            HailApi.ACTION_UNFREEZE_TAG -> setListFrozen(
+            HailApi.ACTION_UNFREEZE_TAG -> detail = setListFrozen(
                 false, HailData.checkedList.filter { requireTagId(intent) in it.tagIdList })
 
-            HailApi.ACTION_FREEZE_ALL -> setListFrozen(true)
-            HailApi.ACTION_UNFREEZE_ALL -> setListFrozen(false)
-            HailApi.ACTION_FREEZE_NON_WHITELISTED -> setListFrozen(true, skipWhitelisted = true)
+            HailApi.ACTION_FREEZE_ALL -> detail = setListFrozen(true)
+            HailApi.ACTION_UNFREEZE_ALL -> detail = setListFrozen(false)
+            HailApi.ACTION_FREEZE_NON_WHITELISTED -> detail = setListFrozen(true, skipWhitelisted = true)
             HailApi.ACTION_FREEZE_AUTO -> setAutoFreeze(false)
             HailApi.ACTION_LOCK -> lockScreen(false)
-            HailApi.ACTION_LOCK_FREEZE -> lockScreen(true)
+            HailApi.ACTION_LOCK_FREEZE -> detail = lockScreen(true)
             HailApi.ACTION_ADD_WHITELIST -> addToWhitelist(requirePackage(intent))
             HailApi.ACTION_REMOVE_WHITELIST -> removeFromWhitelist(packageArg(intent))
+            HailApi.ACTION_DEX_MODE_ON -> HailData.dexModeExternal = true
+            HailApi.ACTION_DEX_MODE_OFF -> HailData.dexModeExternal = false
+            HailApi.ACTION_EXCLUDE_FOREGROUND_APP_ON -> HailData.excludeForegroundApp = true
+            HailApi.ACTION_EXCLUDE_FOREGROUND_APP_OFF -> HailData.excludeForegroundApp = false
+            HailApi.ACTION_FREEZE_TOAST_ON -> HailData.apiFreezeToast = true
+            HailApi.ACTION_FREEZE_TOAST_OFF -> HailData.apiFreezeToast = false
             else -> throw IllegalArgumentException("Unknown action:\n${intent.action}")
         }
+        return detail
     }
 
     private fun packageArg(intent: Intent): String =
@@ -124,42 +138,50 @@ class ApiReceiver : BroadcastReceiver() {
             ?: throw IllegalStateException("Tag unavailable:\n$it")
     } ?: throw IllegalArgumentException("Tag must not be null")
 
-    private suspend fun setAppFrozen(pkg: String, frozen: Boolean) {
+    /** @return a one-line outcome for the API log; throws (with the reason) when the change was refused. */
+    private suspend fun setAppFrozen(pkg: String, frozen: Boolean, force: Boolean = false): String {
         if (frozen && !HailData.isChecked(pkg)) throw SecurityException("Package not checked: $pkg")
-        val denied = withContext(Dispatchers.IO) {
-            AppManager.isAppFrozen(pkg) != frozen && !AppManager.setAppFrozen(pkg, frozen)
+        val (already, reason) = withContext(Dispatchers.IO) {
+            val already = AppManager.isAppFrozen(pkg) == frozen
+            already to if (already) null else AppManager.setAppFrozenOrReason(pkg, frozen, force)
         }
-        if (denied) throw IllegalStateException(app.getString(R.string.permission_denied_pkg, pkg))
+        if (reason != null) throw IllegalStateException(
+            "Couldn't ${if (frozen) "freeze" else "unfreeze"} $pkg\n$reason"
+        )
         app.setAutoFreezeService()
-        if (!HailData.apiFreezeToast) return
-        val label = withContext(Dispatchers.IO) {
-            HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
+        if (HailData.apiFreezeToast) {
+            val label = withContext(Dispatchers.IO) {
+                HPackages.getApplicationInfoOrNull(pkg)?.loadLabel(app.packageManager) ?: pkg
+            }
+            queueToast(frozen, 1, label)
         }
-        queueToast(frozen, 1, label)
+        val state = if (frozen) "frozen" else "unfrozen"
+        return if (already) "Already $state — nothing to do" else state.replaceFirstChar { it.uppercase() }
     }
 
+    /** @return a one-line outcome for the API log; throws (with the reasons) when every attempt was refused. */
     private suspend fun setListFrozen(
         frozen: Boolean, list: List<AppInfo> = HailData.checkedList, skipWhitelisted: Boolean = false
-    ) {
-        val result = withContext(Dispatchers.IO) {
+    ): String {
+        val (attempted, result) = withContext(Dispatchers.IO) {
             val filtered = list.filter {
                 AppManager.isAppFrozen(it.packageName) != frozen && !(skipWhitelisted && it.whitelisted)
             }
-            AppManager.setListFrozen(frozen, *filtered.toTypedArray())
+            filtered.size to AppManager.setListFrozenWithReasons(frozen, *filtered.toTypedArray())
         }
-        when (result) {
-            null -> throw IllegalStateException(
-                app.getString(R.string.permission_denied_pkg, AppManager.lastDeniedPackage ?: "")
-            )
-
-            else -> {
-                app.setAutoFreezeService()
-                // AppManager.setListFrozen()'s return is either the single changed app's name
-                // (when exactly one changed) or the count of changed apps as a string (when
-                // more than one did) — recover the count so it can merge into the same running
-                // total as individual FREEZE/UNFREEZE calls.
-                if (HailData.apiFreezeToast) queueToast(frozen, result.toIntOrNull() ?: 1, result)
-            }
+        val summary = result.summary ?: throw IllegalStateException(
+            app.getString(R.string.permission_denied_pkg, result.deniedPackage ?: "") + "\n" + result.describe(frozen)
+        )
+        app.setAutoFreezeService()
+        // ListResult.summary is either the single changed app's name (when exactly one changed)
+        // or the count of changed apps as a string (when more than one did) — recover the count
+        // so it can merge into the same running total as individual FREEZE/UNFREEZE calls.
+        if (HailData.apiFreezeToast) queueToast(frozen, summary.toIntOrNull() ?: 1, summary)
+        return when {
+            list.isEmpty() -> "Nothing to change — no apps in the list"
+            attempted == 0 -> "Nothing to change — every app in the list is already " +
+                    (if (frozen) "frozen" else "unfrozen") + (if (skipWhitelisted) " or whitelisted" else "")
+            else -> result.describe(frozen)
         }
     }
 
@@ -191,10 +213,12 @@ class ApiReceiver : BroadcastReceiver() {
         HUI.showToast(R.string.msg_whitelist_remove, label)
     }
 
-    private suspend fun lockScreen(freezeAll: Boolean) {
-        if (freezeAll) setListFrozen(true)
+    /** @return the freeze outcome when [freezeAll], for the API log. */
+    private suspend fun lockScreen(freezeAll: Boolean): String? {
+        val detail = if (freezeAll) setListFrozen(true) else null
         if (!withContext(Dispatchers.IO) { AppManager.lockScreen }) {
             throw IllegalStateException(app.getString(R.string.permission_denied))
         }
+        return detail
     }
 }

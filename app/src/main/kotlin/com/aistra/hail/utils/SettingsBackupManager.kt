@@ -40,8 +40,15 @@ object SettingsBackupManager {
             obj.put(HailData.KEY_PREREQ_PACKAGE, appInfo.prereqPackage ?: "")
             obj.put(HailData.KEY_PREREQ_LAUNCH, appInfo.prereqLaunch)
             obj.put(HailData.KEY_PREREQ_ENABLE, appInfo.prereqEnable)
+            obj.put(HailData.KEY_PREREQ_DELAY, appInfo.prereqDelay)
+            obj.put(HailData.KEY_PREREQ_LAUNCH_DELAY, appInfo.prereqLaunchDelay)
             obj.put(HailData.KEY_ENABLE_BLUETOOTH, appInfo.enableBluetooth)
             obj.put(HailData.KEY_ENABLE_LOCATION, appInfo.enableLocation)
+            obj.put(HailData.KEY_ENABLE_WIFI, appInfo.enableWifi)
+            obj.put(HailData.KEY_ENABLE_HIGH_ACCURACY, appInfo.enableHighAccuracy)
+            obj.put(HailData.KEY_ENABLE_PLAY_STORE, appInfo.enablePlayStore)
+            obj.put(HailData.KEY_PLAY_STORE_DELAY, appInfo.playStoreDelay)
+            obj.put(HailData.KEY_SHELL_LAUNCH, appInfo.shellLaunch)
             obj.put(KEY_DEX_APP, appInfo.dexApp)
             obj.put(KEY_ADDED_TIME, appInfo.addedTime)
             appsArray.put(obj)
@@ -84,8 +91,10 @@ object SettingsBackupManager {
             HailData.SKIP_WHILE_CHARGING,
             HailData.SKIP_FOREGROUND_APP,
             HailData.SKIP_NOTIFYING_APP,
+            HailData.EXCLUDE_FOREGROUND_APP,
             HailData.SHOW_UNINSTALLED,
             HailData.DYNAMIC_SHORTCUT_ACTION,
+            HailData.MAXIMIZE_APPS_IN_DEX,
             HailData.FILTER_USER_APPS,
             HailData.FILTER_SYSTEM_APPS,
             HailData.FILTER_FROZEN_APPS,
@@ -164,8 +173,21 @@ object SettingsBackupManager {
                 val prereqPackage = obj.optString(HailData.KEY_PREREQ_PACKAGE).ifEmpty { null }
                 val prereqLaunch = obj.optBoolean(HailData.KEY_PREREQ_LAUNCH, false)
                 val prereqEnable = obj.optBoolean(HailData.KEY_PREREQ_ENABLE, false)
+                val prereqDelay = obj.optLong(HailData.KEY_PREREQ_DELAY, 0L)
+                // Backups from before launching had its own delay shared the enable delay
+                val prereqLaunchDelay = obj.optLong(
+                    HailData.KEY_PREREQ_LAUNCH_DELAY, if (prereqLaunch) prereqDelay else 0L
+                )
                 val enableBluetooth = obj.optBoolean(HailData.KEY_ENABLE_BLUETOOTH, false)
                 val enableLocation = obj.optBoolean(HailData.KEY_ENABLE_LOCATION, false)
+                val enableWifi = obj.optBoolean(HailData.KEY_ENABLE_WIFI, false)
+                val enableHighAccuracy = obj.optBoolean(HailData.KEY_ENABLE_HIGH_ACCURACY, false)
+                val enablePlayStore = obj.optBoolean(HailData.KEY_ENABLE_PLAY_STORE, false)
+                // Backups from before Play Store had its own delay shared the prerequisite delay
+                val playStoreDelay = obj.optLong(
+                    HailData.KEY_PLAY_STORE_DELAY, if (enablePlayStore) prereqDelay else 0L
+                )
+                val shellLaunch = obj.optBoolean(HailData.KEY_SHELL_LAUNCH, false)
                 val dexApp = obj.optBoolean(KEY_DEX_APP, false)
                 val addedTime = obj.optLong(KEY_ADDED_TIME, i.toLong())
                 HailData.checkedList.add(
@@ -178,8 +200,15 @@ object SettingsBackupManager {
                         prereqPackage = prereqPackage,
                         prereqLaunch = prereqLaunch,
                         prereqEnable = prereqEnable,
+                        prereqDelay = prereqDelay,
+                        prereqLaunchDelay = prereqLaunchDelay,
                         enableBluetooth = enableBluetooth,
                         enableLocation = enableLocation,
+                        enableWifi = enableWifi,
+                        enableHighAccuracy = enableHighAccuracy,
+                        enablePlayStore = enablePlayStore,
+                        playStoreDelay = playStoreDelay,
+                        shellLaunch = shellLaunch,
                         dexApp = dexApp,
                         addedTime = addedTime
                     )

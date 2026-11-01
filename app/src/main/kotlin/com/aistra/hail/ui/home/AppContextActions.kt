@@ -6,8 +6,15 @@ import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.math.roundToLong
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -277,30 +284,68 @@ class AppContextActions(
     }
 
     private fun launchApp(packageName: String) {
-        handlePrerequisiteApp(packageName)
-        if (AppManager.isAppFrozen(packageName) && AppManager.setAppFrozen(packageName, false)) {
-            onListChanged()
-        }
-        app.packageManager.getLaunchIntentForPackage(packageName)?.let {
-            HShortcuts.addDynamicShortcut(packageName)
-            fragment.startActivity(it)
-        } ?: run {
-            HUI.showToast(R.string.activity_not_found)
-            HUI.notifyShizukuRequired(packageName)
+        activity.lifecycleScope.launch {
+            handlePrerequisiteApp(packageName)
+            val unfroze = withContext(Dispatchers.IO) {
+                AppManager.isAppFrozen(packageName) && AppManager.setAppFrozen(packageName, false)
+            }
+            if (unfroze) {
+                onListChanged()
+            }
+            app.packageManager.getLaunchIntentForPackage(packageName)?.let {
+                HShortcuts.addDynamicShortcut(packageName)
+                AppManager.startTargetApp(activity, it)
+            } ?: run {
+                HUI.showToast(R.string.activity_not_found)
+                HUI.notifyShizukuRequired(packageName)
+            }
         }
     }
 
-    private fun handlePrerequisiteApp(packageName: String) {
+    private suspend fun handlePrerequisiteApp(packageName: String) {
         val appInfo = HailData.checkedList.find { it.packageName == packageName } ?: return
-        val prereqPkg = appInfo.prereqPackage ?: return
-        if ((appInfo.prereqLaunch || appInfo.prereqEnable) && AppManager.isAppFrozen(prereqPkg)) {
-            if (AppManager.setAppFrozen(prereqPkg, false)) {
+        // Three independent delays: Play Store's and the prerequisite app's "enable" delay only
+        // apply if that app was frozen and so had to be unfrozen; the "launch" delay applies
+        // whenever the prerequisite app is launched
+        var unfrozePrereq = false
+        var unfrozePlayStore = false
+        var launchedPrereq = false
+        if (appInfo.enablePlayStore && AppManager.isAppFrozen(HailData.PACKAGE_PLAY_STORE)) {
+            val unfroze = withContext(Dispatchers.IO) {
+                AppManager.setAppFrozen(HailData.PACKAGE_PLAY_STORE, false)
+            }
+            if (unfroze) {
                 app.setAutoFreezeService()
             }
+            unfrozePlayStore = true
         }
-        if (appInfo.prereqLaunch) {
-            app.packageManager.getLaunchIntentForPackage(prereqPkg)?.let { fragment.startActivity(it) }
+        AppManager.applyPrerequisiteExtras(
+            app, appInfo.enableBluetooth, appInfo.enableLocation, appInfo.enableHighAccuracy, appInfo.enableWifi
+        )
+        val prereqPkg = appInfo.prereqPackage
+        if (prereqPkg != null) {
+            if ((appInfo.prereqLaunch || appInfo.prereqEnable) && AppManager.isAppFrozen(prereqPkg)) {
+                val unfroze = withContext(Dispatchers.IO) {
+                    AppManager.setAppFrozen(prereqPkg, false)
+                }
+                if (unfroze) {
+                    app.setAutoFreezeService()
+                }
+                unfrozePrereq = true
+            }
+            if (appInfo.prereqLaunch) {
+                app.packageManager.getLaunchIntentForPackage(prereqPkg)?.let {
+                    fragment.startActivity(it)
+                    launchedPrereq = true
+                }
+            }
         }
+        val launchDelay = maxOf(
+            if (unfrozePlayStore) appInfo.playStoreDelay else 0L,
+            if (unfrozePrereq && appInfo.prereqEnable) appInfo.prereqDelay else 0L,
+            if (launchedPrereq) appInfo.prereqLaunchDelay else 0L
+        )
+        if (launchDelay > 0L) delay(launchDelay)
     }
 
     fun setListFrozen(
@@ -519,6 +564,8 @@ class AppContextActions(
     private fun addPinShortcut(info: AppInfo, pkg: String, shortcutIntent: Intent) {
         shortcutIntent.putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
         shortcutIntent.putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
+        shortcutIntent.putExtra(HailData.KEY_ENABLE_WIFI, info.enableWifi)
+        shortcutIntent.putExtra(HailData.KEY_ENABLE_HIGH_ACCURACY, info.enableHighAccuracy)
         HShortcuts.addPinShortcut(info, pkg, info.name, shortcutIntent)
     }
 
@@ -527,32 +574,146 @@ class AppContextActions(
         val editText = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text)
         val checkboxLaunch = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_launch)
         val checkboxEnable = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable)
+        val layoutDelay = dialogView.findViewById<LinearLayout>(R.id.layout_delay)
+        val editTextDelay = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text_delay)
+        val toggleGroupDelayUnit = dialogView.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.toggle_group_delay_unit)
+        val checkboxWifi = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable_wifi)
         val checkboxBluetooth = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable_bluetooth)
         val checkboxLocation = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable_location)
+        val checkboxHighAccuracy = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable_high_accuracy)
+        val checkboxPlayStore = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_enable_play_store)
+        val checkboxShellLaunch = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.checkbox_shell_launch)
+        val layoutDelayPlayStore = dialogView.findViewById<LinearLayout>(R.id.layout_delay_play_store)
+        val editTextDelayPlayStore = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text_delay_play_store)
+        val toggleGroupDelayUnitPlayStore = dialogView.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.toggle_group_delay_unit_play_store)
+        val layoutDelayLaunch = dialogView.findViewById<LinearLayout>(R.id.layout_delay_launch)
+        val editTextDelayLaunch = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.edit_text_delay_launch)
+        val toggleGroupDelayUnitLaunch = dialogView.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.toggle_group_delay_unit_launch)
+
+        val delayHint = activity.getString(R.string.prerequisite_delay_hint, info.name.toString())
+        dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.input_layout_delay).hint = delayHint
+        dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.input_layout_delay_play_store).hint = delayHint
+        dialogView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.input_layout_delay_launch).hint = delayHint
+
+        // Shows [delayMs] in whole seconds when it divides evenly, in ms otherwise, and keeps the
+        // field's value equivalent when the unit toggle is switched.
+        fun bindDelay(
+            delayMs: Long,
+            field: com.google.android.material.textfield.TextInputEditText,
+            unitGroup: com.google.android.material.button.MaterialButtonToggleGroup,
+            msButtonId: Int,
+            sButtonId: Int
+        ) {
+            if (delayMs > 0L && delayMs % 1000L == 0L) {
+                field.setText((delayMs / 1000L).toString())
+                unitGroup.check(sButtonId)
+            } else {
+                if (delayMs > 0L) field.setText(delayMs.toString())
+                unitGroup.check(msButtonId)
+            }
+            unitGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+                if (!isChecked) return@addOnButtonCheckedListener
+                val text = field.text?.toString()?.trim().orEmpty()
+                val value = text.toDoubleOrNull() ?: return@addOnButtonCheckedListener
+                if (checkedId == sButtonId) {
+                    val inSeconds = value / 1000.0
+                    field.setText(if (inSeconds % 1.0 == 0.0) inSeconds.toLong().toString() else inSeconds.toString())
+                } else if (checkedId == msButtonId) {
+                    field.setText((value * 1000.0).roundToLong().toString())
+                }
+            }
+        }
+
+        fun readDelayMs(
+            field: com.google.android.material.textfield.TextInputEditText,
+            unitGroup: com.google.android.material.button.MaterialButtonToggleGroup,
+            sButtonId: Int
+        ): Long {
+            val sanitizedText = field.text?.toString()?.trim().orEmpty()
+                .replace("ms", "", ignoreCase = true)
+                .replace("s", "", ignoreCase = true)
+                .trim()
+            val rawDelay = sanitizedText.toDoubleOrNull() ?: 0.0
+            val delayMs =
+                if (unitGroup.checkedButtonId == sButtonId) (rawDelay * 1000.0).roundToLong() else rawDelay.roundToLong()
+            return delayMs.coerceAtLeast(0L)
+        }
 
         // Pre-fill with existing prereq config if any
         info.prereqPackage?.let { editText.setText(it) }
         checkboxLaunch.isChecked = info.prereqLaunch
         checkboxEnable.isChecked = info.prereqEnable
+        checkboxWifi.isChecked = info.enableWifi
         checkboxBluetooth.isChecked = info.enableBluetooth
         checkboxLocation.isChecked = info.enableLocation
+        checkboxHighAccuracy.isChecked = info.enableLocation && info.enableHighAccuracy
+        checkboxHighAccuracy.isEnabled = info.enableLocation
+        checkboxPlayStore.isChecked = info.enablePlayStore
+        checkboxShellLaunch.isChecked = info.shellLaunch
+
+        bindDelay(info.prereqDelay, editTextDelay, toggleGroupDelayUnit, R.id.btn_delay_ms, R.id.btn_delay_s)
+        bindDelay(
+            info.prereqLaunchDelay, editTextDelayLaunch, toggleGroupDelayUnitLaunch,
+            R.id.btn_delay_ms_launch, R.id.btn_delay_s_launch
+        )
+        bindDelay(
+            info.playStoreDelay, editTextDelayPlayStore, toggleGroupDelayUnitPlayStore,
+            R.id.btn_delay_ms_play_store, R.id.btn_delay_s_play_store
+        )
+
+        // Each delay row belongs to the checkbox above it and is only shown while that is ticked
+        fun updateDelayVisibility() {
+            layoutDelayLaunch.visibility = if (checkboxLaunch.isChecked) View.VISIBLE else View.GONE
+            layoutDelay.visibility = if (checkboxEnable.isChecked) View.VISIBLE else View.GONE
+            layoutDelayPlayStore.visibility = if (checkboxPlayStore.isChecked) View.VISIBLE else View.GONE
+        }
+
+        updateDelayVisibility()
+
+        checkboxLaunch.setOnCheckedChangeListener { _, _ -> updateDelayVisibility() }
+        checkboxEnable.setOnCheckedChangeListener { _, _ -> updateDelayVisibility() }
+        checkboxPlayStore.setOnCheckedChangeListener { _, _ -> updateDelayVisibility() }
+
+        // "Enable High Accuracy" is a sub-setting of "Turn on Location" — only meaningful, and
+        // only selectable, while location itself is being turned on.
+        checkboxLocation.setOnCheckedChangeListener { _, isChecked ->
+            checkboxHighAccuracy.isEnabled = isChecked
+            if (!isChecked) checkboxHighAccuracy.isChecked = false
+        }
 
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.prerequisite_app_title)
-            .setView(dialogView)
+            // Scrollable: with every option below it the dialog is taller than a phone screen
+            .setView(android.widget.ScrollView(activity).apply { addView(dialogView) })
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 val prereqPkg = editText.text?.toString()?.trim().orEmpty()
-                if (prereqPkg.isNotEmpty() && (checkboxLaunch.isChecked || checkboxEnable.isChecked)) {
+                val hasPrereqAction = checkboxLaunch.isChecked || checkboxEnable.isChecked
+                if (prereqPkg.isNotEmpty() && hasPrereqAction) {
                     info.prereqPackage = prereqPkg
                     info.prereqLaunch = checkboxLaunch.isChecked
                     info.prereqEnable = checkboxEnable.isChecked
+                    info.prereqDelay = if (checkboxEnable.isChecked) {
+                        readDelayMs(editTextDelay, toggleGroupDelayUnit, R.id.btn_delay_s)
+                    } else 0L
+                    info.prereqLaunchDelay = if (checkboxLaunch.isChecked) {
+                        readDelayMs(editTextDelayLaunch, toggleGroupDelayUnitLaunch, R.id.btn_delay_s_launch)
+                    } else 0L
                 } else {
                     info.prereqPackage = null
                     info.prereqLaunch = false
                     info.prereqEnable = false
+                    info.prereqDelay = 0L
+                    info.prereqLaunchDelay = 0L
                 }
+                info.enableWifi = checkboxWifi.isChecked
                 info.enableBluetooth = checkboxBluetooth.isChecked
                 info.enableLocation = checkboxLocation.isChecked
+                info.enableHighAccuracy = checkboxLocation.isChecked && checkboxHighAccuracy.isChecked
+                info.enablePlayStore = checkboxPlayStore.isChecked
+                info.playStoreDelay = if (checkboxPlayStore.isChecked) {
+                    readDelayMs(editTextDelayPlayStore, toggleGroupDelayUnitPlayStore, R.id.btn_delay_s_play_store)
+                } else 0L
+                info.shellLaunch = checkboxShellLaunch.isChecked
                 HailData.saveApps()
                 onListChanged()
             }

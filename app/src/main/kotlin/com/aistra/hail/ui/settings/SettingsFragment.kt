@@ -116,6 +116,19 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 titleId = R.string.action_biometric,
                 icon = Icons.Outlined.Fingerprint
             )
+            switchPreference(
+                key = HailData.EXCLUDE_FOREGROUND_APP,
+                defaultValue = false,
+                onValueChange = { _, value ->
+                    if (value && !HSystem.checkOpUsageStats(requireContext())) {
+                        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        false
+                    } else true
+                },
+                titleId = R.string.exclude_foreground_app,
+                summaryId = R.string.exclude_foreground_app_summary,
+                icon = Icons.Outlined.Shield
+            )
             horizontalDivider()
             preferenceCategory(key = "customize", title = { Text(text = stringResource(R.string.title_customize)) })
             listPreference(
@@ -195,6 +208,13 @@ class SettingsFragment : MainFragment(), MenuProvider {
                 entriesId = R.array.tile_action_entries,
                 titleId = R.string.tile_action,
                 icon = Icons.Outlined.DashboardCustomize
+            )
+            switchPreference(
+                key = HailData.MAXIMIZE_APPS_IN_DEX,
+                defaultValue = true,
+                titleId = R.string.maximize_apps_in_dex,
+                summaryId = R.string.maximize_apps_in_dex_summary,
+                icon = Icons.Outlined.OpenInFull
             )
             horizontalDivider()
             preferenceCategory(key = "auto_freeze", title = { Text(text = stringResource(R.string.auto_freeze)) })

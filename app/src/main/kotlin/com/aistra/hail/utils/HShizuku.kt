@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Build
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
@@ -21,6 +22,22 @@ import rikka.shizuku.SystemServiceHelper
 object HShizuku {
     val isRoot get() = Shizuku.getUid() == 0
     private val callerPackage get() = if (isRoot) BuildConfig.APPLICATION_ID else "com.android.shell"
+
+    /**
+     * Whether Shizuku is connected and has already been granted permission. Checked before calls
+     * (like [resizeTask]) that aren't already gated behind [com.aistra.hail.app.HailData.workingMode]
+     * being a Shizuku mode — those features don't require the user's freeze mode to be Shizuku,
+     * just for Shizuku to happen to be set up, so no permission is requested here on their behalf.
+     */
+    val isReady: Boolean
+        get() = runCatching {
+            Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        }.getOrDefault(false)
+
+    // android.app.ActivityTaskManager.RESIZE_MODE_USER_FORCED — hidden constant, inlined since
+    // it's not part of the public SDK. Forces the resize through past any declared min/max size
+    // or resizability constraints, the same as a real user drag-resize would.
+    private const val RESIZE_MODE_USER_FORCED = 3
 
     private fun asInterface(className: String, original: IBinder): Any = Class.forName("$className\$Stub").run {
         if (HTarget.P) HiddenApiBypass.invoke(this, null, "asInterface", ShizukuBinderWrapper(original))
@@ -207,11 +224,65 @@ object HShizuku {
         false
     }
 
+    /**
+     * Resizes the task [taskId] to [bounds] via the hidden AMS/ATMS `resizeTask` call — used to
+     * maximize Hail's own already-running window under Samsung DeX (see
+     * [HSamsungDex.maximizeSelfIfNeeded]), where, unlike a fresh launch, there's no
+     * [android.app.ActivityOptions] to attach maximized bounds to before the window exists.
+     * `resizeTask` lived on `IActivityManager` (service "activity") until Android 10 split task
+     * management out into `IActivityTaskManager` (service "activity_task" — not part of the
+     * public SDK, hence the raw string); this picks whichever interface actually owns it on the
+     * running OS.
+     */
+    fun resizeTask(taskId: Int, bounds: Rect): Boolean = runCatching {
+        val service = if (HTarget.Q) asInterface("android.app.IActivityTaskManager", "activity_task")
+        else asInterface("android.app.IActivityManager", Context.ACTIVITY_SERVICE)
+        if (HTarget.P) HiddenApiBypass.invoke(
+            service::class.java, service, "resizeTask", taskId, bounds, RESIZE_MODE_USER_FORCED
+        ) else service::class.java.getMethod(
+            "resizeTask", Int::class.javaPrimitiveType, Rect::class.java, Int::class.javaPrimitiveType
+        ).invoke(service, taskId, bounds, RESIZE_MODE_USER_FORCED)
+        true
+    }.getOrElse {
+        HLog.e(it)
+        false
+    }
+
+    /**
+     * Finds the taskId of [packageName]'s current top-level task by parsing `dumpsys activity
+     * activities` for its `Task{<hash> #<id> ... A=<uid>:<packageName>...}` line — used to
+     * [resizeTask] a target app's window after launch (see [HSamsungDex]) once its task actually
+     * exists, rather than relying solely on launch-time [android.app.ActivityOptions] bounds,
+     * which some OEM window-placement policies override right after applying regardless of what
+     * was requested. Parses the exact `dumpsys`/`am task resize` command pair confirmed by hand on
+     * a real device, rather than a hidden `getTasks()` AIDL call untested here.
+     */
+    fun findTaskId(packageName: String): Int? = runCatching {
+        val output = execute("dumpsys activity activities | grep -m1 'Task{.*:$packageName'").second
+        Regex("""#(\d+)""").find(output.orEmpty())?.groupValues?.get(1)?.toIntOrNull()
+    }.getOrElse {
+        HLog.e(it)
+        null
+    }
+
     fun uninstallApp(packageName: String): Boolean =
         execute("pm ${if (HPackages.canUninstallNormally(packageName)) "uninstall" else "uninstall --user current"} $packageName").first == 0
 
     fun reinstallApp(packageName: String): Boolean =
         execute("pm install-existing --user current $packageName").first == 0
+
+    /**
+     * Overrides [packageName]'s own `resizeableActivity="false"`/max-aspect-ratio manifest
+     * declaration via Android's compat framework, scoped to just that package — used before a
+     * maximized DeX launch ([HSamsungDex.startMaximized]) for apps that would otherwise be
+     * letterboxed by the OS to a smaller, pillarboxed window centered inside the freeform bounds
+     * Hail requested, regardless of those launch options. `am compat` is a plain shell command
+     * (not a hidden API), reachable via [execute] the same way `pm` commands above are; it's a
+     * safe no-op on OS builds that don't have the FORCE_RESIZE_APP change id (fails silently) and
+     * harmless to re-apply to an app that's already resizable.
+     */
+    fun forceResizable(packageName: String): Boolean =
+        execute("am compat enable FORCE_RESIZE_APP $packageName").first == 0
 
     fun execute(command: String, root: Boolean = isRoot): Pair<Int, String?> = runCatching {
         IShizukuService.Stub.asInterface(Shizuku.getBinder()).newProcess(arrayOf(if (root) "su" else "sh"), null, null)

@@ -35,8 +35,17 @@ object HailData {
     const val KEY_PREREQ_PACKAGE = "prereq_package"
     const val KEY_PREREQ_LAUNCH = "prereq_launch"
     const val KEY_PREREQ_ENABLE = "prereq_enable"
+    const val KEY_PREREQ_DELAY = "prereq_delay"
+    const val KEY_PREREQ_LAUNCH_DELAY = "prereq_launch_delay"
     const val KEY_ENABLE_BLUETOOTH = "enable_bluetooth"
     const val KEY_ENABLE_LOCATION = "enable_location"
+    const val KEY_ENABLE_WIFI = "enable_wifi"
+    const val KEY_ENABLE_HIGH_ACCURACY = "enable_high_accuracy"
+    const val KEY_ENABLE_PLAY_STORE = "enable_play_store"
+    const val KEY_PLAY_STORE_DELAY = "play_store_delay"
+    const val KEY_SHELL_LAUNCH = "shell_launch"
+    const val PACKAGE_PLAY_STORE = "com.android.vending"
+    const val KEY_FORCE = "force"
     private const val KEY_DEX_APP = "dex_app"
     private const val KEY_ADDED_TIME = "added_time"
     private const val SORT_BY = "sort_by"
@@ -147,8 +156,11 @@ object HailData {
     const val SKIP_WHILE_CHARGING = "skip_while_charging"
     const val SKIP_FOREGROUND_APP = "skip_foreground_app"
     const val SKIP_NOTIFYING_APP = "skip_notifying_app"
+    const val EXCLUDE_FOREGROUND_APP = "exclude_foreground_app"
     const val SHOW_UNINSTALLED = "show_uninstalled"
     const val SHORTCUT_LAUNCH_PROMPT = "shortcut_launch_prompt"
+    const val MAXIMIZE_APPS_IN_DEX = "maximize_apps_in_dex"
+    private const val DEX_MODE_EXTERNAL = "dex_mode_external"
     const val SHIZUKU_REQUIRED_NOTIFICATION = "shizuku_required_notification"
     const val API_FREEZE_TOAST = "api_freeze_toast"
     const val DYNAMIC_SHORTCUT_ACTION = "dynamic_shortcut_action"
@@ -193,12 +205,36 @@ object HailData {
     val skipWhileCharging get() = sp.getBoolean(SKIP_WHILE_CHARGING, false)
     val skipForegroundApp get() = sp.getBoolean(SKIP_FOREGROUND_APP, false)
     val skipNotifyingApp get() = sp.getBoolean(SKIP_NOTIFYING_APP, false)
+
+    /**
+     * When enabled, whichever app is currently in the foreground is never frozen — no matter
+     * whether freezing was triggered by the API, a shortcut/tile, manual UI action, or auto-freeze.
+     * Distinct from [skipForegroundApp], which only affects [com.aistra.hail.work.AutoFreezeWorker].
+     */
+    var excludeForegroundApp
+        get() = sp.getBoolean(EXCLUDE_FOREGROUND_APP, false)
+        set(value) = sp.edit { putBoolean(EXCLUDE_FOREGROUND_APP, value) }
     var showUninstalled
         get() = sp.getBoolean(SHOW_UNINSTALLED, true)
         set(value) = sp.edit { putBoolean(SHOW_UNINSTALLED, value) }
     val shortcutLaunchPrompt get() = sp.getBoolean(SHORTCUT_LAUNCH_PROMPT, false)
+    val maximizeAppsInDex get() = sp.getBoolean(MAXIMIZE_APPS_IN_DEX, true)
+
+    /**
+     * DeX-active state as last reported by [HailApi.ACTION_DEX_MODE_ON]/[HailApi.ACTION_DEX_MODE_OFF]
+     * (typically from an automation app like MacroDroid), or null if neither has ever fired —
+     * in which case [com.aistra.hail.utils.HSamsungDex] falls back to its own best-effort
+     * reflection-based detection.
+     */
+    var dexModeExternal: Boolean?
+        get() = if (sp.contains(DEX_MODE_EXTERNAL)) sp.getBoolean(DEX_MODE_EXTERNAL, false) else null
+        set(value) = sp.edit {
+            if (value == null) remove(DEX_MODE_EXTERNAL) else putBoolean(DEX_MODE_EXTERNAL, value)
+        }
     val shizukuRequiredNotification get() = sp.getBoolean(SHIZUKU_REQUIRED_NOTIFICATION, true)
-    val apiFreezeToast get() = sp.getBoolean(API_FREEZE_TOAST, true)
+    var apiFreezeToast
+        get() = sp.getBoolean(API_FREEZE_TOAST, true)
+        set(value) = sp.edit { putBoolean(API_FREEZE_TOAST, value) }
     val dynamicShortcutAction get() = sp.getString(DYNAMIC_SHORTCUT_ACTION, ACTION_NONE)!!
     var lastUsedTagIds
         get() = sp.getString(LAST_USED_TAG_IDS, "")!!.split(",").mapNotNull { it.toIntOrNull() }
@@ -241,8 +277,23 @@ object HailData {
                             prereqPackage = optString(KEY_PREREQ_PACKAGE).ifEmpty { null },
                             prereqLaunch = optBoolean(KEY_PREREQ_LAUNCH),
                             prereqEnable = optBoolean(KEY_PREREQ_ENABLE),
+                            prereqDelay = optLong(KEY_PREREQ_DELAY, 0L),
+                            // Before this had its own setting, launching shared the enable delay
+                            prereqLaunchDelay = optLong(
+                                KEY_PREREQ_LAUNCH_DELAY,
+                                if (optBoolean(KEY_PREREQ_LAUNCH)) optLong(KEY_PREREQ_DELAY, 0L) else 0L
+                            ),
                             enableBluetooth = optBoolean(KEY_ENABLE_BLUETOOTH),
                             enableLocation = optBoolean(KEY_ENABLE_LOCATION),
+                            enableWifi = optBoolean(KEY_ENABLE_WIFI),
+                            enableHighAccuracy = optBoolean(KEY_ENABLE_HIGH_ACCURACY),
+                            enablePlayStore = optBoolean(KEY_ENABLE_PLAY_STORE),
+                            // Before this had its own setting, Play Store shared the prerequisite delay
+                            playStoreDelay = optLong(
+                                KEY_PLAY_STORE_DELAY,
+                                if (optBoolean(KEY_ENABLE_PLAY_STORE)) optLong(KEY_PREREQ_DELAY, 0L) else 0L
+                            ),
+                            shellLaunch = optBoolean(KEY_SHELL_LAUNCH),
                             dexApp = optBoolean(KEY_DEX_APP),
                             addedTime = optLong(KEY_ADDED_TIME, i.toLong())
                         )
@@ -278,8 +329,15 @@ object HailData {
                         .put(KEY_PREREQ_PACKAGE, it.prereqPackage ?: "")
                         .put(KEY_PREREQ_LAUNCH, it.prereqLaunch)
                         .put(KEY_PREREQ_ENABLE, it.prereqEnable)
+                        .put(KEY_PREREQ_DELAY, it.prereqDelay)
+                        .put(KEY_PREREQ_LAUNCH_DELAY, it.prereqLaunchDelay)
                         .put(KEY_ENABLE_BLUETOOTH, it.enableBluetooth)
                         .put(KEY_ENABLE_LOCATION, it.enableLocation)
+                        .put(KEY_ENABLE_WIFI, it.enableWifi)
+                        .put(KEY_ENABLE_HIGH_ACCURACY, it.enableHighAccuracy)
+                        .put(KEY_ENABLE_PLAY_STORE, it.enablePlayStore)
+                        .put(KEY_PLAY_STORE_DELAY, it.playStoreDelay)
+                        .put(KEY_SHELL_LAUNCH, it.shellLaunch)
                         .put(KEY_DEX_APP, it.dexApp)
                         .put(KEY_ADDED_TIME, it.addedTime)
                 )

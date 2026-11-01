@@ -129,6 +129,14 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Added/removed state can change from other screens (e.g. "Remove from Home" on the
+        // My Apps tab) while this fragment stays alive in the background, so re-filter/re-sort
+        // against the current HailData.checkedList each time this screen becomes visible.
+        updateDisplayAppList()
+    }
+
     override fun onItemClick(buttonView: CompoundButton) {
 //        buttonView.toggle()
     }
@@ -216,6 +224,7 @@ class AppsFragment : MainFragment(), AppsAdapter.OnItemClickListener, AppsAdapte
         if (isChecked) HailData.addCheckedApp(packageName)
         else HailData.removeCheckedApp(packageName)
         buttonView.isChecked = HailData.isChecked(packageName)
+        updateDisplayAppList()
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {

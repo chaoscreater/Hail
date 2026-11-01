@@ -233,6 +233,8 @@ class PinShortcutsDialogController(
             val intent = HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, info.packageName)
                 .putExtra(HailData.KEY_ENABLE_BLUETOOTH, info.enableBluetooth)
                 .putExtra(HailData.KEY_ENABLE_LOCATION, info.enableLocation)
+                .putExtra(HailData.KEY_ENABLE_WIFI, info.enableWifi)
+                .putExtra(HailData.KEY_ENABLE_HIGH_ACCURACY, info.enableHighAccuracy)
             HShortcuts.addPinShortcut(info, info.packageName, info.name, intent)
         }
         // Mark that we're now waiting for Hail to regain focus after the launcher dialog

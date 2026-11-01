@@ -143,9 +143,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             if (isResumed) manageTagDialog()
             true
         }
-        activity.fab.setOnClickListener {
-            actions.setListFrozen(true, pagerAdapter.currentList.filterNot { it.whitelisted })
-        }
+        activity.fab.setOnClickListener { showFreezeDialog() }
         activity.fab.setOnLongClickListener {
             actions.setListFrozen(true)
             true
@@ -312,6 +310,139 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         }
 
         builder.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
+    /**
+     * Shows a dialog listing running (unfrozen) apps eligible for freezing. Non-whitelisted apps
+     * are shown pre-checked; whitelisted apps are hidden behind a "Show whitelisted apps" toggle
+     * and, when revealed, start unchecked since whitelisting an app is a deliberate signal not to
+     * casually freeze it. Scoped to the current tab's tag — except the Default tab (tag id 0),
+     * which shows running apps across every tag, matching how its FAB freeze action already
+     * treats "current" as "everything" for that tab.
+     */
+    private fun showFreezeDialog() {
+        val currentTagId = tag.second
+        val source = if (currentTagId == 0) HailData.checkedList
+        else HailData.checkedList.filter { currentTagId in it.tagIdList }
+        val running = source.filter { it.state == AppInfo.State.UNFROZEN }
+        val nonWhitelisted = running.filterNot { it.whitelisted }.sortedWith(NameComparator)
+        val whitelisted = running.filter { it.whitelisted }.sortedWith(NameComparator)
+
+        if (nonWhitelisted.isEmpty() && whitelisted.isEmpty()) {
+            HUI.showToast(R.string.msg_no_apps_to_freeze)
+            return
+        }
+
+        val selected = HashMap<String, Boolean>().apply {
+            nonWhitelisted.forEach { put(it.packageName, true) }
+            whitelisted.forEach { put(it.packageName, false) }
+        }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_freeze_apps, null)
+        val checkShowWhitelisted = dialogView.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.check_show_whitelisted)
+        val searchEdit = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_text)
+        val recyclerView = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.freeze_app_list)
+        val btnSelectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_select_all)
+        val btnDeselectAll = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_deselect_all)
+
+        checkShowWhitelisted.isVisible = whitelisted.isNotEmpty()
+        val freezeAdapter = FreezeAppAdapter(nonWhitelisted, whitelisted, selected)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.adapter = freezeAdapter
+
+        checkShowWhitelisted.setOnCheckedChangeListener { _, checked -> freezeAdapter.setShowWhitelisted(checked) }
+        searchEdit.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                freezeAdapter.filter(s?.toString() ?: "")
+            }
+        })
+        btnSelectAll.setOnClickListener { freezeAdapter.selectAll() }
+        btnDeselectAll.setOnClickListener { freezeAdapter.deselectAll() }
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.title_freeze_apps)
+            .setView(dialogView)
+            .setPositiveButton(R.string.action_process) { _, _ ->
+                val toFreeze = (nonWhitelisted + whitelisted).filter { selected[it.packageName] == true }
+                if (toFreeze.isNotEmpty()) actions.setListFrozen(true, toFreeze)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show().also { dialog ->
+                dialog.window?.setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    (resources.displayMetrics.heightPixels * 0.95).toInt()
+                )
+            }
+    }
+
+    /**
+     * Adapter for the freeze dialog. [nonWhitelisted] apps are always shown; [whitelisted] apps
+     * are appended only while [setShowWhitelisted] is on. [selected] is keyed by package name so
+     * checked state survives the toggle revealing/hiding rows and search filtering.
+     */
+    private inner class FreezeAppAdapter(
+        private val nonWhitelisted: List<AppInfo>,
+        private val whitelisted: List<AppInfo>,
+        private val selected: MutableMap<String, Boolean>
+    ) : RecyclerView.Adapter<FreezeAppAdapter.VH>() {
+
+        private var showWhitelisted = false
+        private var query = ""
+        private var displayed: List<AppInfo> = nonWhitelisted
+
+        inner class VH(val view: View) : RecyclerView.ViewHolder(view) {
+            val icon = view.findViewById<android.widget.ImageView>(R.id.app_icon)
+            val name = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_name)
+            val pkg = view.findViewById<com.google.android.material.textview.MaterialTextView>(R.id.app_desc)
+            val check = view.findViewById<com.google.android.material.checkbox.MaterialCheckBox>(R.id.app_star)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
+            VH(layoutInflater.inflate(R.layout.item_freeze_app, parent, false))
+
+        override fun getItemCount() = displayed.size
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val info = displayed[position]
+            holder.name.text = info.name
+            holder.pkg.text = info.packageName
+            holder.check.setOnCheckedChangeListener(null)
+            holder.check.isChecked = selected[info.packageName] == true
+            info.applicationInfo?.let {
+                AppIconCache.loadIconBitmapAsync(requireContext(), it, HPackages.myUserId, holder.icon)
+            } ?: holder.icon.setImageDrawable(requireContext().packageManager.defaultActivityIcon)
+            holder.view.setOnClickListener {
+                val newValue = selected[info.packageName] != true
+                selected[info.packageName] = newValue
+                holder.check.isChecked = newValue
+            }
+            holder.check.setOnCheckedChangeListener { _, checked ->
+                selected[info.packageName] = checked
+            }
+        }
+
+        private fun computeDisplayed(): List<AppInfo> {
+            val base = if (showWhitelisted) nonWhitelisted + whitelisted else nonWhitelisted
+            return if (query.isBlank()) base else base.filter {
+                it.name.contains(query, ignoreCase = true) || it.packageName.contains(query, ignoreCase = true)
+            }
+        }
+
+        fun setShowWhitelisted(value: Boolean) {
+            showWhitelisted = value
+            displayed = computeDisplayed()
+            notifyDataSetChanged()
+        }
+
+        fun filter(newQuery: String) {
+            query = newQuery
+            displayed = computeDisplayed()
+            notifyDataSetChanged()
+        }
+
+        fun selectAll() { displayed.forEach { selected[it.packageName] = true }; notifyDataSetChanged() }
+        fun deselectAll() { displayed.forEach { selected[it.packageName] = false }; notifyDataSetChanged() }
     }
 
     /** Shows a dialog listing all whitelisted apps across all tags for selective freezing. */
