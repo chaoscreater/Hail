@@ -1,5 +1,7 @@
 package com.aistra.hail.ui.home
 
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +25,7 @@ class PagerAdapter(
     private val flags: MutableMap<String, Int> = mutableMapOf()
 ) : ListAdapter<AppInfo, PagerAdapter.ViewHolder>(HomeDiff(selectedList, flags)) {
     private var loadIconJob: Job? = null
+    private val grayscaleFilter by lazy { ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) }) }
     lateinit var onItemClickListener: OnItemClickListener
     lateinit var onItemLongClickListener: OnItemLongClickListener
 
@@ -50,7 +53,12 @@ class PagerAdapter(
                     colorFilter = null
                 }
             }
-            findViewById<View>(R.id.description_badge).isVisible = info.description.isNotBlank()
+            findViewById<View>(R.id.description_badge).run {
+                isVisible = info.description.isNotBlank()
+                // Greyed together with the app icon, so a frozen app's badge doesn't stay coloured
+                background.mutate().colorFilter =
+                    if (HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN) grayscaleFilter else null
+            }
             findViewById<TextView>(R.id.app_name).run {
                 text = buildString {
                     if (!HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN) append("\u2744\uFE0F")

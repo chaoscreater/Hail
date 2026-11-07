@@ -55,14 +55,27 @@ object AppDescriptions {
 
     /**
      * Parsed entries that belong to an app in Hail and would change its description: only apps
-     * with no description yet, or also those with one when [replaceExisting].
+     * with no description yet, or also those with one when [replaceExisting]. A description that
+     * starts with the app's own name has the name removed.
      */
     fun importable(
         parsed: List<Pair<String, String>>, replaceExisting: Boolean = false
     ): List<Pair<AppInfo, String>> = parsed.mapNotNull { (pkg, desc) ->
-        HailData.checkedList.find { it.packageName == pkg }
-            ?.takeIf { (replaceExisting || it.description.isBlank()) && it.description != desc }
-            ?.let { it to desc }
+        val info = HailData.checkedList.find { it.packageName == pkg } ?: return@mapNotNull null
+        val cleaned = withoutAppName(info.name.toString(), desc)
+        if ((replaceExisting || info.description.isBlank()) && info.description != cleaned) info to cleaned else null
+    }
+
+    /** "BNZ mobile banking app." becomes "Mobile banking app." for an app named BNZ. */
+    private fun withoutAppName(appName: String, description: String): String {
+        val name = appName.trim()
+        if (name.isEmpty() || !description.startsWith(name, ignoreCase = true)) return description
+        val rest = description.substring(name.length)
+        // Only at a word boundary, so "Plex media server" is cut but "Plexiglas" is not
+        if (rest.isNotEmpty() && rest[0].isLetterOrDigit()) return description
+        val cleaned = rest.removePrefix("'s").removePrefix("’s").trimStart(' ', ':', '-', ',')
+        if (cleaned.length < 3) return description
+        return cleaned.replaceFirstChar { it.uppercase() }
     }
 
     @Suppress("DEPRECATION")
