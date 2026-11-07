@@ -47,6 +47,7 @@ object HailData {
     const val PACKAGE_PLAY_STORE = "com.android.vending"
     const val KEY_FORCE = "force"
     private const val KEY_DEX_APP = "dex_app"
+    const val KEY_DESCRIPTION = "description"
     private const val KEY_ADDED_TIME = "added_time"
     private const val SORT_BY = "sort_by"
     const val SORT_NAME = "name"
@@ -295,6 +296,7 @@ object HailData {
                             ),
                             shellLaunch = optBoolean(KEY_SHELL_LAUNCH),
                             dexApp = optBoolean(KEY_DEX_APP),
+                            description = optString(KEY_DESCRIPTION),
                             addedTime = optLong(KEY_ADDED_TIME, i.toLong())
                         )
                     })
@@ -339,6 +341,7 @@ object HailData {
                         .put(KEY_PLAY_STORE_DELAY, it.playStoreDelay)
                         .put(KEY_SHELL_LAUNCH, it.shellLaunch)
                         .put(KEY_DEX_APP, it.dexApp)
+                        .put(KEY_DESCRIPTION, it.description)
                         .put(KEY_ADDED_TIME, it.addedTime)
                 )
             }

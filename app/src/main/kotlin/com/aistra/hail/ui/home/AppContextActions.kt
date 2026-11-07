@@ -71,6 +71,7 @@ class AppContextActions(
 ) {
     private val activity: MainActivity get() = fragment.requireActivity() as MainActivity
     private val layoutInflater: LayoutInflater get() = fragment.layoutInflater
+    private val descriptionDialogs = AppDescriptionDialogs(fragment)
 
     fun onItemClick(info: AppInfo) {
         if (info.applicationInfo == null) {
@@ -110,7 +111,20 @@ class AppContextActions(
             if (jumpToTagCategoryAction != null && jumpToTagCategoryVisible()) {
                 add(activity.getString(R.string.action_jump_to_tab_category) to { jumpToTagCategoryAction.invoke(info) })
             }
-            add(activity.getString(R.string.action_launch) to { launchApp(pkg) })
+            add(activity.getString(R.string.action_description) to { descriptionDialogs.show(info) })
+            add(activity.getString(R.string.action_tag_set) to { tagDialog(info) })
+            add(activity.getString(R.string.action_tag_set_last) to { tagDialog(info, HailData.lastUsedTagIds) })
+            add(activity.getString(R.string.prerequisite_app_title) to { showPrerequisiteDialog(info) })
+            add(activity.getString(if (info.pinned) R.string.action_unpin else R.string.action_pin) to {
+                info.pinned = !info.pinned
+                HailData.saveApps()
+                onListChanged()
+            })
+            add(activity.getString(if (info.whitelisted) R.string.action_remove_whitelist else R.string.action_whitelist) to {
+                info.whitelisted = !info.whitelisted
+                HailData.saveApps()
+                onListChanged()
+            })
             add(action to { setListFrozen(!frozen, listOf(info)) })
             add(activity.getString(R.string.action_deferred_task) to {
                 val values = activity.resources.getIntArray(R.array.deferred_task_values)
@@ -128,18 +142,6 @@ class AppContextActions(
                         ).setAction(R.string.action_undo) { HWork.cancelWork(pkg) }.show()
                     }.setNegativeButton(android.R.string.cancel, null).show()
             })
-            add(activity.getString(if (info.pinned) R.string.action_unpin else R.string.action_pin) to {
-                info.pinned = !info.pinned
-                HailData.saveApps()
-                onListChanged()
-            })
-            add(activity.getString(if (info.whitelisted) R.string.action_remove_whitelist else R.string.action_whitelist) to {
-                info.whitelisted = !info.whitelisted
-                HailData.saveApps()
-                onListChanged()
-            })
-            add(activity.getString(R.string.action_tag_set) to { tagDialog(info) })
-            add(activity.getString(R.string.action_tag_set_last) to { tagDialog(info, HailData.lastUsedTagIds) })
             add(activity.getString(R.string.action_add_pin_shortcut) to {
                 if (HailData.tags.size > 1) MaterialAlertDialogBuilder(activity).setTitle(R.string.action_unfreeze_tag)
                     .setItems(HailData.tags.map { it.first }.toTypedArray()) { _, index ->
@@ -152,8 +154,6 @@ class AppContextActions(
                 else addPinShortcut(info, pkg,
                     HailApi.getIntentForPackage(HailApi.ACTION_LAUNCH, pkg))
             })
-            add(activity.getString(R.string.prerequisite_app_title) to { showPrerequisiteDialog(info) })
-            add(activity.getString(R.string.action_export_clipboard) to { exportToClipboard(listOf(info)) })
             add(activity.getString(R.string.action_remove_home) to { removeCheckedApp(pkg) })
             if (frozen) add(activity.getString(R.string.action_unfreeze_remove_home) to {
                 setListFrozen(false, listOf(info), false)

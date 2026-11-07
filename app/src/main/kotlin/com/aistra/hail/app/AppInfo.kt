@@ -23,6 +23,7 @@ class AppInfo(
     var playStoreDelay: Long = 0L,
     var shellLaunch: Boolean = false,
     var dexApp: Boolean = false,
+    var description: String = "",
     val addedTime: Long = System.currentTimeMillis()
 ) {
     enum class State { NOT_FOUND, UNFROZEN, FROZEN }

@@ -105,6 +105,22 @@
         </menu>
     </item>
     <item
+            android:title="@string/action_app_descriptions"
+            app:showAsAction="never">
+        <menu>
+            <group>
+                <item
+                        android:id="@+id/action_copy_ai_prompt"
+                        android:title="@string/action_copy_ai_prompt"
+                        app:showAsAction="never"/>
+                <item
+                        android:id="@+id/action_import_descriptions"
+                        android:title="@string/action_import_descriptions"
+                        app:showAsAction="never"/>
+            </group>
+        </menu>
+    </item>
+    <item
             android:title="@string/action_export_clipboard"
             app:showAsAction="never">
         <menu>

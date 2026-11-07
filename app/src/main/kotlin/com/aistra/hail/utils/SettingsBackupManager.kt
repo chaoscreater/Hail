@@ -50,6 +50,7 @@ object SettingsBackupManager {
             obj.put(HailData.KEY_PLAY_STORE_DELAY, appInfo.playStoreDelay)
             obj.put(HailData.KEY_SHELL_LAUNCH, appInfo.shellLaunch)
             obj.put(KEY_DEX_APP, appInfo.dexApp)
+            obj.put(HailData.KEY_DESCRIPTION, appInfo.description)
             obj.put(KEY_ADDED_TIME, appInfo.addedTime)
             appsArray.put(obj)
         }
@@ -189,6 +190,8 @@ object SettingsBackupManager {
                 )
                 val shellLaunch = obj.optBoolean(HailData.KEY_SHELL_LAUNCH, false)
                 val dexApp = obj.optBoolean(KEY_DEX_APP, false)
+                // Backups from before descriptions existed have no such key
+                val description = obj.optString(HailData.KEY_DESCRIPTION)
                 val addedTime = obj.optLong(KEY_ADDED_TIME, i.toLong())
                 HailData.checkedList.add(
                     com.aistra.hail.app.AppInfo(
@@ -210,6 +213,7 @@ object SettingsBackupManager {
                         playStoreDelay = playStoreDelay,
                         shellLaunch = shellLaunch,
                         dexApp = dexApp,
+                        description = description,
                         addedTime = addedTime
                     )
                 )

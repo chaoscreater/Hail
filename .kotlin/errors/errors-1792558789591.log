@@ -1,0 +1,53 @@
+kotlin version: 2.2.21
+error message: Incremental compilation failed: Failed to close caches
+org.jetbrains.kotlin.incremental.CachesManagerCloseException: Failed to close caches
+	at org.jetbrains.kotlin.incremental.BaseCompilationTransaction.closeCachesManager(CompilationTransaction.kt:126)
+	at org.jetbrains.kotlin.incremental.RecoverableCompilationTransaction.close(CompilationTransaction.kt:251)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:703)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:119)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:684)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:94)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1810)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+	Suppressed: java.nio.file.NoSuchFileException: C:\Users\Ricky\AppData\Local\Temp\kotlin-backups741799332530841914\55.backup
+		at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)
+		at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+		at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+		at java.base/sun.nio.fs.WindowsFileCopy.move(WindowsFileCopy.java:345)
+		at java.base/sun.nio.fs.WindowsFileSystemProvider.move(WindowsFileSystemProvider.java:291)
+		at java.base/java.nio.file.Files.move(Files.java:1431)
+		at org.jetbrains.kotlin.incremental.RecoverableCompilationTransaction.revertChanges(CompilationTransaction.kt:231)
+		at org.jetbrains.kotlin.incremental.RecoverableCompilationTransaction.close(CompilationTransaction.kt:256)
+		... 20 more
+Caused by: java.nio.file.NoSuchFileException: D:\Documents\0. My Stuffs\Personal_Projects\Android\Hail\app\build\kotlin\compileReleaseKotlin\cacheable\caches-jvm\lookups\counters.tab -> C:\Users\Ricky\AppData\Local\Temp\kotlin-backups741799332530841914\191.backup
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:85)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsFileCopy.move(WindowsFileCopy.java:414)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.move(WindowsFileSystemProvider.java:291)
+	at java.base/java.nio.file.Files.move(Files.java:1431)
+	at org.jetbrains.kotlin.incremental.RecoverableCompilationTransaction.stashFile(CompilationTransaction.kt:210)
+	at org.jetbrains.kotlin.incremental.RecoverableCompilationTransaction.registerAddedOrChangedFile(CompilationTransaction.kt:181)
+	at org.jetbrains.kotlin.incremental.CompilationTransactionKt.write(CompilationTransaction.kt:55)
+	at org.jetbrains.kotlin.incremental.CompilationTransactionKt.writeBytes(CompilationTransaction.kt:64)
+	at org.jetbrains.kotlin.incremental.CompilationTransactionKt.writeText(CompilationTransaction.kt:60)
+	at org.jetbrains.kotlin.incremental.LookupStorage.close(LookupStorage.kt:151)
+	at org.jetbrains.kotlin.com.google.common.io.Closer.close(Closer.java:205)
+	at org.jetbrains.kotlin.incremental.IncrementalCachesManager.close(IncrementalCachesManager.kt:55)
+	at org.jetbrains.kotlin.incremental.BaseCompilationTransaction.closeCachesManager(CompilationTransaction.kt:123)
+	... 21 more
+
+

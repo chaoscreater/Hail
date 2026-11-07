@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,9 +9,10 @@ plugins {
 
 android {
     val signingProps = file("../signing.properties")
-    // Git info is optional - gracefully fallback if not in a git repo
-    val commitHash = "local"
-    val commitSubject = ""
+    // Edit this by hand for a new release; the date is added to the version shown in the app on every build.
+    // The APK file name only uses this part, so it stays the same between builds.
+    val versionBase = "1.10.0"
+    val buildDateTime = LocalDateTime.now()
 
     namespace = "com.aistra.hail"
     compileSdk = 36
@@ -17,20 +21,19 @@ android {
         applicationId = "com.aistra.hail"
         minSdk = 23
         targetSdk = 36
-        versionCode = 34
-        versionName = "1.10.0"
+        // yyMMddHH, e.g. 26110715 (must rise with every build; stays under Android's 2.1 billion limit)
+        versionCode = buildDateTime.format(DateTimeFormatter.ofPattern("yyMMddHH")).toInt()
+        versionName = "$versionBase.${buildDateTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"))}"
         buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
     }
 
     buildTypes {
         debug {
             // applicationIdSuffix removed so debug builds use com.aistra.hail
-            versionNameSuffix = "-g$commitHash"
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            if (!commitSubject.startsWith("[release]")) versionNameSuffix = "-g$commitHash"
             signingConfig = if (signingProps.exists()) {
                 val props = `java.util`.Properties().apply { load(signingProps.reader()) }
                 signingConfigs.create("release") {
@@ -48,7 +51,7 @@ android {
     applicationVariants.configureEach {
         outputs.configureEach {
             (this as? com.android.build.gradle.internal.api.ApkVariantOutputImpl)?.outputFileName =
-                "Hail-v$versionName.apk"
+                "Hail-v$versionBase.apk"
         }
     }
     compileOptions {

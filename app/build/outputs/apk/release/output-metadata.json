@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 34,
-      "versionName": "1.10.0-glocal",
-      "outputFile": "Hail-v1.10.0-glocal.apk"
+      "versionCode": 26110804,
+      "versionName": "1.10.0.2026.11.08",
+      "outputFile": "Hail-v1.10.0.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/Hail-v1.10.0-glocal.dm"
+        "baselineProfiles/1/Hail-v1.10.0.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/Hail-v1.10.0-glocal.dm"
+        "baselineProfiles/0/Hail-v1.10.0.dm"
       ]
     }
   ],
