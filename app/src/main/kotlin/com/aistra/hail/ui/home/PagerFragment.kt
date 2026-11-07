@@ -71,7 +71,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             jumpToTab(HailData.tags.indexOfFirst { it.second in info.tagIdList })
         })
     }
-    private val descriptionDialogs by lazy { AppDescriptionDialogs(this) }
+    private val descriptionDialogs by lazy { AppDescriptionDialogs(this) { updateCurrentList() } }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -755,6 +755,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
 
             R.id.action_copy_ai_prompt -> descriptionDialogs.showPromptDialog()
             R.id.action_import_descriptions -> descriptionDialogs.showImportDialog()
+            R.id.action_clear_descriptions -> descriptionDialogs.showClearDialog()
 
             R.id.sort_by_name_asc -> changeSort(HailData.SORT_NAME_ASC, item)
             R.id.sort_by_name_desc -> changeSort(HailData.SORT_NAME_DESC, item)

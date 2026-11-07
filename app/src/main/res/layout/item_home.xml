@@ -9,12 +9,32 @@
               android:orientation="vertical"
               tools:viewBindingIgnore="true">
 
-    <ImageView
-            android:id="@+id/app_icon"
+    <FrameLayout
             android:layout_width="@dimen/app_icon_size"
-            android:layout_height="@dimen/app_icon_size"
-            android:contentDescription="@null"
-            android:padding="@dimen/padding_small"/>
+            android:layout_height="@dimen/app_icon_size">
+
+        <ImageView
+                android:id="@+id/app_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:padding="@dimen/padding_small"/>
+
+        <TextView
+                android:id="@+id/description_badge"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/bg_description_badge"
+                android:contentDescription="@string/description_badge"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/description_badge_letter"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+    </FrameLayout>
 
     <com.google.android.material.textview.MaterialTextView
             android:id="@+id/app_name"

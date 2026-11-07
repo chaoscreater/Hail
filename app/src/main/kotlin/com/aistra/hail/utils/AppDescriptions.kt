@@ -31,27 +31,38 @@ object AppDescriptions {
     )
 
     /**
-     * Reads `package.name | description` lines from [text], tolerating the bullets, backticks and
-     * markdown table pipes AI chats like to add. Lines the AI marked UNKNOWN are dropped. Only the
-     * first line for each package is kept.
+     * Reads `package.name | description` lines from [text]. AI chats often echo the app list's
+     * `name | package.name | ...` layout instead, so the package name may be the first or second
+     * column, and the description is always the last column. Bullets, backticks and markdown table
+     * pipes are tolerated. Lines the AI marked UNKNOWN are dropped. Only the first line for each
+     * package is kept.
      */
     fun parse(text: String): List<Pair<String, String>> = text.lineSequence().mapNotNull { raw ->
         val line = raw.trim().trim('|').trim().removePrefix("- ").removePrefix("* ").removePrefix("• ")
-        val separator = line.indexOf('|')
-        if (separator <= 0) return@mapNotNull null
-        val packageName = line.substring(0, separator).trim().trim('`', '*')
-        val description = line.substring(separator + 1).trim().trim('|').trim().trim('`')
-            .replace(WHITESPACE_REGEX, " ").take(MAX_LENGTH)
-        if (!PACKAGE_REGEX.matches(packageName)) return@mapNotNull null
+        val columns = line.split('|').map { it.trim() }
+        if (columns.size < 2) return@mapNotNull null
+        val packageIndex = if (columns.size >= 3 && isPackageName(columns[1])) 1 else 0
+        if (!isPackageName(columns[packageIndex])) return@mapNotNull null
+        val packageName = columns[packageIndex].trim('`', '*')
+        val description = columns.last().trim('`').replace(WHITESPACE_REGEX, " ").take(MAX_LENGTH)
         if (description.isEmpty() || description.trim('.', ' ').equals("UNKNOWN", ignoreCase = true)) {
             return@mapNotNull null
         }
         packageName to description
     }.distinctBy { it.first }.toList()
 
-    /** Parsed entries that belong to an app in Hail that still has no description. */
-    fun importable(parsed: List<Pair<String, String>>): List<Pair<AppInfo, String>> = parsed.mapNotNull { (pkg, desc) ->
-        HailData.checkedList.find { it.packageName == pkg }?.takeIf { it.description.isBlank() }?.let { it to desc }
+    private fun isPackageName(column: String) = PACKAGE_REGEX.matches(column.trim('`', '*'))
+
+    /**
+     * Parsed entries that belong to an app in Hail and would change its description: only apps
+     * with no description yet, or also those with one when [replaceExisting].
+     */
+    fun importable(
+        parsed: List<Pair<String, String>>, replaceExisting: Boolean = false
+    ): List<Pair<AppInfo, String>> = parsed.mapNotNull { (pkg, desc) ->
+        HailData.checkedList.find { it.packageName == pkg }
+            ?.takeIf { (replaceExisting || it.description.isBlank()) && it.description != desc }
+            ?.let { it to desc }
     }
 
     @Suppress("DEPRECATION")

@@ -11,6 +11,7 @@ import com.aistra.hail.R
 import com.aistra.hail.app.AppInfo
 import com.aistra.hail.app.HailData
 import com.aistra.hail.databinding.DialogDescriptionBinding
+import com.aistra.hail.databinding.DialogDescriptionImportBinding
 import com.aistra.hail.databinding.ItemDescriptionImportBinding
 import com.aistra.hail.utils.AppDescriptions
 import com.aistra.hail.utils.HUI
@@ -20,7 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * Dialogs for per-app descriptions: viewing/editing one app's description from the long-press menu,
  * and the copy-AI-prompt / import-reply flow from the Home menu.
  */
-class AppDescriptionDialogs(private val fragment: Fragment) {
+class AppDescriptionDialogs(private val fragment: Fragment, private val onChanged: () -> Unit) {
     private val activity get() = fragment.requireActivity()
 
     fun show(info: AppInfo) {
@@ -39,6 +40,7 @@ class AppDescriptionDialogs(private val fragment: Fragment) {
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 info.description = binding.editText.text.toString().trim()
                 HailData.saveApps()
+                onChanged()
                 show(info)
             }.setNegativeButton(android.R.string.cancel, null).show()
     }
@@ -69,14 +71,32 @@ class AppDescriptionDialogs(private val fragment: Fragment) {
         HUI.showToast(R.string.description_prompt_copied, apps.size.toString())
     }
 
+    /** Asks before removing every app's description. */
+    fun showClearDialog() {
+        val count = HailData.checkedList.count { it.description.isNotBlank() }
+        if (count == 0) {
+            HUI.showToast(R.string.description_clear_none)
+            return
+        }
+        MaterialAlertDialogBuilder(activity).setTitle(R.string.action_clear_descriptions)
+            .setMessage(activity.getString(R.string.description_clear_message, count))
+            .setPositiveButton(R.string.description_clear_confirm) { _, _ ->
+                HailData.checkedList.forEach { it.description = "" }
+                HailData.saveApps()
+                onChanged()
+                HUI.showToast(R.string.description_cleared, count.toString())
+            }.setNegativeButton(android.R.string.cancel, null).show()
+    }
+
     /** Step 1 of importing: paste the AI's reply. */
     fun showImportDialog() {
-        val binding = DialogDescriptionBinding.inflate(fragment.layoutInflater)
+        val binding = DialogDescriptionImportBinding.inflate(fragment.layoutInflater)
         binding.inputLayout.setHint(R.string.description_paste_hint)
-        binding.editText.minLines = 6
         val dialog = MaterialAlertDialogBuilder(activity).setTitle(R.string.action_import_descriptions)
             .setView(binding.root)
-            .setPositiveButton(R.string.action_next) { _, _ -> showReviewDialog(binding.editText.text.toString()) }
+            .setPositiveButton(R.string.action_next) { _, _ ->
+                showReviewDialog(binding.editText.text.toString(), binding.replaceExisting.isChecked)
+            }
             .setNeutralButton(R.string.action_paste, null)
             .setNegativeButton(android.R.string.cancel, null).show()
         // Set after show() so Paste fills the box instead of closing the dialog
@@ -86,8 +106,8 @@ class AppDescriptionDialogs(private val fragment: Fragment) {
     }
 
     /** Step 2 of importing: a scrolling list of new descriptions, all ticked, to confirm. */
-    private fun showReviewDialog(text: String) {
-        val entries = AppDescriptions.importable(AppDescriptions.parse(text))
+    private fun showReviewDialog(text: String, replaceExisting: Boolean) {
+        val entries = AppDescriptions.importable(AppDescriptions.parse(text), replaceExisting)
         if (entries.isEmpty()) {
             HUI.showToast(R.string.description_import_none, true)
             return
@@ -109,7 +129,10 @@ class AppDescriptionDialogs(private val fragment: Fragment) {
                         count++
                     }
                 }
-                if (count > 0) HailData.saveApps()
+                if (count > 0) {
+                    HailData.saveApps()
+                    onChanged()
+                }
                 HUI.showToast(R.string.msg_imported, count.toString())
             }
             .setNeutralButton(R.string.action_toggle_all, null)

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -49,6 +50,7 @@ class PagerAdapter(
                     colorFilter = null
                 }
             }
+            findViewById<View>(R.id.description_badge).isVisible = info.description.isNotBlank()
             findViewById<TextView>(R.id.app_name).run {
                 text = buildString {
                     if (!HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN) append("\u2744\uFE0F")
@@ -97,6 +99,6 @@ class PagerAdapter(
 }
 
 private fun AppInfo.getFlag(selectedList: List<AppInfo>) =
-    (1 shl state.ordinal) or (this in selectedList).shl(3) or whitelisted.shl(4)
+    (1 shl state.ordinal) or (this in selectedList).shl(3) or whitelisted.shl(4) or description.isNotBlank().shl(5)
 
 private fun Boolean.shl(bitCount: Int) = if (this) 1 shl bitCount else 0

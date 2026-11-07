@@ -117,6 +117,10 @@
                         android:id="@+id/action_import_descriptions"
                         android:title="@string/action_import_descriptions"
                         app:showAsAction="never"/>
+                <item
+                        android:id="@+id/action_clear_descriptions"
+                        android:title="@string/action_clear_descriptions"
+                        app:showAsAction="never"/>
             </group>
         </menu>
     </item>

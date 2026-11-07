@@ -54,6 +54,13 @@
     <string name="action_app_descriptions">App descriptions</string>
     <string name="action_copy_ai_prompt">Copy AI prompt</string>
     <string name="action_import_descriptions">Import descriptions</string>
+    <string name="action_clear_descriptions">Clear all descriptions</string>
+    <string name="description_clear_message">This removes the description from %1$d apps, including hidden ones. It can\'t be undone.</string>
+    <string name="description_clear_none">No app has a description</string>
+    <string name="description_clear_confirm">Clear</string>
+    <string name="description_cleared">Cleared: %1$s</string>
+    <string name="description_badge">Has a description</string>
+    <string name="description_badge_letter" translatable="false">i</string>
     <string name="description_empty">No description yet.</string>
     <string name="description_hint">What does this app do?</string>
     <string name="description_prompt_message">Apps without a description that will be included: %1$d.\n\nPaste the copied prompt into an AI chat (e.g. Claude), then use Import descriptions with its reply.</string>
@@ -63,7 +70,8 @@
     <string name="description_prompt_none">Every app already has a description</string>
     <string name="description_prompt_copied">Prompt copied. Apps included: %1$s</string>
     <string name="description_paste_hint">Paste the AI\'s reply here</string>
-    <string name="description_import_none">No new descriptions found. Only apps in Hail without a description are imported.</string>
+    <string name="description_import_replace">Replace existing descriptions</string>
+    <string name="description_import_none">No new descriptions found. Apps that already have a description are skipped unless you tick Replace existing descriptions.</string>
     <string name="description_import_title">Import %1$d descriptions</string>
     <string name="description_source_play">Google Play</string>
     <string name="description_source_fdroid">F-Droid</string>
@@ -71,7 +79,7 @@
     <string name="description_source_apk">APK file (e.g. from GitHub or a website)</string>
     <string name="description_source_system">pre-installed system app</string>
     <string name="description_source_unknown">unknown</string>
-    <string name="description_ai_prompt">I use an Android app called Hail to organise my apps. Below is a list of apps I have installed. For each app, write a short plain-English description of what it does (one sentence, under 100 characters).\n\nRules:\n- Identify each app from its name, package name and install source. If you can search the web, look up apps you do not recognise.\n- If you are not confident what an app does, write UNKNOWN as the description. Do not guess.\n- Reply with one line per app in exactly this format, and nothing else (no introduction, no code block):\npackage.name | description\n\nApps (name | package name | install source):\n%1$s</string>
+    <string name="description_ai_prompt">I use an Android app called Hail to organise my apps. Below is a list of apps I have installed. For each app, write a short plain-English description of what it does (one sentence, under 100 characters).\n\nRules:\n- Identify each app from its name, package name and install source. If you can search the web, look up apps you do not recognise.\n- If you are not confident what an app does, write UNKNOWN as the description. Do not guess.\n- Reply with one line per app in exactly this format, and nothing else (no introduction, no code block, no table). Give only the package name and the description, separated by a vertical bar. Do not repeat the app name or the install source:\npackage.name | description\n\nExample line:\ncom.example.musicplayer | Plays music stored on your phone.\n\nApps (name | package name | install source):\n%1$s</string>
     <string name="action_remove_home">Remove from Home</string>
     <string name="action_unfreeze_remove_home">Unfreeze and Remove from Home</string>
     <string name="action_deselect">Deselect</string>

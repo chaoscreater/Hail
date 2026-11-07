@@ -71,7 +71,7 @@ class AppContextActions(
 ) {
     private val activity: MainActivity get() = fragment.requireActivity() as MainActivity
     private val layoutInflater: LayoutInflater get() = fragment.layoutInflater
-    private val descriptionDialogs = AppDescriptionDialogs(fragment)
+    private val descriptionDialogs = AppDescriptionDialogs(fragment, onListChanged)
 
     fun onItemClick(info: AppInfo) {
         if (info.applicationInfo == null) {
