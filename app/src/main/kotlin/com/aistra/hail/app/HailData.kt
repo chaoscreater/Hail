@@ -159,6 +159,7 @@ object HailData {
     const val SKIP_NOTIFYING_APP = "skip_notifying_app"
     const val EXCLUDE_FOREGROUND_APP = "exclude_foreground_app"
     const val SHOW_UNINSTALLED = "show_uninstalled"
+    const val SHOW_DESCRIPTION_BADGE = "show_description_badge"
     const val SHORTCUT_LAUNCH_PROMPT = "shortcut_launch_prompt"
     const val MAXIMIZE_APPS_IN_DEX = "maximize_apps_in_dex"
     private const val DEX_MODE_EXTERNAL = "dex_mode_external"
@@ -218,6 +219,9 @@ object HailData {
     var showUninstalled
         get() = sp.getBoolean(SHOW_UNINSTALLED, true)
         set(value) = sp.edit { putBoolean(SHOW_UNINSTALLED, value) }
+    var showDescriptionBadge
+        get() = sp.getBoolean(SHOW_DESCRIPTION_BADGE, true)
+        set(value) = sp.edit { putBoolean(SHOW_DESCRIPTION_BADGE, value) }
     val shortcutLaunchPrompt get() = sp.getBoolean(SHORTCUT_LAUNCH_PROMPT, false)
     val maximizeAppsInDex get() = sp.getBoolean(MAXIMIZE_APPS_IN_DEX, true)
 

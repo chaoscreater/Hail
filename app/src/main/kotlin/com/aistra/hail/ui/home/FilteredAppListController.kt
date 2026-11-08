@@ -217,6 +217,7 @@ class FilteredAppListController(
         menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
         menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
         menu.findItem(R.id.action_show_uninstalled)?.isChecked = HailData.showUninstalled
+        menu.findItem(R.id.action_show_description_badge)?.isChecked = HailData.showDescriptionBadge
         menu.findItem(
             when (HailData.sortByScreen(sortPrefKey)) {
                 HailData.SORT_NAME_DESC -> R.id.sort_by_name_desc
@@ -269,6 +270,12 @@ class FilteredAppListController(
 
             R.id.action_show_uninstalled -> {
                 HailData.showUninstalled = !HailData.showUninstalled
+                activity.invalidateOptionsMenu()
+                updateList()
+            }
+
+            R.id.action_show_description_badge -> {
+                HailData.showDescriptionBadge = !HailData.showDescriptionBadge
                 activity.invalidateOptionsMenu()
                 updateList()
             }

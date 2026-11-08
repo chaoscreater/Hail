@@ -54,7 +54,7 @@ class PagerAdapter(
                 }
             }
             findViewById<View>(R.id.description_badge).run {
-                isVisible = info.description.isNotBlank()
+                isVisible = info.hasVisibleBadge()
                 // Greyed together with the app icon, so a frozen app's badge doesn't stay coloured
                 background.mutate().colorFilter =
                     if (HailData.grayscaleIcon && info.state == AppInfo.State.FROZEN) grayscaleFilter else null
@@ -107,6 +107,8 @@ class PagerAdapter(
 }
 
 private fun AppInfo.getFlag(selectedList: List<AppInfo>) =
-    (1 shl state.ordinal) or (this in selectedList).shl(3) or whitelisted.shl(4) or description.isNotBlank().shl(5)
+    (1 shl state.ordinal) or (this in selectedList).shl(3) or whitelisted.shl(4) or hasVisibleBadge().shl(5)
+
+private fun AppInfo.hasVisibleBadge() = HailData.showDescriptionBadge && description.isNotBlank()
 
 private fun Boolean.shl(bitCount: Int) = if (this) 1 shl bitCount else 0

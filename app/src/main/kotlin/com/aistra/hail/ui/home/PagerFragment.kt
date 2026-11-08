@@ -753,6 +753,14 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
             R.id.action_export_current -> actions.exportToClipboard(pagerAdapter.currentList)
             R.id.action_export_all -> actions.exportToClipboard(HailData.checkedList)
 
+            R.id.action_show_description_badge -> {
+                HailData.showDescriptionBadge = !HailData.showDescriptionBadge
+                activity.invalidateOptionsMenu()
+                (parentFragment as HomeFragment).childFragmentManager.fragments
+                    .filterIsInstance<PagerFragment>()
+                    .forEach { it.updateCurrentList() }
+            }
+
             R.id.action_copy_ai_prompt -> descriptionDialogs.showPromptDialog()
             R.id.action_import_descriptions -> descriptionDialogs.showImportDialog()
             R.id.action_clear_descriptions -> descriptionDialogs.showClearDialog()
@@ -781,6 +789,7 @@ class PagerFragment : MainFragment(), PagerAdapter.OnItemClickListener, PagerAda
         menu.findItem(R.id.action_filter_user_apps)?.isChecked = appTypeFilter == APP_TYPE_USER
         menu.findItem(R.id.action_filter_system_apps)?.isChecked = appTypeFilter == APP_TYPE_SYSTEM
         menu.findItem(R.id.action_show_uninstalled)?.isChecked = HailData.showUninstalled
+        menu.findItem(R.id.action_show_description_badge)?.isChecked = HailData.showDescriptionBadge
         menu.findItem(
             when (HailData.sortByScreen(HailData.SORT_SCREEN_HOME)) {
                 HailData.SORT_NAME_DESC -> R.id.sort_by_name_desc

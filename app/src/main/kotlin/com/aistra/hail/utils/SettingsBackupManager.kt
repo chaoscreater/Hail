@@ -94,6 +94,7 @@ object SettingsBackupManager {
             HailData.SKIP_NOTIFYING_APP,
             HailData.EXCLUDE_FOREGROUND_APP,
             HailData.SHOW_UNINSTALLED,
+            HailData.SHOW_DESCRIPTION_BADGE,
             HailData.DYNAMIC_SHORTCUT_ACTION,
             HailData.MAXIMIZE_APPS_IN_DEX,
             HailData.FILTER_USER_APPS,
